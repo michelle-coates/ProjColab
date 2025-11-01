@@ -1,0 +1,33 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Git: Quick Sync",
+      "type": "shell",
+      "command": "git add . && git commit -m \"Quick sync: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')\" && git push",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "Git: Sync with Custom Message",
+      "type": "shell",
+      "command": "git add . && git commit -m \"${input:commitMessage}\" && git push",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    }
+  ],
+  "inputs": [
+    {
+      "id": "commitMessage",
+      "description": "Commit message",
+      "type": "promptString",
+      "default": "Update files"
+    }
+  ]
+}
