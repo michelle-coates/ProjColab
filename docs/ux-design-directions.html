@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frank Design Direction Showcase</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #F6F7F8;
+            color: #1D1F21;
+            line-height: 1.6;
+        }
+
+        .showcase-header {
+            background: white;
+            padding: 2rem;
+            border-bottom: 1px solid #E4E7E9;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .showcase-header h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #1D1F21;
+        }
+
+        .showcase-header p {
+            color: #6B7280;
+            margin-bottom: 1rem;
+        }
+
+        .navigation {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            padding: 0.5rem 1rem;
+            background: #F6F7F8;
+            border: 1px solid #E4E7E9;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background: #76A99A;
+            color: white;
+            border-color: #76A99A;
+        }
+
+        .direction-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: none;
+        }
+
+        .direction-container.active {
+            display: block;
+        }
+
+        .direction-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .direction-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #1D1F21;
+            margin-bottom: 0.5rem;
+        }
+
+        .direction-subtitle {
+            color: #6B7280;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .direction-philosophy {
+            background: linear-gradient(135deg, #76A99A, #6A9B8E);
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            display: inline-block;
+        }
+
+        .mockup-frame {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .mockup-header {
+            background: #1D1F21;
+            color: white;
+            padding: 0.75rem 1rem;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .browser-dots {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .browser-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .dot-red { background: #ff5f56; }
+        .dot-yellow { background: #ffbd2e; }
+        .dot-green { background: #27ca3f; }
+
+        .mockup-content {
+            height: 600px;
+            overflow-y: auto;
+        }
+
+        /* Direction 1: Conversational Flow */
+        .chat-container {
+            padding: 2rem;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+        }
+
+        .message {
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .message.frank {
+            justify-content: flex-start;
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message-bubble {
+            max-width: 70%;
+            padding: 1rem;
+            border-radius: 12px;
+            background: white;
+            border: 1px solid #E4E7E9;
+        }
+
+        .message.frank .message-bubble {
+            background: linear-gradient(135deg, #76A99A, #6A9B8E);
+            color: white;
+            border: none;
+        }
+
+        .message.user .message-bubble {
+            background: #F6F7F8;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #76A99A;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 1rem;
+            border: 1px solid #E4E7E9;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .send-btn {
+            background: #76A99A;
+            color: white;
+            border: none;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        /* Direction 2: Split Panel */
+        .split-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            height: 100%;
+        }
+
+        .conversation-panel {
+            padding: 2rem;
+            border-right: 1px solid #E4E7E9;
+        }
+
+        .context-panel {
+            padding: 2rem;
+            background: #F6F7F8;
+        }
+
+        /* Direction 3: Guided Workflow */
+        .workflow-container {
+            padding: 2rem;
+        }
+
+        .workflow-steps {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .step-number {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #E4E7E9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .step.active .step-number {
+            background: #76A99A;
+            color: white;
+        }
+
+        .step.completed .step-number {
+            background: #00C48C;
+            color: white;
+        }
+
+        .step-connector {
+            width: 40px;
+            height: 2px;
+            background: #E4E7E9;
+        }
+
+        .workflow-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        /* Direction 4: Dashboard */
+        .dashboard-container {
+            padding: 2rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .dashboard-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border: 1px solid #E4E7E9;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-weight: 600;
+            color: #1D1F21;
+        }
+
+        .card-badge {
+            background: #76A99A;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        /* Direction 5: Comparison Interface */
+        .comparison-container {
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .vs-container {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 2rem;
+            align-items: center;
+            margin: 2rem 0;
+        }
+
+        .option-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border: 2px solid #E4E7E9;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-card:hover {
+            border-color: #76A99A;
+            transform: translateY(-2px);
+        }
+
+        .vs-divider {
+            background: #76A99A;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .split-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .vs-container {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .vs-divider {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+        }
+
+        .characteristics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+            background: #F6F7F8;
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+
+        .characteristic {
+            text-align: left;
+        }
+
+        .characteristic strong {
+            color: #1D1F21;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .thinking-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #6B7280;
+            font-style: italic;
+            margin: 1rem 0;
+        }
+
+        .thinking-dots {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .thinking-dot {
+            width: 4px;
+            height: 4px;
+            background: #76A99A;
+            border-radius: 50%;
+            animation: thinking 1.5s ease-in-out infinite;
+        }
+
+        .thinking-dot:nth-child(2) { animation-delay: 0.2s; }
+        .thinking-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes thinking {
+            0%, 60%, 100% { opacity: 0.3; }
+            30% { opacity: 1; }
+        }
+
+        .insight-spark {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background: #00C48C;
+            border-radius: 50%;
+            animation: sparkle 2s ease-in-out infinite;
+            margin-right: 0.5rem;
+        }
+
+        @keyframes sparkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+    </style>
+</head>
+<body>
+    <div class="showcase-header">
+        <h1>Frank Design Direction Showcase</h1>
+        <p>8 different design approaches exploring Frank's "calm clarity" aesthetic and AI conversation patterns</p>
+        
+        <div class="navigation">
+            <button class="nav-btn active" onclick="showDirection(1)">1. Pure Conversation</button>
+            <button class="nav-btn" onclick="showDirection(2)">2. Split Context</button>
+            <button class="nav-btn" onclick="showDirection(3)">3. Guided Workflow</button>
+            <button class="nav-btn" onclick="showDirection(4)">4. Dashboard Overview</button>
+            <button class="nav-btn" onclick="showDirection(5)">5. Pairwise Comparison</button>
+            <button class="nav-btn" onclick="showDirection(6)">6. Evidence Builder</button>
+            <button class="nav-btn" onclick="showDirection(7)">7. Minimal Focus</button>
+            <button class="nav-btn" onclick="showDirection(8)">8. Power User Dense</button>
+        </div>
+    </div>
+
+    <!-- Direction 1: Pure Conversation -->
+    <div id="direction-1" class="direction-container active">
+        <div class="direction-header">
+            <h2 class="direction-title">Pure Conversation Flow</h2>
+            <p class="direction-subtitle">Chat-first interface that feels like texting with a thoughtful colleague</p>
+            <div class="direction-philosophy">
+                <strong>Philosophy:</strong> Minimal, conversational, human-like • <strong>Best for:</strong> Users who prefer natural conversation over structured forms
+            </div>
+        </div>
+        
+        <div class="mockup-frame">
+            <div class="mockup-header">
+                <div class="browser-dots">
+                    <div class="browser-dot dot-red"></div>
+                    <div class="browser-dot dot-yellow"></div>
+                    <div class="browser-dot dot-green"></div>
+                </div>
+                frank.app/session/micro-improvements
+            </div>
+            <div class="mockup-content">
+                <div class="chat-container">
+                    <div class="chat-header">
+                        <h3>Prioritization Session</h3>
+                        <p style="color: #6B7280;">Let's figure out what to build next</p>
+                    </div>
+                    
+                    <div class="chat-messages">
+                        <div class="message frank">
+                            <div class="avatar">F</div>
+                            <div class="message-bubble">
+                                <span class="insight-spark"></span>
+                                Hi! I see you want to prioritize some micro-improvements. What's the first one you're considering?
+                            </div>
+                        </div>
+                        
+                        <div class="message user">
+                            <div class="message-bubble">
+                                Fix mobile navigation bug - users are complaining about it
+                            </div>
+                            <div class="avatar" style="background: #6B7280;">You</div>
+                        </div>
+                        
+                        <div class="message frank">
+                            <div class="avatar">F</div>
+                            <div class="message-bubble">
+                                Let's unpack that. How often do users mention mobile navigation in support tickets?
+                            </div>
+                        </div>
+                        
+                        <div class="message user">
+                            <div class="message-bubble">
+                                I'm not sure exactly... maybe 10-15 times this month?
+                            </div>
+                            <div class="avatar" style="background: #6B7280;">You</div>
+                        </div>
+                        
+                        <div class="message frank">
+                            <div class="avatar">F</div>
+                            <div class="message-bubble">
+                                That could work — if your goal is retention. What evidence shows this impacts user retention vs. just being annoying?
+                            </div>
+                        </div>
+                        
+                        <div class="thinking-indicator">
+                            <div class="thinking-dots">
+                                <div class="thinking-dot"></div>
+                                <div class="thinking-dot"></div>
+                                <div class="thinking-dot"></div>
+                            </div>
+                            Frank is thinking about your response...
+                        </div>
+                    </div>
+                    
+                    <div class="chat-input">
+                        <input type="text" placeholder="Mobile users are 40% of our base but 60% of churn...">
+                        <button class="send-btn">Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="characteristics">
+            <div class="characteristic">
+                <strong>Layout:</strong> Single-column conversation
+            </div>
+            <div class="characteristic">
+                <strong>Density:</strong> Spacious, breathing room
+            </div>
+            <div class="characteristic">
+                <strong>Navigation:</strong> Linear conversation flow
+            </div>
+            <div class="characteristic">
+                <strong>Primary Action:</strong> High prominence on chat input
+            </div>
+        </div>
+    </div>
+
+    <!-- Direction 2: Split Context -->
+    <div id="direction-2" class="direction-container">
+        <div class="direction-header">
+            <h2 class="direction-title">Split Context Panel</h2>
+            <p class="direction-subtitle">Conversation + visual context for power users who want to see everything</p>
+            <div class="direction-philosophy">
+                <strong>Philosophy:</strong> Information-rich, contextual, efficient • <strong>Best for:</strong> Power users who want to see conversation and evidence side-by-side
+            </div>
+        </div>
+        
+        <div class="mockup-frame">
+            <div class="mockup-header">
+                <div class="browser-dots">
+                    <div class="browser-dot dot-red"></div>
+                    <div class="browser-dot dot-yellow"></div>
+                    <div class="browser-dot dot-green"></div>
+                </div>
+                frank.app/session/mobile-nav-analysis
+            </div>
+            <div class="mockup-content">
+                <div class="split-container">
+                    <div class="conversation-panel">
+                        <h3>AI Conversation</h3>
+                        <div class="message frank">
+                            <div class="avatar">F</div>
+                            <div class="message-bubble">
+                                Based on the data you've shared, mobile navigation seems to have significant impact. Let's compare it to your other improvement.
+                            </div>
+                        </div>
+                        
+                        <div class="message frank">
+                            <div class="avatar">F</div>
+                            <div class="message-bubble">
+                                Which would make users smile more: fixing mobile nav or adding data export feature?
+                            </div>
+                        </div>
+                        
+                        <div class="chat-input">
+                            <input type="text" placeholder="Type your response...">
+                            <button class="send-btn">Send</button>
+                        </div>
+                    </div>
+                    
+                    <div class="context-panel">
+                        <h3>Evidence Gathered</h3>
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <span class="card-title">Mobile Navigation Bug</span>
+                                <span class="card-badge">High Impact</span>
+                            </div>
+                            <p><strong>Support mentions:</strong> 15x this month</p>
+                            <p><strong>User impact:</strong> 40% of base, 60% of churn</p>
+                            <p><strong>Effort:</strong> Small (2-3 days)</p>
+                        </div>
+                        
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <span class="card-title">Data Export Feature</span>
+                                <span class="card-badge">Unknown</span>
+                            </div>
+                            <p><strong>Requests:</strong> 3 enterprise clients</p>
+                            <p><strong>Revenue impact:</strong> Potential $50k ARR</p>
+                            <p><strong>Effort:</strong> Medium (1-2 weeks)</p>
+                        </div>
+                        
+                        <h4 style="margin-top: 1.5rem;">Strategic Alignment</h4>
+                        <p style="color: #6B7280;">Both improvements support your "Reduce Churn" goal but through different mechanisms.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="characteristics">
+            <div class="characteristic">
+                <strong>Layout:</strong> Split-panel with context
+            </div>
+            <div class="characteristic">
+                <strong>Density:</strong> Information-rich
+            </div>
+            <div class="characteristic">
+                <strong>Navigation:</strong> Contextual sidebar
+            </div>
+            <div class="characteristic">
+                <strong>Primary Action:</strong> Balanced conversation + data
+            </div>
+        </div>
+    </div>
+
+    <!-- Direction 3: Guided Workflow -->
+    <div id="direction-3" class="direction-container">
+        <div class="direction-header">
+            <h2 class="direction-title">Guided Workflow Steps</h2>
+            <p class="direction-subtitle">Structured progression through prioritization with clear milestones</p>
+            <div class="direction-philosophy">
+                <strong>Philosophy:</strong> Structured, guided, progressive • <strong>Best for:</strong> First-time users who want clear direction and milestone tracking
+            </div>
+        </div>
+        
+        <div class="mockup-frame">
+            <div class="mockup-header">
+                <div class="browser-dots">
+                    <div class="browser-dot dot-red"></div>
+                    <div class="browser-dot dot-yellow"></div>
+                    <div class="browser-dot dot-green"></div>
+                </div>
+                frank.app/workflow/prioritize-improvements
+            </div>
+            <div class="mockup-content">
+                <div class="workflow-container">
+                    <div class="workflow-steps">
+                        <div class="step completed">
+                            <div class="step-number">1</div>
+                            <span>Capture</span>
+                        </div>
+                        <div class="step-connector"></div>
+                        <div class="step completed">
+                            <div class="step-number">2</div>
+                            <span>Context</span>
+                        </div>
+                        <div class="step-connector"></div>
+                        <div class="step active">
+                            <div class="step-number">3</div>
+                            <span>Compare</span>
+                        </div>
+                        <div class="step-connector"></div>
+                        <div class="step">
+                            <div class="step-number">4</div>
+                            <span>Decide</span>
+                        </div>
+                    </div>
+                    
+                    <div class="workflow-content">
+                        <h3>Step 3: Compare Improvements</h3>
+                        <p style="color: #6B7280; margin-bottom: 2rem;">Let's compare your improvements pairwise to build a clear ranking.</p>
+                        
+                        <div class="vs-container">
+                            <div class="option-card">
+                                <h4>Mobile Navigation Fix</h4>
+                                <p>Affects 40% of user base</p>
+                                <p>15 support mentions/month</p>
+                                <p><strong>Effort:</strong> Small (2-3 days)</p>
+                            </div>
+                            
+                            <div class="vs-divider">VS</div>
+                            
+                            <div class="option-card">
+                                <h4>Data Export Feature</h4>
+                                <p>Requested by 3 enterprise clients</p>
+                                <p>Potential $50k ARR impact</p>
+                                <p><strong>Effort:</strong> Medium (1-2 weeks)</p>
+                            </div>
+                        </div>
+                        
+                        <div style="text-align: center; margin-top: 2rem;">
+                            <div class="message frank" style="display: inline-block;">
+                                <div class="message-bubble">
+                                    <span class="insight-spark"></span>
+                                    Which removes a bigger blocker to user success?
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="characteristics">
+            <div class="characteristic">
+                <strong>Layout:</strong> Step-by-step workflow
+            </div>
+            <div class="characteristic">
+                <strong>Density:</strong> Balanced structure
+            </div>
+            <div class="characteristic">
+                <strong>Navigation:</strong> Linear progression
+            </div>
+            <div class="characteristic">
+                <strong>Primary Action:</strong> Clear next-step prompts
+            </div>
+        </div>
+    </div>
+
+    <!-- Direction 4: Dashboard Overview -->
+    <div id="direction-4" class="direction-container">
+        <div class="direction-header">
+            <h2 class="direction-title">Dashboard Overview</h2>
+            <p class="direction-subtitle">Project-level view with session management and insights</p>
+            <div class="direction-philosophy">
+                <strong>Philosophy:</strong> Comprehensive, organized, oversight • <strong>Best for:</strong> Team leads and PMs managing multiple prioritization efforts
+            </div>
+        </div>
+        
+        <div class="mockup-frame">
+            <div class="mockup-header">
+                <div class="browser-dots">
+                    <div class="browser-dot dot-red"></div>
+                    <div class="browser-dot dot-yellow"></div>
+                    <div class="browser-dot dot-green"></div>
+                </div>
+                frank.app/dashboard
+            </div>
+            <div class="mockup-content">
+                <div class="dashboard-container">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <h2>Prioritization Dashboard</h2>
+                        <button class="send-btn">+ New Session</button>
+                    </div>
+                    
+                    <div class="dashboard-grid">
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <span class="card-title">Active Sessions</span>
+                                <span class="card-badge">3</span>
+                            </div>
+                            <p>Mobile App Improvements</p>
+                            <p>Backend Performance Fixes</p>
+                            <p>UX Enhancement Backlog</p>
+                            <button style="background: #76A99A; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; margin-top: 1rem;">Continue Session</button>
+                        </div>
+                        
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <span class="card-title">This Week's Insights</span>
+                            </div>
+                            <div style="border-left: 3px solid #76A99A; padding-left: 1rem; margin: 1rem 0;">
+                                <p><strong>Mobile navigation bug</strong> affects 60% of churn - higher impact than expected</p>
+                            </div>
+                            <div style="border-left: 3px solid #00C48C; padding-left: 1rem; margin: 1rem 0;">
+                                <p><strong>Data quality fixes</strong> could prevent 8 support tickets/week</p>
+                            </div>
+                        </div>
+                        
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <span class="card-title">Recent Decisions</span>
+                            </div>
+                            <p>✅ Mobile nav fix - <strong>High priority</strong></p>
+                            <p>⏳ A/B testing framework - <strong>Medium</strong></p>
+                            <p>❌ Advanced analytics - <strong>Deferred</strong></p>
+                            <p style="color: #6B7280; font-size: 0.9rem; margin-top: 1rem;">All decisions backed by evidence</p>
+                        </div>
+                        
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <span class="card-title">Strategic Themes</span>
+                            </div>
+                            <p><strong>Churn Reduction:</strong> 5 improvements identified</p>
+                            <p><strong>Data Quality:</strong> 8 micro-fixes available</p>
+                            <p><strong>Mobile Experience:</strong> 3 critical issues</p>
+                            <p style="color: #6B7280; font-size: 0.9rem; margin-top: 1rem;">Frank clustered 23 improvements into themes</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="characteristics">
+            <div class="characteristic">
+                <strong>Layout:</strong> Dashboard with card organization
+            </div>
+            <div class="characteristic">
+                <strong>Density:</strong> Information-dense overview
+            </div>
+            <div class="characteristic">
+                <strong>Navigation:</strong> Project-level organization
+            </div>
+            <div class="characteristic">
+                <strong>Primary Action:</strong> Session management focus
+            </div>
+        </div>
+    </div>
+
+    <!-- Direction 5: Pairwise Comparison -->
+    <div id="direction-5" class="direction-container">
+        <div class="direction-header">
+            <h2 class="direction-title">Pairwise Comparison Focus</h2>
+            <p class="direction-subtitle">Decision-making interface optimized for rapid comparison with Frank's guidance</p>
+            <div class="direction-philosophy">
+                <strong>Philosophy:</strong> Decision-focused, interactive, guided • <strong>Best for:</strong> Users who want to quickly build rankings through guided comparisons
+            </div>
+        </div>
+        
+        <div class="mockup-frame">
+            <div class="mockup-header">
+                <div class="browser-dots">
+                    <div class="browser-dot dot-red"></div>
+                    <div class="browser-dot dot-yellow"></div>
+                    <div class="browser-dot dot-green"></div>
+                </div>
+                frank.app/compare/mobile-improvements
+            </div>
+            <div class="mockup-content">
+                <div class="comparison-container">
+                    <h3>Comparison 3 of 8</h3>
+                    <p style="color: #6B7280; margin-bottom: 2rem;">Frank's intelligent clustering reduced 23 comparisons to 8 key decisions</p>
+                    
+                    <div class="vs-container">
+                        <div class="option-card">
+                            <h4>Fix Mobile Navigation Bug</h4>
+                            <div style="margin: 1rem 0;">
+                                <p><strong>Impact:</strong> 15 support mentions/month</p>
+                                <p><strong>Users:</strong> 40% of base, 60% of churn</p>
+                                <p><strong>Effort:</strong> Small (2-3 days)</p>
+                                <p><strong>Evidence:</strong> High confidence</p>
+                            </div>
+                            <button style="background: #76A99A; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 6px; width: 100%;">Choose This</button>
+                        </div>
+                        
+                        <div class="vs-divider">VS</div>
+                        
+                        <div class="option-card">
+                            <h4>Add Bulk Upload Feature</h4>
+                            <div style="margin: 1rem 0;">
+                                <p><strong>Impact:</strong> 5 user requests total</p>
+                                <p><strong>Users:</strong> Power users (~10% of base)</p>
+                                <p><strong>Effort:</strong> Medium (1 week)</p>
+                                <p><strong>Evidence:</strong> Low confidence</p>
+                            </div>
+                            <button style="background: white; color: #1D1F21; border: 1px solid #E4E7E9; padding: 0.75rem 1.5rem; border-radius: 6px; width: 100%;">Choose This</button>
+                        </div>
+                    </div>
+                    
+                    <div style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-top: 2rem;">
+                        <div class="message frank" style="display: inline-flex; align-items: center;">
+                            <div class="avatar" style="margin-right: 1rem;">F</div>
+                            <div class="message-bubble">
+                                <span class="insight-spark"></span>
+                                Which removes a bigger blocker to user success? Consider both the number of users affected and the severity of the friction.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2rem;">
+                        <button style="background: #F6F7F8; border: 1px solid #E4E7E9; padding: 0.5rem 1rem; border-radius: 6px;">← Previous</button>
+                        <span style="color: #6B7280;">Progress: 3/8 comparisons</span>
+                        <button style="background: #76A99A; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px;">Skip →</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="characteristics">
+            <div class="characteristic">
+                <strong>Layout:</strong> Comparison-optimized
+            </div>
+            <div class="characteristic">
+                <strong>Density:</strong> Decision-focused details
+            </div>
+            <div class="characteristic">
+                <strong>Navigation:</strong> Linear comparison flow
+            </div>
+            <div class="characteristic">
+                <strong>Primary Action:</strong> High prominence on choices
+            </div>
+        </div>
+    </div>
+
+    <!-- Add remaining directions (6-8) with similar structure but different approaches -->
+    <!-- Direction 6: Evidence Builder -->
+    <div id="direction-6" class="direction-container">
+        <div class="direction-header">
+            <h2 class="direction-title">Evidence Builder</h2>
+            <p class="direction-subtitle">Form-based approach with AI guidance for systematic evidence gathering</p>
+            <div class="direction-philosophy">
+                <strong>Philosophy:</strong> Systematic, thorough, structured • <strong>Best for:</strong> Users who prefer organized forms with AI assistance
+            </div>
+        </div>
+        
+        <div class="mockup-frame">
+            <div class="mockup-header">
+                <div class="browser-dots">
+                    <div class="browser-dot dot-red"></div>
+                    <div class="browser-dot dot-yellow"></div>
+                    <div class="browser-dot dot-green"></div>
+                </div>
+                frank.app/build-evidence/mobile-nav-bug
+            </div>
+            <div class="mockup-content">
+                <div style="padding: 2rem;">
+                    <h3>Building Evidence: Mobile Navigation Bug</h3>
+                    <p style="color: #6B7280; margin-bottom: 2rem;">Frank will guide you through gathering the right evidence for this improvement</p>
+                    
+                    <div class="split-container">
+                        <div style="padding-right: 1rem;">
+                            <div class="dashboard-card">
+                                <h4>Impact Evidence</h4>
+                                <div style="margin: 1rem 0;">
+                                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Support ticket mentions</label>
+                                    <input type="number" style="width: 100%; padding: 0.75rem; border: 1px solid #E4E7E9; border-radius: 6px;" value="15">
+                                    <p style="color: #6B7280; font-size: 0.9rem; margin-top: 0.25rem;">Per month in last 3 months</p>
+                                </div>
+                                <div style="margin: 1rem 0;">
+                                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">User segment affected</label>
+                                    <input type="text" style="width: 100%; padding: 0.75rem; border: 1px solid #E4E7E9; border-radius: 6px;" value="Mobile users (40% of base)">
+                                </div>
+                                <div style="margin: 1rem 0;">
+                                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Churn correlation</label>
+                                    <textarea style="width: 100%; padding: 0.75rem; border: 1px solid #E4E7E9; border-radius: 6px;" rows="3">Mobile users represent 60% of monthly churn despite being 40% of user base</textarea>
+                                </div>
+                            </div>
+                            
+                            <div class="dashboard-card">
+                                <h4>Effort Estimation</h4>
+                                <div style="margin: 1rem 0;">
+                                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Development time</label>
+                                    <select style="width: 100%; padding: 0.75rem; border: 1px solid #E4E7E9; border-radius: 6px;">
+                                        <option>Small (1-3 days)</option>
+                                        <option>Medium (1-2 weeks)</option>
+                                        <option>Large (2-4 weeks)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="padding-left: 1rem;">
+                            <div class="dashboard-card">
+                                <h4>Frank's Analysis</h4>
+                                <div class="message frank">
+                                    <div class="message-bubble">
+                                        <span class="insight-spark"></span>
+                                        Strong evidence here! The 60% churn correlation is particularly compelling. 
+                                    </div>
+                                </div>
+                                <div class="message frank">
+                                    <div class="message-bubble">
+                                        How confident are you in that churn data? What's the source?
+                                    </div>
+                                </div>
+                                
+                                <div style="margin-top: 1.5rem;">
+                                    <h5>Evidence Strength</h5>
+                                    <div style="background: #F6F7F8; padding: 1rem; border-radius: 6px; margin-top: 0.5rem;">
+                                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                            <span>Support data</span>
+                                            <span style="color: #00C48C; font-weight: 600;">High</span>
+                                        </div>
+                                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                            <span>User impact</span>
+                                            <span style="color: #00C48C; font-weight: 600;">High</span>
+                                        </div>
+                                        <div style="display: flex; justify-content: space-between;">
+                                            <span>Churn correlation</span>
+                                            <span style="color: #76A99A; font-weight: 600;">Medium</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="characteristics">
+            <div class="characteristic">
+                <strong>Layout:</strong> Form-based with AI sidebar
+            </div>
+            <div class="characteristic">
+                <strong>Density:</strong> Comprehensive data collection
+            </div>
+            <div class="characteristic">
+                <strong>Navigation:</strong> Structured evidence building
+            </div>
+            <div class="characteristic">
+                <strong>Primary Action:</strong> Evidence quality assessment
+            </div>
+        </div>
+    </div>
+
+    <!-- Direction 7: Minimal Focus -->
+    <div id="direction-7" class="direction-container">
+        <div class="direction-header">
+            <h2 class="direction-title">Minimal Focus Mode</h2>
+            <p class="direction-subtitle">Distraction-free interface for deep thinking with Frank</p>
+            <div class="direction-philosophy">
+                <strong>Philosophy:</strong> Minimal, focused, contemplative • <strong>Best for:</strong> Users who want zero distractions during important decisions
+            </div>
+        </div>
+        
+        <div class="mockup-frame">
+            <div class="mockup-header">
+                <div class="browser-dots">
+                    <div class="browser-dot dot-red"></div>
+                    <div class="browser-dot dot-yellow"></div>
+                    <div class="browser-dot dot-green"></div>
+                </div>
+                frank.app/focus
+            </div>
+            <div class="mockup-content">
+                <div style="padding: 4rem 2rem; text-align: center; min-height: 600px; display: flex; flex-direction: column; justify-content: center;">
+                    <div style="max-width: 600px; margin: 0 auto;">
+                        <h3 style="font-size: 1.5rem; margin-bottom: 3rem; color: #1D1F21;">What metric are you optimizing for?</h3>
+                        
+                        <div style="background: white; padding: 2rem; border-radius: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 3rem;">
+                            <textarea style="width: 100%; border: none; font-size: 1.1rem; color: #1D1F21; resize: none; min-height: 120px; outline: none;" placeholder="Type your thoughts...">Churn reduction - specifically for mobile users who represent 40% of our base but 60% of monthly churn...</textarea>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: center; gap: 1rem;">
+                            <button style="background: #76A99A; color: white; border: none; padding: 1rem 2rem; border-radius: 8px; font-size: 1rem;">Continue Thinking</button>
+                        </div>
+                        
+                        <p style="color: #6B7280; margin-top: 2rem; font-size: 0.9rem;">Frank will respond when you're ready</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="characteristics">
+            <div class="characteristic">
+                <strong>Layout:</strong> Centered, minimal
+            </div>
+            <div class="characteristic">
+                <strong>Density:</strong> Maximum breathing room
+            </div>
+            <div class="characteristic">
+                <strong>Navigation:</strong> Invisible until needed
+            </div>
+            <div class="characteristic">
+                <strong>Primary Action:</strong> Thinking space emphasis
+            </div>
+        </div>
+    </div>
+
+    <!-- Direction 8: Power User Dense -->
+    <div id="direction-8" class="direction-container">
+        <div class="direction-header">
+            <h2 class="direction-title">Power User Dense</h2>
+            <p class="direction-subtitle">Information-rich interface for experienced PMs who want efficiency</p>
+            <div class="direction-philosophy">
+                <strong>Philosophy:</strong> Efficient, comprehensive, data-rich • <strong>Best for:</strong> Experienced PMs who want all context visible and rapid workflow
+            </div>
+        </div>
+        
+        <div class="mockup-frame">
+            <div class="mockup-header">
+                <div class="browser-dots">
+                    <div class="browser-dot dot-red"></div>
+                    <div class="browser-dot dot-yellow"></div>
+                    <div class="browser-dot dot-green"></div>
+                </div>
+                frank.app/power-session
+            </div>
+            <div class="mockup-content">
+                <div style="display: grid; grid-template-columns: 300px 1fr 250px; height: 100%;">
+                    <div style="background: #F6F7F8; padding: 1rem; border-right: 1px solid #E4E7E9;">
+                        <h4>Improvements Queue</h4>
+                        <div style="font-size: 0.9rem;">
+                            <div style="padding: 0.5rem; background: white; margin: 0.5rem 0; border-radius: 4px; border-left: 3px solid #76A99A;">
+                                <strong>Mobile nav bug</strong><br>
+                                Impact: High | Effort: S
+                            </div>
+                            <div style="padding: 0.5rem; background: white; margin: 0.5rem 0; border-radius: 4px;">
+                                <strong>Data export</strong><br>
+                                Impact: ? | Effort: M
+                            </div>
+                            <div style="padding: 0.5rem; background: white; margin: 0.5rem 0; border-radius: 4px;">
+                                <strong>Bulk upload</strong><br>
+                                Impact: Low | Effort: M
+                            </div>
+                        </div>
+                        
+                        <h4 style="margin-top: 1.5rem;">Quick Actions</h4>
+                        <button style="width: 100%; background: #76A99A; color: white; border: none; padding: 0.5rem; border-radius: 4px; margin: 0.25rem 0;">Export CSV</button>
+                        <button style="width: 100%; background: white; border: 1px solid #E4E7E9; padding: 0.5rem; border-radius: 4px; margin: 0.25rem 0;">Save Session</button>
+                    </div>
+                    
+                    <div style="padding: 1rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <h3>Mobile Navigation Bug Analysis</h3>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <span style="background: #00C48C; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">High Impact</span>
+                                <span style="background: #76A99A; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">Quick Win</span>
+                            </div>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                            <div style="background: white; padding: 1rem; border-radius: 6px; border: 1px solid #E4E7E9;">
+                                <h5>Support Impact</h5>
+                                <p style="font-size: 2rem; color: #76A99A; font-weight: 600;">15</p>
+                                <p style="color: #6B7280; font-size: 0.9rem;">mentions/month</p>
+                            </div>
+                            <div style="background: white; padding: 1rem; border-radius: 6px; border: 1px solid #E4E7E9;">
+                                <h5>Churn Risk</h5>
+                                <p style="font-size: 2rem; color: #E74C3C; font-weight: 600;">60%</p>
+                                <p style="color: #6B7280; font-size: 0.9rem;">of churn from mobile</p>
+                            </div>
+                        </div>
+                        
+                        <div class="message frank" style="margin: 1rem 0;">
+                            <div class="avatar" style="margin-right: 1rem;">F</div>
+                            <div class="message-bubble">
+                                <span class="insight-spark"></span>
+                                Strong evidence pattern: high frequency + severe impact + low effort = clear priority. What's the implementation risk?
+                            </div>
+                        </div>
+                        
+                        <div style="background: #F6F7F8; padding: 1rem; border-radius: 6px;">
+                            <h5>Strategic Alignment</h5>
+                            <p>✅ Supports "Reduce Churn" OKR</p>
+                            <p>✅ Affects key user segment (mobile)</p>
+                            <p>✅ Quick ROI potential</p>
+                        </div>
+                    </div>
+                    
+                    <div style="background: #F6F7F8; padding: 1rem; border-left: 1px solid #E4E7E9; font-size: 0.9rem;">
+                        <h4>Session Stats</h4>
+                        <p>Items: 8</p>
+                        <p>Compared: 3/8</p>
+                        <p>Time: 12 min</p>
+                        
+                        <h4 style="margin-top: 1.5rem;">Evidence Quality</h4>
+                        <div style="margin: 0.5rem 0;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Support data</span>
+                                <span style="color: #00C48C;">✓</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>User impact</span>
+                                <span style="color: #00C48C;">✓</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Effort estimate</span>
+                                <span style="color: #76A99A;">~</span>
+                            </div>
+                        </div>
+                        
+                        <h4 style="margin-top: 1.5rem;">Next Steps</h4>
+                        <p style="color: #6B7280;">Continue pairwise comparison or jump to final ranking</p>
+                        
+                        <button style="width: 100%; background: #76A99A; color: white; border: none; padding: 0.75rem; border-radius: 4px; margin-top: 1rem;">Finish & Rank</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="characteristics">
+            <div class="characteristic">
+                <strong>Layout:</strong> Three-panel power interface
+            </div>
+            <div class="characteristic">
+                <strong>Density:</strong> Maximum information efficiency
+            </div>
+            <div class="characteristic">
+                <strong>Navigation:</strong> Persistent context panels
+            </div>
+            <div class="characteristic">
+                <strong>Primary Action:</strong> Rapid workflow progression
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showDirection(num) {
+            // Hide all directions
+            document.querySelectorAll('.direction-container').forEach(container => {
+                container.classList.remove('active');
+            });
+            
+            // Show selected direction
+            document.getElementById(`direction-${num}`).classList.add('active');
+            
+            // Update navigation
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        // Add some gentle sparkle to insights
+        setInterval(() => {
+            const sparks = document.querySelectorAll('.insight-spark');
+            sparks.forEach(spark => {
+                if (Math.random() > 0.7) {
+                    spark.style.background = '#00C48C';
+                    setTimeout(() => {
+                        spark.style.background = '#76A99A';
+                    }, 300);
+                }
+            });
+        }, 3000);
+    </script>
+</body>
+</html>

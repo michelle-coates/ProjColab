@@ -1,0 +1,373 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/1-1-user-account-creation-and-authentication" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>1.1</storyId>
+    <title>User Account Creation and Authentication</title>
+    <status>drafted</status>
+    <generatedAt>November 1, 2025</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/1-1-user-account-creation-and-authentication.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>product manager</asA>
+    <iWant>to create a Frank account with email/password authentication</iWant>
+    <soThat>I can securely access my prioritization sessions and data</soThat>
+    <tasks>
+      <task id="1" ac="1,3,4">Setup NextAuth.js Configuration</task>
+      <task id="2" ac="1,6">Database Schema for Authentication</task>
+      <task id="3" ac="1">Registration Flow Implementation</task>
+      <task id="4" ac="2">Email Verification Flow</task>
+      <task id="5" ac="3,4">Login Flow Implementation</task>
+      <task id="6" ac="4">Session Management</task>
+      <task id="7" ac="5">Password Reset Flow</task>
+      <task id="8" ac="6">Profile Editing</task>
+      <task id="9" ac="1-6">Error Handling and Security</task>
+      <task id="10" ac="1-6">Testing and Documentation</task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="1">
+      <title>User Registration</title>
+      <description>User can access registration form at /sign-up with email (validated format), password (min 8 chars, 1 uppercase, 1 number), name, and role (FREE/TEAM/ENTERPRISE dropdown). Password is hashed using bcrypt (salt rounds = 12) before storage. Validation errors display inline with helpful messages. Successful registration creates User record and sends verification email.</description>
+    </criterion>
+    <criterion id="2">
+      <title>Email Verification</title>
+      <description>Verification email sent immediately after registration with time-limited verification link (1-hour expiration). Clicking link activates account and redirects to login. Unverified accounts cannot login (blocked with message to check email). Expired verification links show error with option to resend.</description>
+    </criterion>
+    <criterion id="3">
+      <title>User Login</title>
+      <description>User can access login form at /sign-in. Form accepts email and password. Successful login creates JWT session token (7-day expiration). Session persists across browser tabs and windows. Failed login shows generic error message (no "user not found" vs "wrong password" distinction for security). Login redirects to dashboard (/dashboard).</description>
+    </criterion>
+    <criterion id="4">
+      <title>Session Management</title>
+      <description>Session tokens stored securely with HttpOnly cookies. Session data includes user ID, email, name, role. Authenticated routes redirect to login if session invalid. Session refresh handled automatically for active users. Logout clears session and redirects to home page.</description>
+    </criterion>
+    <criterion id="5">
+      <title>Password Reset</title>
+      <description>Forgot password link available on login page. Password reset form accepts email address. Reset email sent with time-limited token (1-hour expiration). Reset link directs to password change form. Password change form validates new password strength. Successful password change invalidates all existing sessions.</description>
+    </criterion>
+    <criterion id="6">
+      <title>Profile Editing</title>
+      <description>Authenticated users can access profile page at /profile. Users can edit name, role, and preferences. Email address cannot be changed (requires separate "change email" flow in future story). Changes save immediately with success confirmation. Profile changes persist across sessions.</description>
+    </criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>Acceptance Criteria (AC-001)</section>
+        <snippet>Defines all acceptance criteria for user authentication: registration, email verification, login/logout with 7-day sessions, password reset with time-limited tokens, and profile editing. Includes security requirements: bcrypt with salt rounds = 12, JWT sessions, HttpOnly cookies, CSRF protection.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>Data Models and Contracts</section>
+        <snippet>Complete Prisma schema for User model (id, email unique, name, role enum, timestamps), UserRole enum (FREE, TEAM, ENTERPRISE), and NextAuth required models (Account, Session, VerificationToken). Includes field types, constraints, and relationships.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>APIs and Interfaces - auth router</section>
+        <snippet>tRPC auth router specification with procedures: register (create user + send verification), resendVerification (new token), requestPasswordReset (generate reset token), resetPassword (validate token + hash new password + invalidate sessions), updateProfile (update user fields).</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Frank Architecture Document</title>
+        <section>Security Architecture - Authentication & Authorization</section>
+        <snippet>NextAuth.js configuration details: JWT session strategy (7-day expiration), Prisma adapter, email/password provider, session callbacks including user role. Password hashing with bcrypt (12 salt rounds), CSRF protection via Next.js, input validation with Zod schemas, rate limiting (100 req/min general, more restrictive for auth endpoints).</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Frank Architecture Document</title>
+        <section>Technology Stack Details - Core Framework: Next.js 15</section>
+        <snippet>Next.js 15 App Router provides file-based routing for auth flows (/sign-up, /sign-in, /verify-email, /forgot-password, /reset-password, /profile). Server Components optimize initial rendering. API routes handle webhooks. Authentication uses NextAuth.js v5 beta (5.0.0-beta.25).</snippet>
+      </doc>
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>Frank Product Requirements Document</title>
+        <section>Functional Requirements - FR018</section>
+        <snippet>System shall support individual user accounts with personal improvement lists and decision history. Users must have secure authentication to access personalized Frank features including AI conversations, prioritization sessions, and saved data.</snippet>
+      </doc>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Frank Epic Breakdown</title>
+        <section>Epic 1 - Story 1.1</section>
+        <snippet>User Account Creation and Authentication establishes foundational authentication infrastructure. Enables secure access to prioritization sessions and data. Acceptance criteria: email/password registration, email verification, login/logout, password reset, profile editing. Prerequisites: None (foundation story).</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>Frank UX Design Specification</title>
+        <section>Design System Foundation - shadcn/ui</section>
+        <snippet>Auth forms use shadcn/ui components: Dialog for modals, Input/Textarea for form fields, Button for CTAs, Card for layout containers. Follow Frank's "calm clarity" design: Soft Charcoal (#1D1F21) text on Warm White/Soft Gray (#F6F7F8) background, Muted Sage/Teal (#76A99A) accent for primary actions.</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>Frank UX Design Specification</title>
+        <section>Responsive Design - Auth Page Layout</section>
+        <snippet>Centered card design with max width 400px. Frank logo/name at top. Form fields with labels above inputs. Single-column layout with generous whitespace. Soft rounded corners (4-6px) on inputs and buttons. Inline validation with helpful error messages. Primary action button full-width at bottom. Secondary links (sign up, forgot password) below button.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <file>
+        <path>frank/src/server/auth/index.ts</path>
+        <kind>authentication-config</kind>
+        <symbol>auth, handlers, signIn, signOut</symbol>
+        <lines>1-11</lines>
+        <reason>Existing NextAuth.js entry point that imports authConfig. This file exports the main auth utilities but delegates configuration to auth/config.ts. Story needs to extend auth/config.ts with email provider and additional session callbacks.</reason>
+      </file>
+      <file>
+        <path>frank/prisma/schema.prisma</path>
+        <kind>database-schema</kind>
+        <symbol>User, Account, Session, VerificationToken</symbol>
+        <lines>1-73</lines>
+        <reason>Existing Prisma schema with basic T3 Stack NextAuth models. Has User (id, name, email, emailVerified, image) and NextAuth required models (Account, Session, VerificationToken). Story needs to add UserRole enum and role field to User model, remove Post model (not needed for Epic 1).</reason>
+      </file>
+      <file>
+        <path>frank/src/server/db.ts</path>
+        <kind>database-client</kind>
+        <symbol>db</symbol>
+        <lines>all</lines>
+        <reason>Prisma client singleton used throughout application. Auth router will import db for user operations (create, query, update). Already configured and exported from T3 Stack setup.</reason>
+      </file>
+      <file>
+        <path>frank/src/server/api/routers/post.ts</path>
+        <kind>example-router</kind>
+        <symbol>postRouter</symbol>
+        <lines>all</lines>
+        <reason>Example tRPC router from T3 Stack showing patterns for protected procedures, Zod validation, and database operations. Story should follow similar structure for new auth.ts router (protected vs public procedures, input validation, error handling).</reason>
+      </file>
+      <file>
+        <path>frank/src/app/layout.tsx</path>
+        <kind>root-layout</kind>
+        <symbol>RootLayout</symbol>
+        <lines>all</lines>
+        <reason>Root layout component that wraps all pages. Story needs to ensure TRPCReactProvider and theme configuration are available for auth pages. Check if SessionProvider or auth context is needed here.</reason>
+      </file>
+    </code>
+    <dependencies>
+      <node>
+        <package name="next-auth" version="5.0.0-beta.25">Authentication framework</package>
+        <package name="@auth/prisma-adapter" version="^2.7.2">NextAuth Prisma database adapter</package>
+        <package name="@prisma/client" version="^6.5.0">Database ORM client</package>
+        <package name="@t3-oss/env-nextjs" version="^0.12.0">Environment variable validation</package>
+        <package name="@trpc/server" version="^11.0.0">tRPC server for auth router</package>
+        <package name="@trpc/client" version="^11.0.0">tRPC client for API calls</package>
+        <package name="@trpc/react-query" version="^11.0.0">React Query integration</package>
+        <package name="next" version="^15.2.3">React framework with App Router</package>
+        <package name="react" version="^19.0.0">UI library</package>
+        <package name="zod" version="^3.24.2">Schema validation for inputs</package>
+        <package name="tailwindcss" version="^4.0.15">Styling framework</package>
+      </node>
+      <additionalNeeded>
+        <package name="bcrypt" version="^5.1.1">Password hashing (not in package.json - MUST INSTALL)</package>
+        <package name="@types/bcrypt" version="^5.0.2">TypeScript types for bcrypt (dev dependency)</package>
+        <package name="nodemailer" version="^6.9.7">Email sending for verification/reset (if not using NextAuth built-in)</package>
+        <package name="@types/nodemailer" version="^6.4.14">TypeScript types for nodemailer (dev dependency)</package>
+      </additionalNeeded>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>NextAuth.js v5 beta API - Use beta documentation, stable enough for production but API may have minor changes before v5 GA</constraint>
+    <constraint>All authentication routes must use (auth) route group in src/app/(auth)/ for consistent layout</constraint>
+    <constraint>Password hashing MUST use bcrypt with exactly 12 salt rounds (security requirement from Architecture)</constraint>
+    <constraint>Session duration fixed at 7 days - use JWT strategy, not database sessions (serverless-friendly)</constraint>
+    <constraint>All user inputs MUST be validated with Zod schemas before processing (security requirement)</constraint>
+    <constraint>Rate limiting: Auth endpoints more restrictive than general 100 req/min - registration (5/hour per IP), login (10/hour per IP), password reset (3/hour per email)</constraint>
+    <constraint>CSRF protection: Use Next.js built-in CSRF tokens (automatic with NextAuth)</constraint>
+    <constraint>Error messages: Generic errors for security (no "user not found" vs "wrong password" distinction)</constraint>
+    <constraint>Email verification required before first login - no "verify later" option in Epic 1</constraint>
+    <constraint>HttpOnly cookies MUST be used for session tokens (prevent XSS attacks)</constraint>
+    <constraint>All file paths must follow T3 Stack conventions: app router in src/app/, server code in src/server/, components in src/components/</constraint>
+    <constraint>Use Frank's "calm clarity" design system: Soft Charcoal (#1D1F21) text, Warm White/Soft Gray (#F6F7F8) background, Muted Sage/Teal (#76A99A) accent, Inter font, soft rounded corners (4-6px)</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>NextAuth authConfig</name>
+      <kind>NextAuth configuration object</kind>
+      <signature>
+{
+  adapter: PrismaAdapter(db),
+  session: { strategy: "jwt", maxAge: 7 * 24 * 60 * 60 }, // 7 days
+  providers: [
+    // Email/password provider configuration
+  ],
+  callbacks: {
+    jwt: ({ token, user }) => {
+      if (user) {
+        token.role = user.role;
+        token.id = user.id;
+      }
+      return token;
+    },
+    session: ({ session, token }) => ({
+      ...session,
+      user: {
+        ...session.user,
+        id: token.id,
+        role: token.role,
+      },
+    }),
+  },
+}
+      </signature>
+      <path>frank/src/server/auth/config.ts</path>
+    </interface>
+    <interface>
+      <name>authRouter tRPC procedures</name>
+      <kind>tRPC router</kind>
+      <signature>
+export const authRouter = createTRPCRouter({
+  register: publicProcedure
+    .input(z.object({
+      email: z.string().email(),
+      password: z.string().min(8).regex(/[A-Z]/).regex(/[0-9]/),
+      name: z.string().min(1),
+      role: z.enum(['FREE', 'TEAM', 'ENTERPRISE']),
+    }))
+    .mutation(async ({ input, ctx }) => { /* ... */ }),
+
+  resendVerification: publicProcedure
+    .input(z.object({ email: z.string().email() }))
+    .mutation(async ({ input, ctx }) => { /* ... */ }),
+
+  requestPasswordReset: publicProcedure
+    .input(z.object({ email: z.string().email() }))
+    .mutation(async ({ input, ctx }) => { /* ... */ }),
+
+  resetPassword: publicProcedure
+    .input(z.object({
+      token: z.string(),
+      newPassword: z.string().min(8).regex(/[A-Z]/).regex(/[0-9]/),
+    }))
+    .mutation(async ({ input, ctx }) => { /* ... */ }),
+
+  updateProfile: protectedProcedure
+    .input(z.object({
+      name: z.string().optional(),
+      role: z.enum(['FREE', 'TEAM', 'ENTERPRISE']).optional(),
+    }))
+    .mutation(async ({ input, ctx }) => { /* ... */ }),
+});
+      </signature>
+      <path>frank/src/server/api/routers/auth.ts (NEW)</path>
+    </interface>
+    <interface>
+      <name>User Prisma model with role</name>
+      <kind>Database model</kind>
+      <signature>
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  role          UserRole  @default(FREE)
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  accounts      Account[]
+  sessions      Session[]
+}
+
+enum UserRole {
+  FREE
+  TEAM
+  ENTERPRISE
+}
+      </signature>
+      <path>frank/prisma/schema.prisma (MODIFY EXISTING)</path>
+    </interface>
+    <interface>
+      <name>protectedProcedure middleware</name>
+      <kind>tRPC middleware</kind>
+      <signature>
+export const protectedProcedure = publicProcedure.use(async ({ ctx, next }) => {
+  if (!ctx.session?.user) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+  return next({
+    ctx: {
+      session: { ...ctx.session, user: ctx.session.user },
+    },
+  });
+});
+      </signature>
+      <path>frank/src/server/api/trpc.ts (MODIFY EXISTING)</path>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+      Testing follows T3 Stack conventions with Jest for unit/integration tests and Playwright for E2E tests. Unit tests mock Prisma client and external services. Integration tests use test database with real Prisma operations. E2E tests automate full user flows in real browser. Coverage target: 80% for authentication business logic (password hashing, token generation, session management), 60% for UI components. All tests run in CI pipeline via GitHub Actions.
+    </standards>
+    <locations>
+      <location>frank/src/server/api/routers/__tests__/auth.test.ts (NEW - unit tests)</location>
+      <location>frank/tests/integration/auth.test.ts (NEW - integration tests)</location>
+      <location>frank/tests/e2e/auth.spec.ts (NEW - Playwright E2E tests)</location>
+    </locations>
+    <ideas>
+      <testIdea ac="1">
+        <description>Unit test: Register with valid inputs creates User record with hashed password (bcrypt), sends verification email, returns success response</description>
+      </testIdea>
+      <testIdea ac="1">
+        <description>Unit test: Register with invalid email format returns validation error</description>
+      </testIdea>
+      <testIdea ac="1">
+        <description>Unit test: Register with weak password (no uppercase or number) returns validation error</description>
+      </testIdea>
+      <testIdea ac="1">
+        <description>Unit test: Register with duplicate email returns error (email uniqueness)</description>
+      </testIdea>
+      <testIdea ac="2">
+        <description>Integration test: Email verification flow - register → receive verification email → click link → account activated → can login</description>
+      </testIdea>
+      <testIdea ac="2">
+        <description>Integration test: Unverified user attempts login → blocked with message to check email</description>
+      </testIdea>
+      <testIdea ac="2">
+        <description>Integration test: Expired verification token shows error with resend option</description>
+      </testIdea>
+      <testIdea ac="3">
+        <description>Unit test: Login with valid credentials creates JWT session token with 7-day expiration</description>
+      </testIdea>
+      <testIdea ac="3">
+        <description>Unit test: Login with invalid password returns generic error (no "wrong password" message)</description>
+      </testIdea>
+      <testIdea ac="4">
+        <description>Integration test: Session persists across browser tabs (open /dashboard in new tab, still authenticated)</description>
+      </testIdea>
+      <testIdea ac="4">
+        <description>Integration test: Session expires after 7 days → user redirected to login with re-authentication prompt</description>
+      </testIdea>
+      <testIdea ac="4">
+        <description>Unit test: Logout clears session and invalidates token</description>
+      </testIdea>
+      <testIdea ac="5">
+        <description>Integration test: Password reset flow - request reset → receive email with token → submit new password → old password no longer works → all sessions invalidated</description>
+      </testIdea>
+      <testIdea ac="5">
+        <description>Unit test: Password reset token expires after 1 hour</description>
+      </testIdea>
+      <testIdea ac="6">
+        <description>Integration test: Profile edit - change name and role → save → changes persist after logout/login</description>
+      </testIdea>
+      <testIdea ac="6">
+        <description>E2E test: Complete registration flow through UI - fill form → submit → check email (mock) → verify → login → dashboard</description>
+      </testIdea>
+      <testIdea ac="1-6">
+        <description>E2E test: Login/logout flow - login → verify dashboard access → logout → verify redirect to home page → verify cannot access /dashboard without login</description>
+      </testIdea>
+      <testIdea ac="9">
+        <description>Integration test: Rate limiting - attempt 6 registrations from same IP within 1 hour → 6th attempt blocked</description>
+      </testIdea>
+      <testIdea ac="9">
+        <description>Unit test: Input sanitization - attempt XSS in name field → sanitized before storage</description>
+      </testIdea>
+    </ideas>
+  </tests>
+</story-context>

@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frank Color Theme Explorer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #F6F7F8;
+            color: #1D1F21;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #1D1F21;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: #6B7280;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .theme-showcase {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .theme-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #1D1F21;
+        }
+
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .color-swatch {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #E4E7E9;
+        }
+
+        .color-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .color-info h4 {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .color-info p {
+            font-size: 0.9rem;
+            color: #6B7280;
+        }
+
+        .component-examples {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .component-section {
+            background: #F6F7F8;
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+
+        .component-section h4 {
+            margin-bottom: 1rem;
+            font-weight: 500;
+            color: #1D1F21;
+        }
+
+        /* Frank-specific components */
+        .frank-button {
+            background: #76A99A;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .frank-button:hover {
+            background: #6A9B8E;
+            transform: translateY(-1px);
+        }
+
+        .frank-button-secondary {
+            background: white;
+            color: #1D1F21;
+            border: 1px solid #E4E7E9;
+        }
+
+        .frank-button-secondary:hover {
+            background: #F6F7F8;
+            border-color: #76A99A;
+        }
+
+        .conversation-bubble {
+            background: white;
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 0.5rem;
+            border-left: 3px solid #76A99A;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .conversation-bubble.user {
+            background: #F6F7F8;
+            border-left-color: #1D1F21;
+            margin-left: 2rem;
+        }
+
+        .evidence-card {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #E4E7E9;
+            margin-bottom: 0.5rem;
+        }
+
+        .evidence-confidence {
+            height: 6px;
+            background: #E4E7E9;
+            border-radius: 3px;
+            margin-top: 0.5rem;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #76A99A, #00C48C);
+            border-radius: 3px;
+            width: 75%;
+            transition: width 0.3s ease;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #E4E7E9;
+            border-radius: 6px;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #76A99A;
+            box-shadow: 0 0 0 3px rgba(118, 169, 154, 0.1);
+        }
+
+        .insight-spark {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background: #00C48C;
+            border-radius: 50%;
+            animation: sparkle 2s ease-in-out infinite;
+            margin-right: 0.5rem;
+        }
+
+        @keyframes sparkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        .thinking-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #6B7280;
+            font-style: italic;
+        }
+
+        .thinking-dots {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .thinking-dot {
+            width: 4px;
+            height: 4px;
+            background: #76A99A;
+            border-radius: 50%;
+            animation: thinking 1.5s ease-in-out infinite;
+        }
+
+        .thinking-dot:nth-child(2) { animation-delay: 0.2s; }
+        .thinking-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes thinking {
+            0%, 60%, 100% { opacity: 0.3; }
+            30% { opacity: 1; }
+        }
+
+        .personality-note {
+            background: linear-gradient(135deg, #76A99A, #6A9B8E);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-top: 2rem;
+        }
+
+        .personality-note h3 {
+            margin-bottom: 0.5rem;
+        }
+
+        .controls {
+            position: sticky;
+            top: 2rem;
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .toggle-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .toggle-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid #E4E7E9;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: #76A99A;
+            color: white;
+            border-color: #76A99A;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Frank Color Theme Explorer</h1>
+            <p>Exploring "calm clarity" through Frank's visual foundation - where 80% background neutral, 15% dark text, and 5% accent create space for thinking</p>
+        </div>
+
+        <div class="controls">
+            <h4>Theme Modes</h4>
+            <div class="toggle-group">
+                <button class="toggle-btn active" onclick="setMode('light')">Light Mode</button>
+                <button class="toggle-btn" onclick="setMode('dark')">Dark Mode (Future)</button>
+            </div>
+        </div>
+
+        <div class="theme-showcase">
+            <h2 class="theme-title">Frank Brand Palette - "Calm Clarity"</h2>
+            
+            <div class="color-palette">
+                <div class="color-swatch">
+                    <div class="color-circle" style="background: #1D1F21;"></div>
+                    <div class="color-info">
+                        <h4>Soft Charcoal</h4>
+                        <p>#1D1F21 - Serious thinking</p>
+                    </div>
+                </div>
+                
+                <div class="color-swatch">
+                    <div class="color-circle" style="background: #F6F7F8;"></div>
+                    <div class="color-info">
+                        <h4>Warm White</h4>
+                        <p>#F6F7F8 - Calm, open space</p>
+                    </div>
+                </div>
+                
+                <div class="color-swatch">
+                    <div class="color-circle" style="background: #E4E7E9;"></div>
+                    <div class="color-info">
+                        <h4>Card Gray</h4>
+                        <p>#E4E7E9 - Quiet structure</p>
+                    </div>
+                </div>
+                
+                <div class="color-swatch">
+                    <div class="color-circle" style="background: #76A99A;"></div>
+                    <div class="color-info">
+                        <h4>Muted Sage</h4>
+                        <p>#76A99A - Growth + clarity</p>
+                    </div>
+                </div>
+                
+                <div class="color-swatch">
+                    <div class="color-circle" style="background: #00C48C;"></div>
+                    <div class="color-info">
+                        <h4>Success Highlight</h4>
+                        <p>#00C48C - Key moments only</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="component-examples">
+                <div class="component-section">
+                    <h4>AI Conversation Interface</h4>
+                    <div class="conversation-bubble">
+                        <div class="thinking-indicator">
+                            <span class="insight-spark"></span>
+                            Frank: Let's unpack that assumption. What evidence shows mobile navigation impacts retention?
+                        </div>
+                    </div>
+                    <div class="conversation-bubble user">
+                        You: I noticed it in user feedback, but I haven't quantified it yet.
+                    </div>
+                    <div class="conversation-bubble">
+                        <div class="thinking-indicator">
+                            <div class="thinking-dots">
+                                <div class="thinking-dot"></div>
+                                <div class="thinking-dot"></div>
+                                <div class="thinking-dot"></div>
+                            </div>
+                            Frank is thinking...
+                        </div>
+                    </div>
+                </div>
+
+                <div class="component-section">
+                    <h4>Action Buttons</h4>
+                    <button class="frank-button">Start Prioritization</button>
+                    <button class="frank-button-secondary">Gather Evidence</button>
+                    <br>
+                    <button class="frank-button" style="background: #00C48C;">Complete Session</button>
+                </div>
+
+                <div class="component-section">
+                    <h4>Evidence Cards</h4>
+                    <div class="evidence-card">
+                        <strong>Mobile Navigation Issues</strong>
+                        <p>Mentioned 15x in support tickets this month</p>
+                        <div class="evidence-confidence">
+                            <div class="confidence-fill"></div>
+                        </div>
+                        <small style="color: #6B7280;">Confidence: 75% (verified data)</small>
+                    </div>
+                    <div class="evidence-card">
+                        <strong>User Retention Impact</strong>
+                        <p>Mobile users = 40% of base, 60% of churn</p>
+                        <div class="evidence-confidence">
+                            <div class="confidence-fill" style="width: 90%;"></div>
+                        </div>
+                        <small style="color: #6B7280;">Confidence: 90% (analytics data)</small>
+                    </div>
+                </div>
+
+                <div class="component-section">
+                    <h4>Form Inputs</h4>
+                    <input type="text" class="form-input" placeholder="Describe your improvement..." value="Fix mobile navigation bug">
+                    <input type="text" class="form-input" placeholder="How often is this mentioned?">
+                    <textarea class="form-input" rows="3" placeholder="What evidence supports this priority?"></textarea>
+                </div>
+            </div>
+
+            <div class="personality-note">
+                <h3>Brand Personality in Action</h3>
+                <p><strong>Intelligent but not smug:</strong> Clean typography and thoughtful spacing<br>
+                <strong>Candid and grounded:</strong> Clear visual hierarchy supports honest conversations<br>
+                <strong>Warm and collaborative:</strong> Sage accent feels encouraging, not corporate<br>
+                <strong>Socratic and supportive:</strong> Colors recede to let thinking content shine</p>
+            </div>
+        </div>
+
+        <div class="theme-showcase">
+            <h2 class="theme-title">Design Principles in Practice</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+                <div>
+                    <h4>80% Background Neutral</h4>
+                    <p>Warm white (#F6F7F8) creates breathing room for thinking. Never competes with content.</p>
+                </div>
+                <div>
+                    <h4>15% Dark Text</h4>
+                    <p>Soft charcoal (#1D1F21) provides clear readability without harsh contrast.</p>
+                </div>
+                <div>
+                    <h4>5% Accent & Affordances</h4>
+                    <p>Muted sage (#76A99A) draws attention to key actions without being shouty.</p>
+                </div>
+                <div>
+                    <h4>"Clarity Dawning" Interactions</h4>
+                    <p>Gentle transitions and soft glows signal insights without visual noise.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function setMode(mode) {
+            // Update active toggle
+            document.querySelectorAll('.toggle-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            if (mode === 'dark') {
+                alert('Dark mode coming in Phase 2! For now, Frank focuses on the calm clarity of light mode.');
+            }
+        }
+
+        // Add some gentle sparkle to insights
+        setInterval(() => {
+            const sparks = document.querySelectorAll('.insight-spark');
+            sparks.forEach(spark => {
+                if (Math.random() > 0.7) {
+                    spark.style.background = '#00C48C';
+                    setTimeout(() => {
+                        spark.style.background = '#76A99A';
+                    }, 300);
+                }
+            });
+        }, 2000);
+    </script>
+</body>
+</html>
