@@ -3,6 +3,11 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { ImprovementForm } from "@/app/_components/frank/improvement-form";
+import { ImprovementList } from "@/app/_components/frank/improvement-list";
+import { EffortDistribution } from "@/app/_components/frank/effort-distribution";
+import { ComparisonReadiness } from "@/app/_components/frank/comparison-readiness";
+import { SessionList } from "@/app/_components/frank/session-list";
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
@@ -52,26 +57,30 @@ export default function DashboardPage() {
 
           <div className="rounded-lg bg-white p-6 shadow-sm">
             <h3 className="mb-2 text-lg font-semibold text-[#1D1F21]">Sessions</h3>
-            <p className="text-2xl font-bold text-[#76A99A]">0</p>
-            <p className="mt-1 text-xs text-gray-500">Coming soon</p>
+            <div className="mt-2">
+              <SessionList />
+            </div>
           </div>
         </div>
 
-        <div className="mt-8 rounded-lg bg-white p-8 shadow-sm">
-          <h2 className="mb-4 text-2xl font-semibold text-[#1D1F21]">
-            Welcome to Frank
-          </h2>
-          <p className="mb-4 text-gray-600">
-            Your AI-powered product prioritization assistant. Start creating prioritization
-            sessions to make better product decisions.
-          </p>
-          <div className="flex gap-4">
-            <button className="rounded bg-[#76A99A] px-6 py-2 font-medium text-white transition-colors hover:bg-[#68927f]">
-              New Session
-            </button>
-            <button className="rounded border border-gray-300 px-6 py-2 font-medium text-gray-700 transition-colors hover:bg-gray-50">
-              View Documentation
-            </button>
+        {/* Improvement Management Section */}
+        <div className="mt-12 grid gap-8 lg:grid-cols-3">
+          <div className="lg:col-span-2 space-y-8">
+            <div>
+              <ImprovementForm />
+            </div>
+
+            <div>
+              <h2 className="mb-4 text-2xl font-semibold text-[#1D1F21]">
+                Enhancements
+              </h2>
+              <ImprovementList />
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <ComparisonReadiness />
+            <EffortDistribution />
           </div>
         </div>
       </div>

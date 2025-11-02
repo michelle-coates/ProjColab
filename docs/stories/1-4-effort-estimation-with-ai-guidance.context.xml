@@ -1,0 +1,414 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/1-4" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>1.4</storyId>
+    <title>Effort Estimation with AI Guidance</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-02</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/1-4-effort-estimation-with-ai-guidance.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>product manager</asA>
+    <iWant>to estimate effort levels (S/M/L) with AI-guided questions</iWant>
+    <soThat>I can make realistic assessments about implementation complexity</soThat>
+    <tasks>
+### Task 1: Database Schema for Effort Estimation (AC: 1, 4)
+- Update Prisma schema with effort fields in ImprovementItem model
+  - Add effortLevel field as EffortLevel enum (nullable)
+  - Add effortRationale field as Text (nullable)
+  - Add effortEstimatedAt as DateTime (nullable)
+  - Add effortRevisedAt as DateTime (nullable)
+  - Add relation to EffortHistory model (one-to-many)
+- Create EffortLevel enum
+  - Define enum values: SMALL, MEDIUM, LARGE
+- Create EffortHistory model
+  - Define fields: id, improvementId, previousLevel, newLevel, rationale, changedAt
+  - Add foreign key relation to ImprovementItem with cascade delete
+  - Add index on improvementId
+- Create database migration
+  - Run `npm run db:push` to apply schema changes
+  - Verify schema in Prisma Studio
+
+### Task 2: Validation Schemas for Effort Estimation (AC: 1, 3, 4)
+- Create validation schemas in `src/lib/validations/effort.ts`
+  - Define `setEffortSchema`: improvementId (cuid), effortLevel (enum), rationale (min 10 chars)
+  - Define `getEffortGuidanceSchema`: improvementId (cuid)
+  - Add helpful error messages for validation failures
+
+### Task 3: Claude Service Extension for Effort Guidance (AC: 2)
+- Extend ClaudeService in `src/server/services/claude.ts`
+  - Implement `generateEffortGuidance()` method
+  - Accept parameters: title, description, category, evidence entries
+  - Build category-specific prompts for effort calibration
+  - Generate 3-4 focused questions about scope, dependencies, unknowns, complexity
+  - Return guidance with questions and metadata (model, tokens)
+- Create category-specific prompt templates
+  - UI_UX: Frontend complexity, design system, responsive considerations
+  - DATA_QUALITY: Schema changes, migration needs, data volume
+  - WORKFLOW: Business logic complexity, state management, edge cases
+  - BUG_FIX: Root cause complexity, regression risk, testing scope
+  - FEATURE: Integration points, user flows, performance impacts
+  - OTHER: General complexity factors
+
+### Task 4: Effort tRPC Router Extension (AC: 1, 3, 4, 5)
+- Extend improvements router in `src/server/api/routers/improvements.ts`
+  - Implement `setEffort` mutation (protected procedure)
+    - Validate input with setEffortSchema
+    - Check current effort level for history tracking
+    - Update ImprovementItem with new effort data
+    - Create EffortHistory entry if revision
+    - Return updated improvement
+  - Implement `getEffortGuidance` query (protected procedure)
+    - Load improvement with evidence entries
+    - Call ClaudeService.generateEffortGuidance()
+    - Return guidance questions with metadata
+  - Implement `getEffortDistribution` query (protected procedure)
+    - Query all user's improvements
+    - Count by effort level (small, medium, large, unestimated)
+    - Calculate percentages
+    - Return distribution stats with warnings
+
+### Task 5: Effort Estimator UI Component (AC: 1, 2, 3)
+- Create `src/app/_components/frank/effort-estimator.tsx`
+  - S/M/L selection interface with Card components
+  - Visual effort descriptions and examples for each level
+  - Color coding: green border for Small, yellow for Medium, red for Large
+  - "Get AI guidance" button (optional, not required)
+  - AI guidance display area showing Claude's questions
+  - Rationale textarea with character counter and validation
+  - Submit button (disabled until rationale >= 10 chars)
+  - Loading states during API calls
+  - Success feedback on effort set
+- Integrate with Frank design system
+  - Use #76A99A accent color
+  - Use shadcn/ui components (Card, Button, Textarea)
+  - Maintain Inter font and spacing consistency
+
+### Task 6: Effort Distribution Widget (AC: 5)
+- Create `src/app/_components/frank/effort-distribution.tsx`
+  - Dashboard widget showing effort breakdown
+  - Horizontal bar chart with color segments (green/yellow/red)
+  - Count display: X Small, Y Medium, Z Large, W Not estimated
+  - Percentage calculations
+  - Warning messages for concerning patterns:
+    - Mostly large efforts: "Consider breaking down some improvements"
+    - No small efforts: "Look for quick wins to build momentum"
+  - Clickable segments to filter improvements by effort level
+
+### Task 7: Effort Revision UI (AC: 4)
+- Create effort revision interface
+  - "Revise effort" action button on improvements with existing estimates
+  - Display previous effort and rationale for context
+  - AI prompt: "Your previous estimate was [X] because [rationale]. What's changed?"
+  - Require new rationale explaining the change
+  - Show effort history timeline in improvement detail view
+  - Visual indicator (badge or icon) when effort has been revised
+
+### Task 8: Dashboard Integration (AC: 1, 5)
+- Add EffortDistribution widget to dashboard
+  - Position below improvement list or in sidebar
+  - Refresh on effort changes
+- Update improvement cards to show effort badges
+  - Display effort level (S/M/L) with color coding
+  - Show effort icon or badge
+  - "Estimate effort" action for improvements without estimates
+- Add effort filter to improvement list
+  - Filter dropdown: All, Small, Medium, Large, Not Estimated
+  - Update list based on selected filter
+
+### Task 9: Improvement Detail Integration (AC: 1, 3, 4)
+- Update improvement detail view/modal
+  - Display current effort estimate with rationale
+  - Show effort history if revised (timeline or list)
+  - "Estimate effort" or "Revise effort" button
+  - Open EffortEstimator component in dialog or inline
+
+### Task 10: Workflow Integration (AC: All)
+- Connect effort estimation to improvement flow
+  - After evidence gathering (Story 1.3), prompt "Estimate effort now?"
+  - Allow skipping and returning later
+  - Show completion indicators: Evidence ✓, Effort ✓
+- Add effort estimation to onboarding/guided flow
+  - Help text explaining S/M/L framework
+  - Examples of each effort level
+  - Best practices for estimation
+
+### Task 11: Testing and Validation (AC: All)
+- Write unit tests for effort validation schemas
+- Write unit tests for generateEffortGuidance method
+- Write integration tests for effort router procedures
+  - Test setEffort creates history on revision
+  - Test getEffortDistribution calculates correctly
+  - Test authorization (users can only set effort on their improvements)
+- Write component tests for EffortEstimator
+  - Test S/M/L selection
+  - Test AI guidance toggle
+  - Test rationale validation
+- Write component tests for EffortDistribution
+  - Test distribution calculations
+  - Test warning messages display correctly
+- Write E2E tests for effort estimation flow
+  - Create improvement → estimate effort → see in dashboard distribution
+  - Revise effort → verify history tracking
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+1. **Simple S/M/L Effort Selection Interface**
+   - Clear effort selection UI with three options: Small, Medium, Large
+   - Visual effort descriptions:
+     - Small: "Hours to a day" - Minor tweaks, config changes, simple fixes
+     - Medium: "Days to a week" - Feature additions, moderate refactoring, multi-component changes
+     - Large: "Weeks or more" - Significant features, architectural changes, cross-system impacts
+   - Radio button or card-based selection pattern
+   - Effort estimate visible on improvement cards/list items
+   - Easy to revise estimates after selection
+
+2. **AI-Guided Effort Context Questions**
+   - Claude generates contextual questions to calibrate effort thinking
+   - Questions adapt based on improvement description and evidence from Story 1.3
+   - Category-specific guidance for different improvement types
+   - AI highlights factors that might increase complexity
+   - Questions help users think through: scope, dependencies, unknowns, risk
+
+3. **Effort Rationale Capture**
+   - Text area for explaining effort estimate reasoning
+   - Prompts encouraging specificity about what makes estimate S/M/L
+   - AI summarizes user responses into concise rationale
+   - Rationale saved with effort estimate for future reference
+   - Rationale visible in improvement detail view and export
+
+4. **Ability to Revise Effort Estimates**
+   - "Revise effort" action available on any improvement with existing estimate
+   - Shows previous estimate and rationale for context
+   - New rationale required when changing estimate
+   - Version history tracking effort changes over time
+   - AI prompts about what changed since previous estimate
+   - Clear visual indicator when estimate has been revised
+
+5. **Visual Effort Distribution**
+   - Dashboard widget showing effort distribution across all improvements
+   - Bar chart or pie chart: X% Small, Y% Medium, Z% Large
+   - Total estimated effort indicator
+   - Warning indicators for concerning patterns
+   - Filter improvements by effort level
+   - Distribution helps identify portfolio balance issues
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/tech-spec-epic-1.md" title="Epic 1 Technical Specification" section="Effort Estimation">
+        Defines S/M/L effort framework with clear definitions. Small: hours to 1 day, Medium: days to 1 week, Large: weeks or more. Includes effort rationale capture and AI guidance integration.
+      </doc>
+      <doc path="docs/architecture.md" title="Frank Architecture" section="Claude AI Integration">
+        Claude 4.5 Sonnet used for effort guidance questions. Contextual prompts based on improvement category and evidence gathered. Cost optimization through targeted questioning (3-4 questions max).
+      </doc>
+      <doc path="docs/PRD.md" title="Product Requirements" section="FR005: Simple Effort Estimation">
+        System shall provide simple S/M/L effort estimation to complement impact analysis. Effort estimates required for Impact vs Effort visualization and Quick Wins identification.
+      </doc>
+      <doc path="docs/epics.md" title="Epic Breakdown" section="Story 1.4">
+        User story: "As a product manager, I want to estimate effort levels (S/M/L) with AI-guided questions, so that I can make realistic assessments about implementation complexity." Prerequisites: Story 1.3 (context gathering).
+      </doc>
+      <doc path="docs/stories/1-3-ai-powered-context-gathering.md" title="Story 1.3 Details" section="Learnings">
+        Evidence gathering provides context for effort estimation. EvidenceEntry records available to inform AI guidance. Conversational pattern works well - reuse for effort guidance.
+      </doc>
+    </docs>
+    <code>
+      <artifact path="frank/src/server/services/claude.ts" kind="service" symbol="ClaudeService" lines="1-230" reason="Existing Claude AI service with established patterns for API integration, prompt engineering, and error handling. Will extend with generateEffortGuidance() method following same patterns.">
+        <relevance>
+        Includes Anthropic client initialization, system/user prompt building, response parsing, token usage tracking. Shows how to use claude-sonnet-4-20250514 model. generateEffortGuidance will follow similar structure to existing methods.
+      </relevance>
+      </artifact>
+      <artifact path="frank/src/server/api/routers/improvements.ts" kind="router" symbol="improvementsRouter" lines="1-120" reason="Improvements router will be extended with effort estimation procedures. Shows protectedProcedure patterns, input validation, database operations, TRPCError usage. Direct model for setEffort, getEffortGuidance, getEffortDistribution implementations.">
+        Includes CRUD operations with ownership verification via ctx.session.user.id. TRPCError with appropriate codes. Database access via ctx.db with Prisma. Will add effort procedures to same router.
+      </artifact>
+      <artifact path="frank/src/lib/validations/improvement.ts" kind="validation" symbol="improvement schemas" reason="Existing validation schemas showing Zod patterns with Category enum, string constraints, helpful error messages. Template for effort validation schemas (effortLevel enum, rationale constraints).">
+        createImprovementSchema, updateImprovementSchema with Zod. Shows enum validation pattern for Category - same approach for EffortLevel enum. String length validation with custom messages.
+      </artifact>
+      <artifact path="frank/prisma/schema.prisma" kind="schema" symbol="ImprovementItem" lines="60-95" reason="ImprovementItem model will be extended with effort fields. Shows existing structure: userId, sessionId, category enum, timestamps. Need to add: effortLevel, effortRationale, effortEstimatedAt, effortRevisedAt, relation to EffortHistory.">
+        Current fields: id, userId, sessionId, title, description, category, evidenceEntries relation, conversations relation. Will add effort-related fields and EffortHistory relation.
+      </artifact>
+      <artifact path="frank/src/app/_components/frank/improvement-form.tsx" kind="component" symbol="ImprovementForm" reason="Form component demonstrating Frank UI patterns: controlled inputs, validation, character counters, tRPC mutations. Reference for EffortEstimator component design.">
+        Shows controlled component pattern with useState, form submission with api.improvements.create.mutate(), loading states, error handling, success feedback. EffortEstimator will follow similar patterns.
+      </artifact>
+      <artifact path="frank/src/app/_components/frank/improvement-list.tsx" kind="component" symbol="ImprovementList" reason="List component showing how to display improvements with badges, actions, inline editing. Will extend to show effort badges and 'Estimate effort' action.">
+        Shows tRPC query with api.improvements.list.useQuery(), Card-based layout, Badge components for categories, action buttons. Need to add effort Badge and estimation action.
+      </artifact>
+      <artifact path="frank/src/app/dashboard/page.tsx" kind="page" symbol="DashboardPage" reason="Dashboard layout showing where to integrate EffortDistribution widget. Shows grid layout pattern for dashboard widgets.">
+        Grid layout with improvement form and list. Will add EffortDistribution widget to dashboard, likely in sidebar or below list.
+      </artifact>
+      <artifact path="frank/src/server/api/routers/conversations.ts" kind="router" symbol="conversationsRouter" reason="Story 1.3 conversations router demonstrates recent patterns for AI-guided interactions. Shows how to call Claude service, handle responses, store metadata. Reference for getEffortGuidance implementation.">
+        generateQuestion procedure shows Claude service integration pattern. getConversation shows how to load related data with includes. Same patterns apply to effort guidance.
+      </artifact>
+    </code>
+    <dependencies>
+      <node>
+        <package name="@anthropic-ai/sdk" version="^0.68.0" note="Already installed - Claude AI for effort guidance" />
+        <package name="@trpc/server" version="^11.0.0" note="Already installed - tRPC router extensions" />
+        <package name="@prisma/client" version="^6.5.0" note="Already installed - database ORM for effort models" />
+        <package name="zod" version="^3.24.2" note="Already installed - validation schemas" />
+        <package name="react" version="^19.0.0" note="Already installed - UI components" />
+        <package name="next" version="^15.2.3" note="Already installed - framework" />
+      </node>
+      <additional>
+        <note>No additional dependencies required - all necessary packages already installed</note>
+        <note>shadcn/ui components already available: Card, Button, Textarea, Badge for effort UI</note>
+        <note>Frank design system already established: #76A99A accent, #F6F7F8 background, Inter font</note>
+      </additional>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    - All tRPC procedures MUST use protectedProcedure to ensure authentication
+    - Database access MUST use ctx.db and filter by ctx.session.user.id for ownership
+    - Input validation MUST use Zod schemas on all mutations and queries
+    - Error handling MUST use TRPCError with appropriate codes (NOT_FOUND, FORBIDDEN, etc.)
+    - Effort rationale MUST be minimum 10 characters to ensure meaningful explanations
+    - EffortLevel enum MUST have exactly three values: SMALL, MEDIUM, LARGE
+    - Effort history MUST be created ONLY when changing existing estimate (not on initial set)
+    - effortEstimatedAt MUST be set only on first estimate, effortRevisedAt on subsequent changes
+    - Claude AI guidance MUST be optional - users can estimate without AI help
+    - AI guidance MUST generate 3-4 focused questions maximum (avoid overwhelming)
+    - Category-specific prompts MUST adapt to improvement type for relevant questions
+    - Distribution calculations MUST handle zero improvements gracefully (avoid division by zero)
+    - Warning thresholds: "Mostly large" = large > (small + medium), "No small" = small === 0 && total > 0
+    - Frank design system MUST be maintained: #76A99A accent, #F6F7F8 background, Inter font
+    - Color coding: green border for Small, yellow for Medium, red for Large (or equivalent semantic colors)
+    - TypeScript MUST compile without errors (npm run typecheck)
+    - Database schema changes MUST use `npm run db:push` to sync
+    - All user-facing text MUST be in English
+    - Effort estimates MUST be nullable - improvements can exist without effort estimation
+    - UI MUST show completion indicators: Evidence ✓, Effort ✓ when both present
+    - Effort badges MUST be visible on improvement cards and list items
+    - EffortDistribution widget MUST update reactively when efforts change (tRPC cache invalidation)
+    - Revision UI MUST show previous estimate and rationale for context
+    - Effort history MUST cascade delete when improvement deleted
+  </constraints>
+
+  <interfaces>
+    <interface name="ClaudeService.generateEffortGuidance" kind="TypeScript class method" signature="async generateEffortGuidance(params: { title: string; description: string; category: Category; evidence: EvidenceEntry[]; }): Promise<{ questions: string; metadata: { model: string; usage: { input_tokens: number; output_tokens: number; }; }; }>" path="src/server/services/claude.ts">
+      Extension to existing ClaudeService for effort guidance. Takes improvement context and evidence, returns 3-4 focused questions about scope, dependencies, unknowns, and complexity. Questions adapt to category (UI_UX, DATA_QUALITY, etc.). Returns questions as formatted string and Claude API metadata.
+    </interface>
+    <interface name="improvements.setEffort" kind="tRPC mutation" signature="setEffort(input: { improvementId: string; effortLevel: 'SMALL' | 'MEDIUM' | 'LARGE'; rationale: string; }): Promise<ImprovementItem>" path="src/server/api/routers/improvements.ts">
+      Protected tRPC procedure. Sets or updates effort estimate on improvement. Creates EffortHistory entry if changing existing estimate. Sets effortEstimatedAt on first estimate, effortRevisedAt on revisions. Requires authentication and ownership verification.
+    </interface>
+    <interface name="improvements.getEffortGuidance" kind="tRPC query" signature="getEffortGuidance(input: { improvementId: string; }): Promise<{ questions: string; metadata: { model: string; usage: object; }; }>" path="src/server/api/routers/improvements.ts">
+      Protected tRPC procedure. Loads improvement with evidence, calls ClaudeService.generateEffortGuidance(), returns AI-generated questions for effort calibration. Requires authentication and ownership verification.
+    </interface>
+    <interface name="improvements.getEffortDistribution" kind="tRPC query" signature="getEffortDistribution(): Promise<{ small: number; medium: number; large: number; total: number; unestimated: number; }>" path="src/server/api/routers/improvements.ts">
+      Protected tRPC procedure. Queries all user's improvements and counts by effort level. Returns distribution stats used for dashboard widget and portfolio balance warnings.
+    </interface>
+    <interface name="EffortEstimator" kind="React component" signature="EffortEstimator({ improvementId, currentEffort?, onSuccess }: { improvementId: string; currentEffort?: { level: EffortLevel; rationale: string; }; onSuccess?: () => void; }): JSX.Element" path="src/app/_components/frank/effort-estimator.tsx">
+      UI component for effort estimation. Shows S/M/L selection cards with descriptions. Optional AI guidance button. Rationale textarea with validation. Handles both initial estimation and revision (when currentEffort provided). Calls improvements.setEffort mutation on submit.
+    </interface>
+    <interface name="EffortDistribution" kind="React component" signature="EffortDistribution(): JSX.Element" path="src/app/_components/frank/effort-distribution.tsx">
+      Dashboard widget showing effort distribution across all improvements. Horizontal bar chart with color-coded segments. Displays counts and percentages. Shows warning messages for portfolio imbalances. Uses improvements.getEffortDistribution query.
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+      Follow T3 Stack testing patterns with Jest + React Testing Library for unit and component tests, Playwright for E2E tests. All tests must run via npm scripts and pass CI checks. Unit tests: 80% coverage target for business logic (validation, Claude service extension, distribution calculations), 60% for components. Integration tests: All tRPC router procedures with test database. E2E tests: Critical user flows with real browser automation. Mock Claude API responses in tests using fixtures to avoid API costs and ensure deterministic results.
+    </standards>
+    <locations>
+      <location>frank/src/lib/validations/__tests__/effort.test.ts</location>
+      <location>frank/src/server/services/__tests__/claude-effort-guidance.test.ts</location>
+      <location>frank/src/server/api/routers/__tests__/improvements-effort.test.ts</location>
+      <location>frank/src/app/_components/frank/__tests__/effort-estimator.test.tsx</location>
+      <location>frank/src/app/_components/frank/__tests__/effort-distribution.test.tsx</location>
+      <location>frank/tests/e2e/effort-estimation.spec.ts</location>
+    </locations>
+    <ideas>
+      <idea ac="1,3">Test effort validation schemas with Zod: valid S/M/L values accepted, invalid values rejected. Test rationale validation: minimum 10 characters required, helpful error messages displayed. Test improvementId format (cuid).</idea>
+      <idea ac="2">Test generateEffortGuidance with mocked Claude API: verify prompt building for different categories (UI_UX gets frontend questions, DATA_QUALITY gets schema questions). Test error handling: API failure logs error but doesn't crash. Test response parsing and metadata extraction.</idea>
+      <idea ac="1,3,4">Test setEffort mutation: creates effort estimate on improvement, saves rationale. Test revision: changing effort level creates EffortHistory entry, updates effortRevisedAt. Test authorization: users can only set effort on their improvements (returns FORBIDDEN for others). Test timestamps: effortEstimatedAt set on first, effortRevisedAt on subsequent.</idea>
+      <idea ac="5">Test getEffortDistribution query: correctly counts small/medium/large/unestimated. Test percentage calculations. Test edge cases: zero improvements, all same level, no estimates. Test authorization: only returns current user's improvements.</idea>
+      <idea ac="1,2,3">Test EffortEstimator component: renders S/M/L cards with descriptions. Test card selection highlights selected option. Test AI guidance button toggles guidance display. Test rationale textarea validation (submit disabled until 10+ chars). Test mutation triggers on submit, loading state shown, success callback fired.</idea>
+      <idea ac="4">Test effort revision flow: component receives currentEffort prop, displays previous estimate and rationale. Test new rationale required for revision. Test history display shows timeline of changes.</idea>
+      <idea ac="5">Test EffortDistribution component: renders bar chart with correct proportions. Test counts displayed correctly. Test warning messages: "mostly large" warning when large > small + medium, "no small" warning when small === 0 and total > 0. Test no warnings on balanced distribution.</idea>
+      <idea ac="All">E2E test complete flow: create improvement → gather evidence → click "Estimate effort" → select Medium → see AI guidance → enter rationale → submit → see effort badge on improvement → see updated distribution widget. Test revision: click "Revise effort" → change to Large → enter new rationale → submit → see history in detail view.</idea>
+      <idea ac="All">Test database schema: EffortLevel enum has correct values (SMALL, MEDIUM, LARGE). Test EffortHistory model: foreign key to ImprovementItem, cascade delete works. Test Prisma queries: findUnique with effort fields, findMany with effort filtering, include EffortHistory in queries.</idea>
+      <idea ac="5">Test distribution filter integration: clicking bar segment filters improvement list by effort level. Test filter dropdown shows correct options. Test "Not Estimated" filter shows improvements without effort.</idea>
+    </ideas>
+  </tests>
+
+  <learningsFromPreviousStories>
+    <learning source="Story 1.2 - Improvement Item Capture Interface" status="done">
+      <pattern>tRPC protectedProcedure pattern with ctx.session.user.id for ownership filtering works well</pattern>
+      <pattern>Zod validation schemas with helpful error messages improve UX significantly</pattern>
+      <pattern>shadcn/ui Card components perfect for selection interfaces (category selection worked well)</pattern>
+      <pattern>Controlled components with useState for form inputs provides good reactivity</pattern>
+      <pattern>Character counters on textareas help users provide adequate detail</pattern>
+      <pattern>Frank design system (#76A99A accent) established and working consistently</pattern>
+      <apply>Use Card-based selection for S/M/L effort levels (proven pattern from category selection)</apply>
+      <apply>Add character counter to effort rationale textarea (10+ chars minimum)</apply>
+      <apply>Maintain protectedProcedure pattern for all effort estimation endpoints</apply>
+      <apply>Use Zod enum validation for EffortLevel (same as Category enum pattern)</apply>
+    </learning>
+    <learning source="Story 1.3 - AI-Powered Context Gathering" status="done">
+      <pattern>Claude API integration via ClaudeService class method works smoothly</pattern>
+      <pattern>System/user prompt pattern effective for contextual AI responses</pattern>
+      <pattern>Optional AI features appreciated - not all users want AI guidance every time</pattern>
+      <pattern>Evidence context improves AI relevance significantly</pattern>
+      <pattern>Token usage tracking important for cost monitoring</pattern>
+      <pattern>Conversational prompts more engaging than dry form labels</pattern>
+      <apply>Make AI effort guidance optional with toggle button (not forced on users)</apply>
+      <apply>Pass evidence entries to generateEffortGuidance for better context</apply>
+      <apply>Track token usage in metadata returned from Claude service</apply>
+      <apply>Use conversational prompts in rationale placeholder: "What makes this [S/M/L]? Consider scope, dependencies..."</apply>
+      <apply>Follow established Claude service pattern: async method, system/user prompts, response parsing</apply>
+    </learning>
+    <learning source="Story 1.1 - User Account Creation and Authentication" status="done">
+      <pattern>NextAuth session available in tRPC context via ctx.session</pattern>
+      <pattern>User ownership verification critical for security</pattern>
+      <pattern>TRPCError with semantic codes (NOT_FOUND, FORBIDDEN) provides clear error handling</pattern>
+      <apply>Use ctx.session.user.id in all effort estimation queries/mutations</apply>
+      <apply>Throw TRPCError with NOT_FOUND if improvement doesn't exist</apply>
+      <apply>Throw TRPCError with FORBIDDEN if user doesn't own improvement</apply>
+    </learning>
+  </learningsFromPreviousStories>
+
+  <designDecisions>
+    <decision id="effort-framework" rationale="S/M/L over story points">
+      Use S/M/L (Small/Medium/Large) effort levels instead of numeric story points or hours. Rationale: More intuitive for non-engineering PMs, prevents false precision, reduces estimation bikeshedding, easier to explain to stakeholders. Story points can be added in Epic 2 for engineering-focused teams.
+    </decision>
+    <decision id="ai-guidance-optional" rationale="Respect user autonomy">
+      Make AI effort guidance optional via toggle button, not forced. Rationale: Some users have strong domain expertise and don't need AI prompting. Forcing AI on every estimation would slow down power users. Optional guidance respects user autonomy while providing value when needed.
+    </decision>
+    <decision id="rationale-required" rationale="Accountability and learning">
+      Require effort rationale (minimum 10 characters) for all estimates. Rationale: Creates accountability for estimation decisions, supports learning when estimates wrong, helps with revisions ("What changed?"), valuable for team communication and handoff. Low bar (10 chars) prevents excessive friction.
+    </decision>
+    <decision id="history-tracking" rationale="Support iterative understanding">
+      Track effort estimate history in separate EffortHistory model. Rationale: Effort estimates often change as understanding improves (discovery work, technical spikes, architecture decisions). History prevents confusion, supports retrospective analysis, shows estimation improvement over time. Separate model keeps ImprovementItem clean.
+    </decision>
+    <decision id="distribution-warnings" rationale="Proactive portfolio coaching">
+      Show warning messages on EffortDistribution widget for imbalanced portfolios. Rationale: Common pitfall = all big projects with no quick wins. Proactive coaching helps users balance portfolio for momentum and learning. Warnings educate without blocking (informational, not errors).
+    </decision>
+    <decision id="color-coding" rationale="Visual effort communication">
+      Use semantic color coding for effort levels: green (Small), yellow (Medium), red (Large). Rationale: Visual indicators faster than reading text, colors communicate urgency/complexity intuitively, consistent with traffic light mental model. Ensure sufficient contrast for accessibility.
+    </decision>
+    <decision id="effort-in-improvements-router" rationale="Cohesive API surface">
+      Add effort procedures to existing improvements router rather than separate effort router. Rationale: Effort is core property of improvement, not separate entity. Keeps related operations together (create improvement, add evidence, estimate effort). Simpler mental model for frontend developers.
+    </decision>
+    <decision id="evidence-context-for-ai" rationale="Informed guidance">
+      Pass evidence entries from Story 1.3 to generateEffortGuidance for context. Rationale: Evidence about impact, frequency, beneficiaries informs complexity thinking. Example: "You mentioned this affects 10,000 users - that suggests more testing complexity." Contextual AI more valuable than generic prompts.
+    </decision>
+  </designDecisions>
+
+  <dependenciesForFutureStories>
+    <dependency target="Story 1.5 - Basic Pairwise Comparison Engine">
+      Effort estimates will be used in comparison prompts: "Both seem high impact - which is easier to implement?" Pairwise comparison logic will factor effort into value calculation: value = impact / effort approximation.
+    </dependency>
+    <dependency target="Story 1.7 - Simple Impact vs Effort Visualization">
+      Effort estimates provide Y-axis for Impact vs Effort matrix. Small/Medium/Large map to vertical positioning. Quadrant logic depends on effort: "Quick Wins" = high impact + Small effort, "Big Bets" = high impact + Large effort.
+    </dependency>
+    <dependency target="Story 1.8 - Basic Export and Handoff">
+      Export will include effort estimates and rationale in CSV/PDF. Development team handoff needs effort for sprint planning. Effort history may be included for transparency about estimate evolution.
+    </dependency>
+    <dependency target="Epic 2 Stories">
+      Effort distribution data informs intelligent clustering (group by effort level). Strategic alignment may weight effort differently based on business priority. Advanced visualization may show effort trends over time.
+    </dependency>
+  </dependenciesForFutureStories>
+</story-context>

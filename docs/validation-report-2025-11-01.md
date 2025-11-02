@@ -39,7 +39,7 @@ Evidence: All decisions in table have specific technology choices with clear rat
 Evidence: Specific versions provided for core technologies (Next.js 15.x, PostgreSQL 16.x, Prisma 5.x, tRPC 10.x, NextAuth.js 4.x, Tailwind 3.x), but T3 Stack and shadcn/ui marked as "Latest".
 
 ✓ **Versions are current and verified**  
-Evidence: Claude model specified as "claude-3-5-sonnet-20241022" (exact version), WebSearch verification used during workflow for current versions.
+Evidence: Claude model specified as "claude-sonnet-4-20250514" (exact version), WebSearch verification used during workflow for current versions.
 
 ✓ **Compatible versions selected**  
 Evidence: T3 Stack ensures compatibility matrix between Next.js 15, TypeScript, Tailwind, tRPC, and Prisma.

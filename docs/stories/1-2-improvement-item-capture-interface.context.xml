@@ -1,0 +1,541 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>2</storyId>
+    <title>Improvement Item Capture Interface</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-02</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/1-2-improvement-item-capture-interface.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>product manager</asA>
+    <iWant>to manually input improvement items with basic details</iWant>
+    <soThat>I can build a list of micro-improvements to prioritize</soThat>
+    <tasks>
+### Task 1: Database Schema for Improvements (AC: 1, 2)
+- Update Prisma schema with ImprovementItem model
+  - Define ImprovementItem model with fields: id, userId, title, description, category, sessionId, createdAt, updatedAt
+  - Add Category enum (UI_UX, DATA_QUALITY, WORKFLOW, BUG_FIX, FEATURE, OTHER)
+  - Add relation to User model (improvements field)
+  - Add relation to PrioritizationSession model (prepare for Story 1.6)
+- Create database migration
+  - Run `npm run db:push` to apply schema changes
+  - Verify schema in Prisma Studio (`npm run db:studio`)
+- Test: Can create, read, update, delete improvement records in database
+
+### Task 2: Improvement Validation Schemas (AC: 1, 6)
+- Create validation schemas in `src/lib/validations/improvement.ts`
+  - Define `createImprovementSchema` with Zod: title (5-200 chars), description (10-2000 chars), category enum
+  - Define `updateImprovementSchema` extending create schema with id field
+  - Define `deleteImprovementSchema` with id validation
+  - Add helpful error messages for each validation rule
+- Export TypeScript types from schemas for type safety
+- Test: Schemas correctly validate valid and invalid inputs
+
+### Task 3: Improvements tRPC Router (AC: 1-5)
+- Create `src/server/api/routers/improvements.ts`
+  - Implement `create` mutation (protected procedure)
+  - Implement `list` query (protected procedure)
+  - Implement `getById` query (protected procedure)
+  - Implement `update` mutation (protected procedure)
+  - Implement `delete` mutation (protected procedure)
+- Add improvements router to root router in `src/server/api/root.ts`
+- Test: All CRUD operations work correctly via tRPC client
+
+### Task 4: Improvement Creation Form (AC: 1, 6)
+- Create form component `src/components/frank/improvement-form.tsx`
+  - Setup React Hook Form with Zod resolver
+  - Title input field with character counter (5-200)
+  - Description textarea with character counter (10-2000)
+  - Category dropdown using shadcn/ui Select component
+  - Real-time validation with inline error messages
+  - Submit button with loading state
+  - Form reset after successful submission
+- Style with Tailwind following Frank design system
+- Integrate with tRPC mutations
+- Test: Form validation works, successful creation saves to database
+
+### Task 5: Auto-Save Draft Functionality (AC: 2)
+- Implement auto-save hook `src/hooks/use-autosave.ts`
+  - Debounce form changes (30 second delay)
+  - Save to localStorage as draft
+  - Show "Saving..." / "Saved" indicator
+  - Restore draft on page load
+- Add draft management to improvement form
+- Add visual indicator for draft state
+- Test: Drafts persist across page refreshes, cleared after submission
+
+### Task 6: Improvement List View (AC: 3)
+- Create list component `src/components/frank/improvement-list.tsx`
+  - Fetch improvements using `improvements.list` tRPC query
+  - Map improvements to list items with key prop
+  - Display title, category badge, creation date
+  - Show truncated description (150 chars) with "Read more"
+  - Sort by creation date (newest first)
+  - Loading skeleton UI while fetching
+  - Empty state with illustration and CTA
+- Style list items consistently
+- Add to dashboard page or dedicated improvements page
+- Test: List displays correctly, loading and empty states work
+
+### Task 7: Edit Improvement Functionality (AC: 4)
+- Add edit mode to improvement list items
+  - Edit button triggers inline edit form
+  - Pre-populate form with current values
+  - Same validation as creation form
+  - Cancel button reverts changes
+  - Save button calls `improvements.update` mutation
+- Implement optimistic updates
+- Track update history
+- Test: Edit saves correctly, optimistic updates work, validation applies
+
+### Task 8: Delete Improvement Functionality (AC: 5)
+- Create delete confirmation dialog
+- Implement delete with undo
+  - Call `improvements.delete` mutation
+  - Show toast with undo option (5 second timeout)
+  - Restore improvement if undo clicked
+  - Remove from UI optimistically
+- Handle delete constraints
+- Test: Delete confirmation works, undo restores, constraints enforced
+
+### Task 9: Session Integration Preparation (AC: 2)
+- Create basic PrioritizationSession model in Prisma
+  - Define model with id, userId, name, status, createdAt
+  - Add improvements relation (one-to-many)
+  - Run migration
+- Create sessions router stub `src/server/api/routers/sessions.ts`
+  - Implement `getCurrent` query returning active session
+  - Implement `create` mutation for new session
+  - Add to root router
+- Update improvements form to use session
+- Test: Improvements correctly associated with sessions
+
+### Task 10: Error Handling and User Experience (AC: 6)
+- Implement comprehensive error handling
+- Add loading states throughout
+- Implement offline mode indication
+- Add toast notifications
+- Test: All error scenarios handled gracefully, user never stuck
+
+### Task 11: Testing and Documentation (AC: 1-6)
+- Write unit tests for validation schemas
+- Write integration tests for tRPC router
+- Write component tests for improvement form
+- Write E2E tests with Playwright
+- Document improvement capture workflow
+- Test: All tests pass, documentation complete
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+1. **Improvement Form Interface**
+   - User can access improvement creation form at `/session/[id]/new` or via dashboard
+   - Form includes title field (5-200 character validation)
+   - Form includes description textarea (10-2000 character validation)
+   - Form includes category dropdown with options: UI/UX, Data Quality, Workflow, Bug Fix, Feature, Other
+   - Form validates in real-time with inline error messages
+   - Submit button disabled until all required fields valid
+   - Success message shown after improvement created
+   - Form clears after successful submission for quick successive entry
+
+2. **Data Persistence and Sessions**
+   - Improvements automatically associated with user's active prioritization session
+   - If no active session exists, system prompts user to create one first
+   - All improvement data saves to PostgreSQL via Prisma
+   - Auto-save draft state every 30 seconds while user typing
+   - Draft state indicator shows "Saving..." / "Saved" status
+   - Improvements persist across browser sessions and devices
+
+3. **Improvement List View**
+   - Dashboard shows all improvements for active session
+   - List displays: title, category icon/badge, creation date, edit/delete actions
+   - Improvements sorted by creation date (newest first) with option to change sort
+   - Each list item shows truncated description (150 chars) with "Read more" expansion
+   - Empty state message with clear CTA when no improvements exist
+   - Loading state with skeleton UI while fetching improvements
+
+4. **Edit Functionality**
+   - Edit button on each improvement opens inline edit form or modal
+   - Edit form pre-populated with current values
+   - All fields editable (title, description, category)
+   - Validation applies same rules as creation form
+   - Cancel button discards changes and restores original values
+   - Save button updates improvement with timestamp tracking
+   - Optimistic UI update with rollback on error
+
+5. **Delete Functionality**
+   - Delete button shows confirmation dialog before removal
+   - Confirmation dialog clearly states: "Delete [improvement title]?"
+   - Confirmation includes warning that deletion is permanent
+   - Successful deletion removes item from list with animation
+   - Undo option available for 5 seconds after deletion (toast notification)
+   - Cannot delete if improvement has associated evidence or decisions (show error)
+
+6. **Validation and Error Handling**
+   - Title validation: 5-200 characters, no special characters at start/end
+   - Description validation: 10-2000 characters, basic text formatting allowed
+   - Category validation: Must select from dropdown (no custom values)
+   - Real-time character count displayed for title and description
+   - Helpful error messages: "Title too short (5 char minimum)" not just "Invalid"
+   - Network error handling with retry option and offline mode indication
+   - Form state preserved on network errors for retry
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic Technical Specification: Foundation & Core Prioritization Engine</title>
+        <section>Data Models</section>
+        <snippet>Defines ImprovementItem model with fields: id, userId, title, description, category (enum), effort, sessionId, timestamps. Includes Category enum values: UI_UX, DATA_QUALITY, WORKFLOW, BUG_FIX, FEATURE, OTHER.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic Technical Specification: Foundation & Core Prioritization Engine</title>
+        <section>APIs and Interfaces - Improvements Router</section>
+        <snippet>Specifies tRPC router structure with procedures: create, list, getWithEvidence, update, delete. Includes input validation schemas and return types.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Frank Architecture Document</title>
+        <section>API Contracts - tRPC Router Structure</section>
+        <snippet>Defines root router combining feature routers. Shows pattern for protected procedures, input validation with Zod, database access via ctx.db, and error handling with TRPCError.</snippet>
+      </doc>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Frank - Epic Breakdown</title>
+        <section>Epic 1 - Story 1.2</section>
+        <snippet>User story for improvement item capture: simple form interface, categorization dropdown, edit/delete abilities, list view, basic validation.</snippet>
+      </doc>
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>Product Requirements Document</title>
+        <section>FR001: Manual input of improvement items</section>
+        <snippet>Functional requirement specifying manual input capability with title, description, and categorization fields.</snippet>
+      </doc>
+      <doc>
+        <path>docs/stories/1-1-user-account-creation-and-authentication.md</path>
+        <title>Story 1.1: User Account Creation and Authentication</title>
+        <section>Learnings from Previous Story</section>
+        <snippet>Authentication system available via NextAuth.js - use getServerAuthSession() in tRPC. Zod validation patterns established. React Hook Form + Zod resolver pattern. Frank design system colors: #76A99A accent, #F6F7F8 background.</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>UX Design Specification</title>
+        <section>Frank Design System</section>
+        <snippet>Calm clarity design: #F6F7F8 background, #1D1F21 text, #76A99A accent, #00C48C success. Inter font, generous whitespace, soft rounded corners (4-6px).</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>frank/src/server/api/routers/auth.ts</path>
+        <kind>router</kind>
+        <symbol>authRouter</symbol>
+        <lines>1-150</lines>
+        <reason>Reference pattern for tRPC protected procedures, input validation with Zod, database operations, and error handling. Shows how to use ctx.db and ctx.session.</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/server/api/routers/post.ts</path>
+        <kind>router</kind>
+        <symbol>postRouter</symbol>
+        <lines>1-40</lines>
+        <reason>Simple CRUD example showing create/list pattern with protectedProcedure. Demonstrates user association pattern with createdBy relation.</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/lib/validations/auth.ts</path>
+        <kind>validation</kind>
+        <symbol>registerSchema, loginSchema, updateProfileSchema</symbol>
+        <lines>1-85</lines>
+        <reason>Reference pattern for Zod validation schemas with helpful error messages. Shows how to define schemas and export TypeScript types.</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/app/(auth)/sign-up/page.tsx</path>
+        <kind>component</kind>
+        <symbol>SignUpPage</symbol>
+        <lines>1-120</lines>
+        <reason>Example of form with client-side validation, tRPC mutation integration, error handling, and Frank design system styling.</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/app/profile/page.tsx</path>
+        <kind>component</kind>
+        <symbol>ProfilePage</symbol>
+        <lines>1-100</lines>
+        <reason>Shows pattern for form with pre-populated values, update mutation, success messages, and loading states.</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/server/api/trpc.ts</path>
+        <kind>config</kind>
+        <symbol>createTRPCContext, protectedProcedure</symbol>
+        <lines>1-100</lines>
+        <reason>Core tRPC setup showing context creation with session and db, error formatting with Zod, and protected procedure middleware.</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/server/api/root.ts</path>
+        <kind>router</kind>
+        <symbol>appRouter</symbol>
+        <lines>1-20</lines>
+        <reason>Root router where new feature routers must be added. Shows pattern for combining multiple routers.</reason>
+      </artifact>
+      <artifact>
+        <path>frank/prisma/schema.prisma</path>
+        <kind>schema</kind>
+        <symbol>User, Post, UserRole</symbol>
+        <lines>1-80</lines>
+        <reason>Current database schema showing User model with relations, enum pattern (UserRole), and index patterns to follow.</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/trpc/react.tsx</path>
+        <kind>client</kind>
+        <symbol>api, TRPCReactProvider</symbol>
+        <lines>1-70</lines>
+        <reason>Client-side tRPC setup showing how to use api.router.procedure hooks in React components.</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/app/_components/post.tsx</path>
+        <kind>component</kind>
+        <symbol>LatestPost</symbol>
+        <lines>1-50</lines>
+        <reason>Example showing tRPC query/mutation usage, form submission, loading states, and cache invalidation pattern.</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <node>
+        <package name="@prisma/client" version="^6.5.0" />
+        <package name="@trpc/client" version="^11.0.0" />
+        <package name="@trpc/react-query" version="^11.0.0" />
+        <package name="@trpc/server" version="^11.0.0" />
+        <package name="@tanstack/react-query" version="^5.69.0" />
+        <package name="next" version="^15.2.3" />
+        <package name="next-auth" version="5.0.0-beta.25" />
+        <package name="react" version="^19.0.0" />
+        <package name="react-dom" version="^19.0.0" />
+        <package name="zod" version="^3.24.2" />
+        <package name="superjson" version="^2.2.1" />
+        <package name="bcryptjs" version="^3.0.2" />
+      </node>
+      <dev>
+        <package name="prisma" version="^6.5.0" />
+        <package name="tailwindcss" version="^4.0.15" />
+        <package name="typescript" version="^5.8.2" />
+        <package name="prettier" version="^3.5.3" />
+        <package name="eslint" version="^9.23.0" />
+      </dev>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+- Use T3 Stack patterns: tRPC for API, Prisma for database, NextAuth for authentication
+- All database operations MUST use Prisma client via ctx.db in tRPC procedures
+- All API endpoints MUST use protectedProcedure to ensure user authentication
+- Input validation MUST use Zod schemas with helpful error messages
+- Follow established validation pattern from src/lib/validations/auth.ts
+- Forms MUST use React Hook Form with Zod resolver (no custom validation)
+- Database schema changes require running `npm run db:push` (not migrations in Epic 1)
+- All improvements MUST be associated with userId from ctx.session.user.id
+- Category values MUST match enum exactly: UI_UX, DATA_QUALITY, WORKFLOW, BUG_FIX, FEATURE, OTHER
+- Error handling MUST use TRPCError with appropriate error codes (NOT_FOUND, CONFLICT, PRECONDITION_FAILED, etc.)
+- All paths in code MUST be project-relative using @ alias (e.g., @/server/api/routers/improvements)
+- Frank design system MUST be maintained: #76A99A accent, #F6F7F8 background, #1D1F21 text, Inter font
+- Forms MUST show loading states during mutations and disable submit buttons
+- Success/error feedback MUST be shown to users (toast notifications or inline messages)
+- Character counts MUST be displayed for title (max 200) and description (max 2000)
+- Auto-save MUST debounce at 30 seconds and use localStorage with sessionId as key
+- Delete operations MUST check for dependencies (evidence, decisions) before allowing deletion
+- All timestamps MUST use Prisma's @default(now()) and @updatedAt decorators
+- TypeScript compilation MUST be clean (no errors) before considering story complete
+- All tests MUST pass before marking story done
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>ImprovementItem Prisma Model</name>
+      <kind>database-model</kind>
+      <signature>
+model ImprovementItem {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  title       String
+  description String
+  category    Category
+  sessionId   String?
+  session     PrioritizationSession? @relation(fields: [sessionId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum Category {
+  UI_UX
+  DATA_QUALITY
+  WORKFLOW
+  BUG_FIX
+  FEATURE
+  OTHER
+}
+      </signature>
+      <path>frank/prisma/schema.prisma</path>
+    </interface>
+    <interface>
+      <name>improvementsRouter.create</name>
+      <kind>tRPC-mutation</kind>
+      <signature>
+create: protectedProcedure
+  .input(z.object({
+    title: z.string().min(5).max(200),
+    description: z.string().min(10).max(2000),
+    category: z.enum(['UI_UX', 'DATA_QUALITY', 'WORKFLOW', 'BUG_FIX', 'FEATURE', 'OTHER']),
+    sessionId: z.string().optional(),
+  }))
+  .mutation(async ({ input, ctx }) => {
+    const improvement = await ctx.db.improvementItem.create({
+      data: {
+        ...input,
+        userId: ctx.session.user.id,
+      },
+    })
+    return { success: true, data: improvement }
+  })
+      </signature>
+      <path>frank/src/server/api/routers/improvements.ts</path>
+    </interface>
+    <interface>
+      <name>improvementsRouter.list</name>
+      <kind>tRPC-query</kind>
+      <signature>
+list: protectedProcedure
+  .input(z.object({
+    sessionId: z.string().optional(),
+    category: z.enum(['UI_UX', 'DATA_QUALITY', 'WORKFLOW', 'BUG_FIX', 'FEATURE', 'OTHER']).optional(),
+  }))
+  .query(async ({ input, ctx }) => {
+    return await ctx.db.improvementItem.findMany({
+      where: {
+        userId: ctx.session.user.id,
+        ...(input.sessionId && { sessionId: input.sessionId }),
+        ...(input.category && { category: input.category }),
+      },
+      orderBy: { createdAt: 'desc' },
+    })
+  })
+      </signature>
+      <path>frank/src/server/api/routers/improvements.ts</path>
+    </interface>
+    <interface>
+      <name>improvementsRouter.update</name>
+      <kind>tRPC-mutation</kind>
+      <signature>
+update: protectedProcedure
+  .input(z.object({
+    id: z.string(),
+    title: z.string().min(5).max(200).optional(),
+    description: z.string().min(10).max(2000).optional(),
+    category: z.enum(['UI_UX', 'DATA_QUALITY', 'WORKFLOW', 'BUG_FIX', 'FEATURE', 'OTHER']).optional(),
+  }))
+  .mutation(async ({ input, ctx }) => {
+    // Verify ownership
+    const existing = await ctx.db.improvementItem.findFirst({
+      where: { id: input.id, userId: ctx.session.user.id },
+    })
+    if (!existing) throw new TRPCError({ code: 'NOT_FOUND' })
+    
+    const { id, ...data } = input
+    return await ctx.db.improvementItem.update({
+      where: { id },
+      data,
+    })
+  })
+      </signature>
+      <path>frank/src/server/api/routers/improvements.ts</path>
+    </interface>
+    <interface>
+      <name>improvementsRouter.delete</name>
+      <kind>tRPC-mutation</kind>
+      <signature>
+delete: protectedProcedure
+  .input(z.object({ id: z.string() }))
+  .mutation(async ({ input, ctx }) => {
+    // Verify ownership and check dependencies
+    const existing = await ctx.db.improvementItem.findFirst({
+      where: { id: input.id, userId: ctx.session.user.id },
+      include: { evidence: true, decisions: true },
+    })
+    if (!existing) throw new TRPCError({ code: 'NOT_FOUND' })
+    if (existing.evidence.length > 0 || existing.decisions.length > 0) {
+      throw new TRPCError({
+        code: 'PRECONDITION_FAILED',
+        message: 'Cannot delete improvement with associated evidence or decisions',
+      })
+    }
+    
+    await ctx.db.improvementItem.delete({ where: { id: input.id } })
+    return { success: true }
+  })
+      </signature>
+      <path>frank/src/server/api/routers/improvements.ts</path>
+    </interface>
+    <interface>
+      <name>getServerAuthSession</name>
+      <kind>function</kind>
+      <signature>
+export const auth = async () => {
+  return await getServerSession(authConfig)
+}
+// Available in tRPC context as ctx.session
+      </signature>
+      <path>frank/src/server/auth.ts</path>
+    </interface>
+    <interface>
+      <name>Prisma Client</name>
+      <kind>database-client</kind>
+      <signature>
+export const db: PrismaClient
+// Available in tRPC context as ctx.db
+// Usage: ctx.db.improvementItem.create/findMany/update/delete
+      </signature>
+      <path>frank/src/server/db.ts</path>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>Follow T3 Stack testing patterns. Use Jest for unit/integration tests, React Testing Library for component tests, Playwright for E2E tests. All tests must be in __tests__ directories or .test.ts/.spec.ts files. Mock tRPC calls in component tests. Use test database for integration tests. Ensure 100% coverage of acceptance criteria.</standards>
+    <locations>
+      <location>frank/src/lib/validations/__tests__/improvement.test.ts</location>
+      <location>frank/src/server/api/routers/__tests__/improvements.test.ts</location>
+      <location>frank/src/components/frank/__tests__/improvement-form.test.tsx</location>
+      <location>frank/tests/e2e/improvements.spec.ts</location>
+    </locations>
+    <ideas>
+      <idea ac="1">Test form validation: title too short/long, description too short/long, missing category, all fields valid</idea>
+      <idea ac="1">Test real-time validation triggers on blur and onChange events</idea>
+      <idea ac="1">Test submit button disabled state based on form validity</idea>
+      <idea ac="1">Test form clears after successful submission</idea>
+      <idea ac="2">Test improvement creation associates userId from session</idea>
+      <idea ac="2">Test session prompt appears when no active session exists</idea>
+      <idea ac="2">Test auto-save triggers after 30 seconds of inactivity</idea>
+      <idea ac="2">Test draft restoration on page load</idea>
+      <idea ac="2">Test draft cleared after successful submission</idea>
+      <idea ac="3">Test list displays improvements sorted by creation date</idea>
+      <idea ac="3">Test list shows loading skeleton while fetching</idea>
+      <idea ac="3">Test empty state displayed when no improvements</idea>
+      <idea ac="3">Test description truncation at 150 characters</idea>
+      <idea ac="3">Test category badge displays correct category</idea>
+      <idea ac="4">Test edit form pre-populates with current values</idea>
+      <idea ac="4">Test edit validation applies same rules as create</idea>
+      <idea ac="4">Test cancel button restores original values</idea>
+      <idea ac="4">Test optimistic update on save with rollback on error</idea>
+      <idea ac="5">Test delete confirmation dialog appears</idea>
+      <idea ac="5">Test delete removes improvement from list</idea>
+      <idea ac="5">Test undo restores deleted improvement within 5 seconds</idea>
+      <idea ac="5">Test delete blocked when evidence/decisions exist</idea>
+      <idea ac="6">Test character counters update in real-time</idea>
+      <idea ac="6">Test helpful error messages display for each validation rule</idea>
+      <idea ac="6">Test network error shows retry option</idea>
+      <idea ac="6">Test form state preserved on network error</idea>
+      <idea ac="all">E2E test complete flow: login → create improvement → edit → delete</idea>
+      <idea ac="all">Test authorization: users can only access their own improvements</idea>
+    </ideas>
+  </tests>
+</story-context>

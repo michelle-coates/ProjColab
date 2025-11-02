@@ -42,7 +42,7 @@ npm install @vercel/blob
 |----------|----------|------------------|--------------|-----------|
 | **Foundation** | T3 Stack | Latest | All Epics | Full-stack TypeScript, proven SaaS patterns |
 | **Frontend Framework** | Next.js | 15.x | All Epics | App Router, Server Components, optimal for AI UX |
-| **AI Integration** | Claude API | 3.5 Sonnet | Epics 1,2,5 | Superior analytical reasoning for Socratic questioning |
+| **AI Integration** | Claude API | 4.5 Sonnet | Epics 1,2,5 | Superior analytical reasoning for Socratic questioning |
 | **Database** | PostgreSQL | 16.x | All Epics | Complex queries for clustering, enterprise-ready |
 | **ORM** | Prisma | 5.x | All Epics | Type-safe, handles complex Frank data relationships |
 | **API Layer** | tRPC | 10.x | All Epics | End-to-end type safety for AI conversations |
@@ -269,7 +269,7 @@ frank/
 - **Edge Functions:** Real-time collaboration with global distribution
 
 ### **AI Integration: Claude API**
-- **Model:** Claude 3.5 Sonnet (claude-3-5-sonnet-20241022)
+- **Model:** Claude 4.5 Sonnet (claude-sonnet-4-20250514)
 - **Use Cases:** Socratic questioning, evidence analysis, strategic insights
 - **Rate Limiting:** Built-in fallback to predefined questions
 - **Cost Optimization:** Conversation context management and response caching
@@ -507,7 +507,7 @@ model EvidenceEntry {
 async function generateSocraticQuestion(context: QuestionContext): Promise<Result<SocraticQuestion>> {
   try {
     const response = await claude.messages.create({
-      model: "claude-3-5-sonnet-20241022",
+      model: "claude-sonnet-4-20250514",
       max_tokens: 1000,
       messages: [{ role: "user", content: buildPrompt(context) }]
     })
@@ -592,7 +592,7 @@ model AIConversation {
   turns           ConversationTurn[]
   finalInsights   Json?
   evidenceGained  Json?
-  claudeModel     String   @default("claude-3-5-sonnet-20241022")
+  claudeModel     String   @default("claude-sonnet-4-20250514")
   tokenUsage      Int?
   duration        Int?     // Conversation time in seconds
   createdAt       DateTime @default(now())
@@ -731,7 +731,7 @@ export class ClaudeConversationEngine implements ClaudeConversationAPI {
     const prompt = this.buildSocraticPrompt(params)
     
     const response = await this.claude.messages.create({
-      model: "claude-3-5-sonnet-20241022",
+      model: "claude-sonnet-4-20250514",
       max_tokens: 500,
       messages: [{ role: "user", content: prompt }],
       system: `You are Frank, an intelligent thinking partner who helps product managers make evidence-based decisions. 
@@ -970,7 +970,7 @@ DIRECT_URL="postgresql://..."
 
 # AI Integration
 CLAUDE_API_KEY="sk-ant-..."
-CLAUDE_MODEL="claude-3-5-sonnet-20241022"
+CLAUDE_MODEL="claude-sonnet-4-20250514"
 
 # Authentication
 NEXTAUTH_SECRET="..."
@@ -1087,7 +1087,7 @@ npm run dev
 ### **ADR-002: Claude API for AI Integration**
 **Date:** November 1, 2025  
 **Status:** Accepted  
-**Decision:** Use Anthropic Claude 3.5 Sonnet for conversational AI and Socratic questioning  
+**Decision:** Use Anthropic Claude 4.5 Sonnet for conversational AI and Socratic questioning  
 **Rationale:** Superior analytical reasoning capabilities essential for Frank's evidence-based prioritization approach  
 **Consequences:**
 - ✅ High-quality Socratic questioning and insight generation

@@ -9,7 +9,7 @@ Status: Draft
 
 ## Overview
 
-Epic 1 establishes the foundational Frank application delivering core micro-improvement prioritization capabilities through AI-powered Socratic questioning. This epic creates a deployable web application where individual users can capture improvement items, engage with Claude AI for evidence gathering, perform pairwise comparisons, and export prioritized results. The implementation leverages the T3 Stack (Next.js 15, TypeScript, Tailwind, tRPC, Prisma, NextAuth) with Claude 3.5 Sonnet integration to demonstrate Frank's unique value proposition: "Think with me. We'll figure it out."
+Epic 1 establishes the foundational Frank application delivering core micro-improvement prioritization capabilities through AI-powered Socratic questioning. This epic creates a deployable web application where individual users can capture improvement items, engage with Claude AI for evidence gathering, perform pairwise comparisons, and export prioritized results. The implementation leverages the T3 Stack (Next.js 15, TypeScript, Tailwind, tRPC, Prisma, NextAuth) with Claude 4.5 Sonnet integration to demonstrate Frank's unique value proposition: "Think with me. We'll figure it out."
 
 This epic delivers end-to-end functionality from user account creation through improvement capture, AI interrogation, pairwise ranking, data persistence, visualization, export, and guided onboarding - establishing the complete foundation for subsequent intelligence and collaboration features.
 
@@ -49,7 +49,7 @@ Epic 1 implements the core T3 Stack architecture established in the Architecture
 - **NextAuth.js**: Email/password authentication with JWT session management
 
 **Claude AI Integration:**
-- Model: claude-3-5-sonnet-20241022
+- Model: claude-sonnet-4-20250514
 - Purpose: Socratic questioning engine generating evidence-based interrogation
 - Pattern: ConversationEngine with fallback to predefined questions on API failures
 - Cost Optimization: Conversation context management and response caching
@@ -217,7 +217,7 @@ model AIConversation {
   turns           ConversationTurn[] // JSON array
   finalInsights   Json?
   evidenceGained  Json?
-  claudeModel     String   @default("claude-3-5-sonnet-20241022")
+  claudeModel     String   @default("claude-sonnet-4-20250514")
   tokenUsage      Int?
   duration        Int?     // Conversation time in seconds
   createdAt       DateTime @default(now())
@@ -868,7 +868,7 @@ NODE_ENV="development"
 - **Validation**: User satisfaction with final rankings >80%
 - **Impact if Wrong**: May need more sophisticated ranking algorithms (Epic 2 clustering helps)
 
-**A-004: Claude 3.5 Sonnet Capabilities**
+**A-004: Claude 4.5 Sonnet Capabilities**
 - **Assumption**: Claude can generate insightful Socratic questions without fine-tuning
 - **Validation**: Question quality ratings by users, fallback usage rate <10%
 - **Impact if Wrong**: May need question templates, prompt engineering iteration

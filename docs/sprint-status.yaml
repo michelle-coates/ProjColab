@@ -37,13 +37,13 @@ story_location: "{project-root}/docs/stories"
 development_status:
   # Epic 1: Foundation & Core Prioritization Engine
   epic-1: contexted
-  1-1-user-account-creation-and-authentication: ready-for-dev
-  1-2-improvement-item-capture-interface: backlog
-  1-3-ai-powered-context-gathering: backlog
-  1-4-effort-estimation-with-ai-guidance: backlog
-  1-5-basic-pairwise-comparison-engine: backlog
-  1-6-basic-data-persistence-and-session-management: backlog
-  1-7-simple-impact-vs-effort-visualization: backlog
+  1-1-user-account-creation-and-authentication: done
+  1-2-improvement-item-capture-interface: done
+  1-3-ai-powered-context-gathering: done
+  1-4-effort-estimation-with-ai-guidance: done
+  1-5-basic-pairwise-comparison-engine: done
+  1-6-basic-data-persistence-and-session-management: done
+  1-7-simple-impact-vs-effort-visualization: done
   1-8-basic-export-and-handoff: backlog
   1-9-guided-onboarding-experience: backlog
   1-10-input-validation-and-error-handling: backlog

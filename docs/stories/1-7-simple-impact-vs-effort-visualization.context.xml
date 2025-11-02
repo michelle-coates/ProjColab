@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<context>
+    <type>Story</type>
+    <id>1.7</id>
+    <title>Simple Impact vs Effort Visualization</title>
+    <epic>1</epic>
+    <prerequisites>
+        <story>1.4</story>
+        <story>1.5</story>
+    </prerequisites>
+    <functionalRequirements>
+        <requirement>FR010</requirement>
+        <requirement>FR011</requirement>
+    </functionalRequirements>
+    <nfRequirements>
+        <requirement>NFR001</requirement>
+        <requirement>NFR005</requirement>
+    </nfRequirements>
+    <userJourneys>
+        <journey>Journey 1</journey>
+        <journey>Journey 3</journey>
+    </userJourneys>
+    <files>
+        <file>
+            <path>src/components/visualization/ImpactEffortMatrix.tsx</path>
+            <type>new</type>
+            <features>
+                <feature>2x2 matrix visualization component</feature>
+                <feature>Interactive plot points with hover details</feature>
+                <feature>Drag and drop functionality</feature>
+                <feature>Quadrant styling and labels</feature>
+            </features>
+        </file>
+        <file>
+            <path>src/components/visualization/MatrixControls.tsx</path>
+            <type>new</type>
+            <features>
+                <feature>Filter and sort controls</feature>
+                <feature>View options panel</feature>
+                <feature>Position reset functionality</feature>
+            </features>
+        </file>
+        <file>
+            <path>src/server/api/routers/improvements.ts</path>
+            <type>update</type>
+            <features>
+                <feature>Matrix data endpoints</feature>
+                <feature>Position update handling</feature>
+            </features>
+        </file>
+        <file>
+            <path>prisma/schema.prisma</path>
+            <type>update</type>
+            <features>
+                <feature>Matrix position fields</feature>
+                <feature>Impact score storage</feature>
+            </features>
+        </file>
+    </files>
+    <validation>
+        <criteria>
+            <item>Matrix displays with proper axes and quadrant labels</item>
+            <item>Interactive plot points show improvement details on hover</item>
+            <item>Drag and drop updates positions correctly</item>
+            <item>Quick Wins quadrant items are properly highlighted</item>
+            <item>Filter controls affect matrix display appropriately</item>
+        </criteria>
+        <performanceTargets>
+            <target>Matrix renders within 2 seconds for up to 100 improvements</target>
+            <target>Position updates reflect within 500ms</target>
+            <target>Hover tooltips appear within 100ms</target>
+        </performanceTargets>
+    </validation>
+</context>

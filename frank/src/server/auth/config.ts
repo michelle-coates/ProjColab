@@ -88,7 +88,8 @@ export const authConfig = {
       },
     }),
   ],
-  adapter: PrismaAdapter(db),
+  // Note: PrismaAdapter is not used with Credentials provider + JWT strategy
+  // adapter: PrismaAdapter(db),
   session: {
     strategy: "jwt",
     maxAge: 7 * 24 * 60 * 60, // 7 days

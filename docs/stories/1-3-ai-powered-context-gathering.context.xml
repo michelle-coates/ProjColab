@@ -1,0 +1,322 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/1-3" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>1.3</storyId>
+    <title>AI-Powered Context Gathering</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-02</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/1-3-ai-powered-context-gathering.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>product manager</asA>
+    <iWant>Frank to ask me intelligent questions about my improvement items</iWant>
+    <soThat>I can provide evidence-based context rather than making assumptions</soThat>
+    <tasks>
+### Task 1: Database Schema for Evidence and Conversations (AC: 4)
+- Update Prisma schema with EvidenceEntry model
+  - Define EvidenceEntry model: id, improvementId, content, source (enum), confidence, createdAt
+  - Add EvidenceSource enum: ANALYTICS, SUPPORT_TICKETS, USER_FEEDBACK, ASSUMPTIONS, USER_UPLOAD
+  - Add relation to ImprovementItem (evidence field one-to-many)
+- Update Prisma schema with AIConversation model
+  - Define AIConversation model: id, sessionId, improvementId, turns (JSON), finalInsights (JSON), claudeModel, tokenUsage, duration, createdAt
+  - Add relations to ImprovementItem and PrioritizationSession
+  - Define ConversationTurn type in TypeScript for type safety
+- Create database migration
+  - Run `npm run db:push` to apply schema changes
+  - Verify schema in Prisma Studio
+
+### Task 2: Claude AI Integration Setup (AC: 1, 6)
+- Install Anthropic SDK (ALREADY INSTALLED: @anthropic-ai/sdk@^0.68.0)
+- Create ClaudeConversationEngine service
+  - Create `src/lib/ai/claude/conversation-engine.ts`
+  - Initialize Anthropic client with API key from env
+  - Implement `generateQuestion()` method accepting improvement context
+  - Implement prompt engineering for Socratic questioning
+  - Add error handling with try/catch for API failures
+- Create fallback question bank
+  - Create `src/lib/ai/claude/fallback-questions.ts`
+  - Define question sets by category (UI_UX, DATA_QUALITY, WORKFLOW, BUG_FIX, FEATURE, OTHER)
+  - Each set includes 5-7 evidence-focused questions
+
+### Task 3: Validation Schemas for Conversations (AC: 3, 4)
+- Create validation schemas in `src/lib/validations/conversation.ts`
+  - Define `generateQuestionSchema`: improvementId, conversationHistory (optional)
+  - Define `submitResponseSchema`: conversationId, response (min 10 chars), evidenceType (optional)
+  - Define `conversationTurnSchema`: speaker (AI/USER), message, timestamp, metadata
+
+### Task 4: Conversations tRPC Router (AC: 1, 2, 3, 4)
+- Create `src/server/api/routers/conversations.ts`
+  - Implement `generateQuestion` mutation (protected procedure)
+  - Implement `submitResponse` mutation (protected procedure)
+  - Implement `getConversation` query (protected procedure)
+  - Implement `skipQuestion` mutation (protected procedure)
+- Add conversations router to root router in `src/server/api/root.ts`
+
+### Task 5: Evidence Confidence Scoring (AC: 2)
+- Create evidence scoring utility
+  - Create `src/lib/ai/analytics/evidence-scoring.ts`
+  - Implement confidence calculation algorithm
+  - Calculate overall confidence as weighted average of evidence entries
+  - Identify evidence gaps (missing sources)
+
+### Task 6: Conversational UI Component (AC: 3)
+- Create conversation interface component
+  - Create `src/components/frank/conversation-interface.tsx`
+  - Chat-style layout with Frank's questions on left, user responses on right
+  - Frank's avatar/icon with questions
+  - User response input field (textarea with character counter)
+  - Evidence type selector (optional)
+  - "Skip for now" button with confirmation
+  - Loading state while AI generates next question
+
+### Task 7: Conversation History Display (AC: 3, 4)
+- Create conversation history component
+  - Create `src/components/frank/conversation-history.tsx`
+  - Display all turns in chronological order
+  - Show Frank's questions with context/reasoning
+  - Show user responses with evidence source badges
+  - Timestamp each turn
+  - Overall confidence score visualization
+
+### Task 8: Evidence Management Integration (AC: 4, 5)
+- Update improvement list to show evidence status
+  - Add evidence indicator badge
+  - Visual distinction for improvements with/without evidence
+  - Evidence confidence color coding
+  - "Gather evidence" action button on each improvement
+- Create evidence collection flow
+- Add evidence detail view
+
+### Task 9: Skip and Revisit Functionality (AC: 5)
+- Implement skip logic
+  - "Skip for now" button calls `conversations.skipQuestion`
+  - Improvement marked with "evidence incomplete" flag
+- Implement revisit logic
+  - "Gather evidence" button available on all improvements
+  - Loading existing conversation shows history
+  - User can add more evidence to completed conversations
+
+### Task 10: Fallback Question System (AC: 6)
+- Implement fallback question bank
+  - Create question sets for each category
+  - Each category: 5-7 questions in logical sequence
+- Implement fallback activation logic
+  - Try Claude API first in ClaudeConversationEngine
+  - On API error: catch and log, call getFallbackQuestion
+  - Return fallback question with metadata
+- Add fallback indicator to UI
+
+### Task 11: Integration with Dashboard and Improvement Flow (AC: All)
+- Add conversation triggers to dashboard
+- Update improvement form flow
+  - After creating improvement, offer "Gather evidence now?"
+- Add conversation to improvement detail modal
+
+### Task 12: Testing and Validation (AC: All)
+- Write unit tests for ClaudeConversationEngine
+- Write unit tests for evidence scoring
+- Write integration tests for conversations router
+- Write component tests for conversation interface
+- Write E2E tests with Playwright
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+1. **AI Question Generation Based on Context**
+   - AI analyzes improvement title, description, and category to generate relevant questions
+   - Questions focus on evidence discovery: "Who benefits?", "How often does this occur?", "How would you measure impact?"
+   - Category-specific question patterns: UI/UX asks about user pain points, Data Quality about accuracy metrics, etc.
+   - Each question includes clear context explaining why Frank is asking
+   - Questions avoid yes/no responses, prompting detailed evidence-based answers
+
+2. **Evidence-Focused Interrogation Flow**
+   - Questions specifically target evidence gathering: beneficiary identification, frequency metrics, visibility scope
+   - AI prompts for concrete data: "Check support tickets," "Review analytics," "Survey users"
+   - Follow-up questions based on previous responses
+   - Strategic connection prompts linking improvement to business objectives
+   - Evidence classification prompts: Analytics, Support Tickets, User Feedback, Assumptions
+
+3. **Conversational Interface with Follow-ups**
+   - Chat-style interface with conversation bubbles showing Frank's questions and user responses
+   - AI generates follow-up questions based on user's previous answers
+   - Conversation history visible for context and review
+   - User can provide multi-turn responses building on previous answers
+   - Conversation feels natural, not form-filling
+
+4. **Evidence Storage and Persistence**
+   - All user responses stored as EvidenceEntry records linked to improvement
+   - Evidence includes: content, source type, confidence level
+   - Conversation turns saved to AIConversation model with Claude metadata
+   - Evidence persists across sessions
+   - Evidence entries visible in improvement detail view with source attribution
+
+5. **Skip and Revisit Capability**
+   - "Skip for now" option on any question without losing improvement data
+   - Skipped improvements marked with indicator showing evidence incomplete
+   - "Gather evidence" action available on any improvement to resume conversation
+   - User can revisit completed conversations and add more evidence
+   - No penalty for skipping
+
+6. **Fallback to Predefined Questions**
+   - System includes predefined question bank organized by category
+   - If Claude API unavailable or rate limited, fallback questions display seamlessly
+   - Fallback questions still focus on evidence
+   - Visual indicator when using fallback (subtle, not alarming)
+   - Conversation flow continues normally with fallback questions
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/tech-spec-epic-1.md" title="Epic 1 Technical Specification" section="Claude AI Integration">
+        Defines ClaudeConversationEngine class with generateQuestion() method accepting improvement context, conversation history, evidence gaps, and user expertise level. Returns SocraticQuestion objects with targeted prompts. Dependencies: @anthropic-ai/sdk, environment variables for API key.
+      </doc>
+      <doc path="docs/tech-spec-epic-1.md" title="Epic 1 Technical Specification" section="Conversations Router">
+        Specifies conversations tRPC router with generateQuestion, submitResponse, getHistory, and skipQuestion procedures. All protected procedures requiring authentication. Manages AI conversation state, stores turns, tracks evidence discovery.
+      </doc>
+      <doc path="docs/tech-spec-epic-1.md" title="Epic 1 Technical Specification" section="Data Models">
+        Defines EvidenceEntry model (id, improvementId, content, source, confidence, createdAt) and AIConversation model (id, sessionId, improvementId, turns as JSON, finalInsights, claudeModel, tokenUsage, duration, createdAt). Includes EvidenceSource enum: ANALYTICS, SUPPORT_TICKETS, USER_FEEDBACK, ASSUMPTIONS, USER_UPLOAD.
+      </doc>
+      <doc path="docs/architecture.md" title="Frank Architecture" section="AI Integration: Claude API">
+              <snippet>
+        Claude 4.5 Sonnet (claude-sonnet-4-20250514) for Socratic questioning, evidence analysis, strategic insights. Rate limiting with built-in fallback to predefined questions. Cost optimization through conversation context management and response caching.
+      </snippet>
+      </doc>
+      <doc path="docs/architecture.md" title="Frank Architecture" section="Novel Pattern Designs - AI Socratic Interrogation">
+        Structured conversation pattern with ConversationEngine managing question flow, EvidenceTracker monitoring confidence levels and gaps, InsightGenerator identifying key realizations, FallbackHandler for graceful degradation when AI unavailable.
+      </doc>
+      <doc path="docs/architecture.md" title="Frank Architecture" section="Performance Considerations - Claude API Optimization">
+        Response caching for similar questions with 1-hour TTL. Token usage tracking and optimization. Context pruning keeping only last 20 turns in memory. Monthly API usage monitoring with alerts at 80% threshold.
+      </doc>
+      <doc path="docs/PRD.md" title="Product Requirements" section="FR004: Targeted AI Questions">
+        System shall generate targeted questions based on improvement type to challenge assumptions and gather evidence. Questions adapt complexity based on improvement category and estimated effort level.
+      </doc>
+      <doc path="docs/PRD.md" title="Product Requirements" section="FR006: Evidence-Based Justification">
+        System shall require evidence-based justification for priority claims and impact assumptions. Evidence classification: Analytics, Support Tickets, User Feedback, Assumptions.
+      </doc>
+      <doc path="docs/epics.md" title="Epic Breakdown" section="Story 1.3">
+        User story: "As a product manager, I want Frank to ask me intelligent questions about my improvement items, so that I can provide evidence-based context rather than making assumptions." Prerequisites: Story 1.2 (improvement capture).
+      </doc>
+    </docs>
+    <code>
+      <artifact path="frank/src/server/api/services/claude.ts" kind="service" symbol="ClaudeService" lines="1-230" reason="Existing Claude AI service with generateSocraticQuestions(), processResponse(), and generateLearningPath() methods. Demonstrates established patterns for Claude API integration, prompt engineering, error handling, and JSON response parsing. Use as reference for implementing ClaudeConversationEngine.">
+        <relevance>
+        Includes Anthropic client initialization, prompt building patterns, response parsing with markdown code block stripping, error handling. Shows how to use claude-sonnet-4-20250514 model (aligned with story spec).
+      </relevance>
+      </artifact>
+      <artifact path="frank/src/server/api/routers/claude.ts" kind="router" symbol="claudeRouter" lines="1-48" reason="Existing tRPC router for Claude service demonstrating publicProcedure patterns. Shows input validation with Zod, mutation structure, and service method invocation. Note: conversations router should use protectedProcedure instead of publicProcedure.">
+        Demonstrates tRPC router structure with input schemas, mutation handlers calling Claude service methods. Currently uses publicProcedure - conversations router needs protectedProcedure for auth.
+      </artifact>
+      <artifact path="frank/src/server/api/routers/improvements.ts" kind="router" symbol="improvementsRouter" lines="1-120" reason="Complete reference implementation for tRPC protected procedures. Shows patterns for: input validation, ownership verification, TRPCError usage, database operations via ctx.db, success response structure. Direct model for conversations router implementation.">
+        Includes create, list, getById, update, delete procedures. All use protectedProcedure with ctx.session.user.id for ownership. TRPCError with NOT_FOUND code for missing records. Success response: { success: true, data: ... }
+      </artifact>
+      <artifact path="frank/src/lib/validations/improvement.ts" kind="validation" symbol="improvement schemas" reason="Existing validation schemas demonstrating Zod pattern. Shows category enum validation, string length constraints, optional fields, helpful error messages. Template for conversation validation schemas.">
+        createImprovementSchema, updateImprovementSchema, deleteImprovementSchema, listImprovementsSchema with Zod. Category enum validation pattern reusable for EvidenceSource enum.
+      </artifact>
+      <artifact path="frank/prisma/schema.prisma" kind="schema" symbol="ImprovementItem, PrioritizationSession" lines="60-115" reason="Existing database models showing Prisma patterns for relations, indexes, enums. ImprovementItem model ready for evidence and conversations relations (to be added in this story). Shows @db.Text for long strings, @@index patterns.">
+        Current schema includes ImprovementItem with userId, sessionId relations. Category enum already defined. Need to add: EvidenceEntry model, AIConversation model, EvidenceSource enum, relations to ImprovementItem.
+      </artifact>
+      <artifact path="frank/src/server/api/root.ts" kind="router" symbol="appRouter" lines="1-30" reason="Root router showing how to compose multiple routers. Pattern for adding conversations router to app.">
+        Uses createTRPCRouter to compose post, auth, claude, and improvements routers. Add conversations router using same pattern: conversations: conversationsRouter.
+      </artifact>
+      <artifact path="frank/src/app/_components/frank/improvement-list.tsx" kind="component" symbol="ImprovementList" reason="Existing React component demonstrating Frank UI patterns: list rendering, tRPC query usage, loading states, empty states, inline editing, delete confirmation. Reference for conversation interface components.">
+        Shows api.improvements.list.useQuery() pattern, optimistic updates, shadcn/ui components (Card, Button, Badge), Frank design system styling.
+      </artifact>
+      <artifact path="frank/src/app/_components/frank/improvement-form.tsx" kind="component" symbol="ImprovementForm" reason="Form component demonstrating controlled inputs, real-time validation, character counters, tRPC mutations, Frank design system. Pattern for conversation response input.">
+        Controlled components with useState, handleSubmit with api.improvements.create.mutate(), loading states, success handling.
+      </artifact>
+    </code>
+    <dependencies>
+      <node>
+        <package name="@anthropic-ai/sdk" version="^0.68.0" note="Already installed - Claude AI integration library" />
+        <package name="@trpc/server" version="^11.0.0" note="Already installed - tRPC server for conversations router" />
+        <package name="@trpc/client" version="^11.0.0" note="Already installed - tRPC client" />
+        <package name="@trpc/react-query" version="^11.0.0" note="Already installed - React Query integration" />
+        <package name="@prisma/client" version="^6.5.0" note="Already installed - database ORM" />
+        <package name="zod" version="^3.24.2" note="Already installed - validation schemas" />
+        <package name="next" version="^15.2.3" note="Already installed - React framework" />
+        <package name="react" version="^19.0.0" note="Already installed - UI library" />
+        <package name="next-auth" version="5.0.0-beta.25" note="Already installed - authentication" />
+      </node>
+      <additional>
+        <note>No additional dependencies required - all necessary packages already installed in package.json</note>
+        <note>shadcn/ui components will need to be added: Dialog, Textarea, Badge, Progress for conversation UI</note>
+      </additional>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    - All tRPC procedures MUST use protectedProcedure to ensure authentication
+    - Database access MUST use ctx.db and filter by ctx.session.user.id for ownership
+    - Input validation MUST use Zod schemas on all mutations and queries
+    - Error handling MUST use TRPCError with appropriate codes (NOT_FOUND, FORBIDDEN, etc.)
+    - Claude API calls MUST have try/catch with fallback to predefined questions
+    - Conversation turns MUST be stored as JSON in AIConversation.turns field
+    - Evidence confidence MUST be calculated using weighted average: ANALYTICS=1.0, SUPPORT_TICKETS=0.8, USER_FEEDBACK=0.6, ASSUMPTIONS=0.3, USER_UPLOAD=0.9
+    - Frank design system MUST be maintained: #76A99A accent (sage green), #F6F7F8 background, Inter font
+    - TypeScript MUST compile without errors (npm run typecheck)
+    - Database schema changes MUST use `npm run db:push` to sync
+    - All user-facing text MUST be in English
+    - Response time target: Claude API responses within 5 seconds (95th percentile)
+    - Token usage MUST be tracked in AIConversation.tokenUsage field
+    - Fallback questions MUST be organized by Category enum (UI_UX, DATA_QUALITY, WORKFLOW, BUG_FIX, FEATURE, OTHER)
+    - UI components MUST use shadcn/ui base components (Dialog, Button, Card, Textarea, Badge, Progress)
+    - Conversations MUST preserve state across sessions - no data loss on page refresh
+    - Evidence entries MUST link to ImprovementItem via improvementId foreign key
+    - Skip functionality MUST NOT delete data - only mark as incomplete
+    - Conversation history MUST be paginated if exceeds 50 turns (unlikely in Epic 1)
+  </constraints>
+
+  <interfaces>
+    <interface name="ClaudeConversationEngine.generateQuestion" kind="TypeScript class method" signature="async generateQuestion(params: { improvement: ImprovementItem; conversationHistory: ConversationTurn[]; evidenceGaps: string[]; userExpertise?: 'beginner' | 'intermediate' | 'expert'; }): Promise<SocraticQuestion>" path="src/lib/ai/claude/conversation-engine.ts">
+      Core method for Claude AI integration. Takes improvement context and conversation history, returns SocraticQuestion with question text, context/reasoning, suggested evidence types, and follow-up prompts. Throws error on API failure (caught by router for fallback).
+    </interface>
+    <interface name="getFallbackQuestion" kind="TypeScript function" signature="getFallbackQuestion(category: Category, turnNumber: number): SocraticQuestion" path="src/lib/ai/claude/fallback-questions.ts">
+      Returns predefined Socratic question based on improvement category and conversation turn number. Used when Claude API unavailable. Returns same SocraticQuestion interface as Claude integration for seamless fallback.
+    </interface>
+    <interface name="calculateConfidence" kind="TypeScript function" signature="calculateConfidence(evidenceEntries: EvidenceEntry[]): number" path="src/lib/ai/analytics/evidence-scoring.ts">
+      Calculates weighted confidence score (0.0-1.0) from array of evidence entries. Uses source-based weights: ANALYTICS=1.0, SUPPORT_TICKETS=0.8, USER_FEEDBACK=0.6, ASSUMPTIONS=0.3, USER_UPLOAD=0.9. Returns average weighted score.
+    </interface>
+    <interface name="identifyEvidenceGaps" kind="TypeScript function" signature="identifyEvidenceGaps(evidenceEntries: EvidenceEntry[]): string[]" path="src/lib/ai/analytics/evidence-scoring.ts">
+      Analyzes evidence entries and returns array of missing evidence types (e.g., ['analytics data', 'support tickets']). Used to guide Claude in generating questions about missing evidence.
+    </interface>
+    <interface name="conversations.generateQuestion" kind="tRPC mutation" signature="generateQuestion(input: { improvementId: string; conversationHistory?: ConversationTurn[]; }): Promise<{ success: boolean; data: SocraticQuestion; conversationId: string; source: 'claude' | 'fallback'; }>" path="src/server/api/routers/conversations.ts">
+      Protected tRPC procedure. Loads improvement, calls ClaudeConversationEngine or fallback, creates/updates AIConversation record, returns question with metadata. Requires authentication.
+    </interface>
+    <interface name="conversations.submitResponse" kind="tRPC mutation" signature="submitResponse(input: { conversationId: string; improvementId: string; response: string; evidenceType?: EvidenceSource; }): Promise<{ success: boolean; conversationComplete: boolean; confidence: number; suggestNext?: boolean; }>" path="src/server/api/routers/conversations.ts">
+      Protected tRPC procedure. Creates EvidenceEntry from user response, updates AIConversation turns, calculates confidence. If confidence >= 0.7, marks conversation complete. Returns next action suggestion.
+    </interface>
+    <interface name="conversations.getConversation" kind="tRPC query" signature="getConversation(input: { improvementId: string; }): Promise<{ conversation: AIConversation; confidence: number; evidenceCount: number; }>" path="src/server/api/routers/conversations.ts">
+      Protected tRPC procedure. Loads conversation with improvement and evidence, calculates current confidence, returns full context for UI display.
+    </interface>
+    <interface name="conversations.skipQuestion" kind="tRPC mutation" signature="skipQuestion(input: { improvementId: string; }): Promise<{ success: boolean; message: string; }>" path="src/server/api/routers/conversations.ts">
+      Protected tRPC procedure. Allows user to skip evidence gathering without losing data. Returns success confirmation. Does not delete or modify existing conversation data.
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+      Follow T3 Stack testing patterns with Jest + React Testing Library for unit and component tests, Playwright for E2E tests. All tests must run via npm scripts and pass CI checks. Unit tests: 80% coverage target for business logic (ClaudeConversationEngine, evidence scoring, validation schemas), 60% for components. Integration tests: All tRPC router procedures with test database. E2E tests: Critical user flows with real browser automation. Mock Claude API responses in tests using test fixtures to avoid API costs and ensure deterministic results.
+    </standards>
+    <locations>
+      <location>frank/src/lib/ai/claude/__tests__/conversation-engine.test.ts</location>
+      <location>frank/src/lib/ai/analytics/__tests__/evidence-scoring.test.ts</location>
+      <location>frank/src/lib/validations/__tests__/conversation.test.ts</location>
+      <location>frank/src/server/api/routers/__tests__/conversations.test.ts</location>
+      <location>frank/src/components/frank/__tests__/conversation-interface.test.tsx</location>
+      <location>frank/src/components/frank/__tests__/conversation-history.test.tsx</location>
+      <location>frank/tests/e2e/evidence-gathering.spec.ts</location>
+    </locations>
+    <ideas>
+      <idea ac="1,6">Test ClaudeConversationEngine.generateQuestion() with mocked Claude API responses. Verify prompt building for different improvement categories (UI_UX, DATA_QUALITY, etc.). Test fallback activation on API errors (network failure, rate limit). Verify question structure includes context, reasoning, evidence types.</idea>
+      <idea ac="2">Test evidence scoring with various combinations: all ANALYTICS (confidence=1.0), all ASSUMPTIONS (confidence=0.3), mixed sources (weighted average). Test edge cases: zero evidence entries, single entry, 10+ entries. Verify gap identification logic correctly identifies missing source types.</idea>
+      <idea ac="3,4">Test conversations router end-to-end: generateQuestion creates AIConversation, submitResponse creates EvidenceEntry and updates turns, getConversation retrieves with confidence calculation. Test authorization: users can only access their conversations. Test conversation flow: question → response → next question.</idea>
+      <idea ac="3">Test conversation interface component: renders chat bubbles correctly, AI messages left-aligned, user messages right-aligned. Test response submission triggers tRPC mutation. Test loading states during API calls. Test skip button shows confirmation.</idea>
+      <idea ac="4,5">Test conversation history displays all turns chronologically. Test evidence badges show correct colors by source type. Test revisit flow: existing conversation loads with history, new evidence can be added. Test confidence visualization updates as evidence added.</idea>
+      <idea ac="6">Test fallback question system: different questions returned for each category, questions cycle through turnNumber. Test fallback questions have same structure as Claude responses. Test UI indicator shows fallback mode without alarming user.</idea>
+      <idea ac="All">E2E test complete flow: create improvement → click "Gather evidence" → AI asks question → submit response → see confidence update → add more evidence → reach high confidence (>=0.7) → conversation marked complete. Test skip and revisit: skip gathering evidence → later click "Gather evidence" → conversation resumes from beginning.</idea>
+      <idea ac="All">Test database schema: EvidenceEntry properly links to ImprovementItem, AIConversation has sessionId and improvementId foreign keys, cascade deletes work correctly. Test Prisma queries: findMany with includes works, JSON field serialization correct for turns.</idea>
+    </ideas>
+  </tests>
+</story-context>

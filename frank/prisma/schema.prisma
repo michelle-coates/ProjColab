@@ -60,19 +60,183 @@ enum UserRole {
     ENTERPRISE
 }
 
+enum Category {
+    UI_UX
+    DATA_QUALITY
+    WORKFLOW
+    BUG_FIX
+    FEATURE
+    OTHER
+}
+
+enum EvidenceSource {
+    ANALYTICS
+    SUPPORT_TICKETS
+    USER_FEEDBACK
+    ASSUMPTIONS
+    USER_UPLOAD
+}
+
+enum EffortLevel {
+    SMALL
+    MEDIUM
+    LARGE
+}
+
+enum SessionStatus {
+    ACTIVE
+    PAUSED
+    COMPLETED
+}
+
 model User {
-    id            String    @id @default(cuid())
-    name          String?
-    email         String?   @unique
-    emailVerified DateTime?
-    image         String?
-    password      String?
-    role          UserRole  @default(FREE)
-    accounts      Account[]
-    sessions      Session[]
-    posts         Post[]
-    createdAt     DateTime  @default(now())
-    updatedAt     DateTime  @updatedAt
+    id                      String                   @id @default(cuid())
+    name                    String?
+    email                   String?                  @unique
+    emailVerified           DateTime?
+    image                   String?
+    password                String?
+    role                    UserRole                 @default(FREE)
+    accounts                Account[]
+    sessions                Session[]
+    posts                   Post[]
+    improvements            ImprovementItem[]
+    prioritizationSessions  PrioritizationSession[]
+    decisions               DecisionRecord[]
+    createdAt               DateTime                 @default(now())
+    updatedAt               DateTime                 @updatedAt
+}
+
+model PrioritizationSession {
+    id             String            @id @default(cuid())
+    userId         String
+    user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+    name           String
+    description    String?           @db.Text
+    status         SessionStatus     @default(ACTIVE)
+    improvements   ImprovementItem[]
+    conversations  AIConversation[]
+    decisions      DecisionRecord[]
+    startedAt      DateTime          @default(now())
+    completedAt    DateTime?
+    createdAt      DateTime          @default(now())
+    updatedAt      DateTime          @updatedAt
+
+    @@index([userId, createdAt])
+}
+
+model ImprovementItem {
+    id                String            @id @default(cuid())
+    userId            String
+    user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+    sessionId         String?
+    session           PrioritizationSession? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+    title             String
+    description       String            @db.Text
+    category          Category
+    evidence          EvidenceEntry[]
+    conversations     AIConversation[]
+    
+    // Story 1.4: Effort estimation
+    effortLevel       EffortLevel?
+    effortRationale   String?           @db.Text
+    effortEstimatedAt DateTime?
+    effortRevisedAt   DateTime?
+    effortHistory     EffortHistory[]
+    
+    // Story 1.5: Pairwise comparison ranking
+    rankPosition      Int?
+    rankConfidence    Float?
+    impactScore       Float?
+    
+    // Story 1.7: Impact vs Effort matrix
+    matrixPosition    Json?           // Stores {x: number, y: number} for matrix positioning
+    
+    decisionsAsItemA  DecisionRecord[]  @relation("DecisionItemA")
+    decisionsAsItemB  DecisionRecord[]  @relation("DecisionItemB")
+    decisionsAsWinner DecisionRecord[]  @relation("DecisionWinner")
+    
+    createdAt         DateTime          @default(now())
+    updatedAt         DateTime          @updatedAt
+
+    @@index([userId, createdAt])
+    @@index([sessionId])
+}
+
+model EvidenceEntry {
+    id            String          @id @default(cuid())
+    improvementId String
+    improvement   ImprovementItem @relation(fields: [improvementId], references: [id], onDelete: Cascade)
+    content       String          @db.Text
+    source        EvidenceSource
+    confidence    Float
+    createdAt     DateTime        @default(now())
+
+    @@index([improvementId])
+}
+
+model AIConversation {
+    id             String                 @id @default(cuid())
+    sessionId      String?
+    session        PrioritizationSession? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+    improvementId  String
+    improvement    ImprovementItem        @relation(fields: [improvementId], references: [id], onDelete: Cascade)
+    turns          Json
+    finalInsights  Json?
+    evidenceGained Json?
+    claudeModel    String                 @default("claude-sonnet-4-20250514")
+    tokenUsage     Int?
+    duration       Int?
+    usingFallback  Boolean                @default(false)
+    status         String?                @default("IN_PROGRESS")
+    completedAt    DateTime?
+    confidence     Float?
+    notes          String?                @db.Text
+    createdAt      DateTime               @default(now())
+
+    @@index([improvementId])
+    @@index([sessionId])
+}
+
+model EffortHistory {
+    id            String          @id @default(cuid())
+    improvementId String
+    improvement   ImprovementItem @relation(fields: [improvementId], references: [id], onDelete: Cascade)
+    previousLevel EffortLevel?
+    newLevel      EffortLevel
+    rationale     String          @db.Text
+    changedAt     DateTime        @default(now())
+
+    @@index([improvementId])
+}
+
+model DecisionRecord {
+    id                String                 @id @default(cuid())
+    userId            String
+    sessionId         String?
+    
+    itemAId           String
+    itemBId           String
+    winnerId          String
+    
+    prompt            String
+    rationale         String?                @db.Text
+    quickRationale    String?
+    confidence        Float                  @default(0.5)
+    
+    decidedAt         DateTime               @default(now())
+    modifiedAt        DateTime?
+    isModified        Boolean                @default(false)
+    
+    user              User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    itemA             ImprovementItem        @relation("DecisionItemA", fields: [itemAId], references: [id], onDelete: Cascade)
+    itemB             ImprovementItem        @relation("DecisionItemB", fields: [itemBId], references: [id], onDelete: Cascade)
+    winner            ImprovementItem        @relation("DecisionWinner", fields: [winnerId], references: [id], onDelete: Cascade)
+    session           PrioritizationSession? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+    
+    @@unique([userId, itemAId, itemBId])
+    @@index([userId])
+    @@index([sessionId])
 }
 
 model VerificationToken {

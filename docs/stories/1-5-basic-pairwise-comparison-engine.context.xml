@@ -1,0 +1,116 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>5</storyId>
+    <title>Basic Pairwise Comparison Engine</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-02</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/1-5-basic-pairwise-comparison-engine.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>product manager</asA>
+    <iWant>to compare improvement items pairwise with guided prompts</iWant>
+    <soThat>I can build a prioritized ranking based on relative value</soThat>
+    <tasks>
+      <task>Database Schema Updates - Add DecisionRecord model, PrioritizationSession model, extend ImprovementItem with ranking fields, create migration</task>
+      <task>Ranking Algorithm Implementation - Implement Elo-based ranking, add confidence scoring, test with various decision patterns</task>
+      <task>Pair Selection Strategy - Implement intelligent pair selection, add binary search pattern, prioritize cross-effort comparisons</task>
+      <task>Prompt Generation - Create category-specific prompts, add effort-aware variations, implement evidence-based selection</task>
+      <task>tRPC Router Implementation - Create decisions router with recordDecision, getNextPair, getRanking, getDecisionHistory, updateDecision</task>
+      <task>UI Components - Create PairwiseComparison component, add ComparisonCard with hover effects, implement keyboard shortcuts</task>
+      <task>Integration and Flow - Add comparison button to dashboard, show progress indicator, transition to ranking view</task>
+      <task>Testing - Test comparison flow with 5/10/50 items, test ranking algorithm, test decision modification</task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="1">Simple A vs B Comparison Interface - Clean two-column layout with title/description/category/effort badge, evidence summary, S/M/L effort indicator, Choose Left/Right/Skip buttons, keyboard shortcuts (Arrow Left/Right/Down), progress indicator</criterion>
+    <criterion id="2">Contextual Decision Prompts - Prompts adapt to categories (UI/UX: "Which would make users smile more?", Data Quality: "Which data problem causes more pain?", etc.), effort-aware prompts, evidence-based prompts, prompt rotation to prevent fatigue</criterion>
+    <criterion id="3">Progressive Ranking System - Ranking algorithm builds from pairwise choices (topological sort or Elo-style), intelligent pair selection with binary search pattern, confidence indicators (High: 3+ comparisons, Medium: 2, Low: 1), view current ranking anytime, support 50+ improvements with 30-40 comparisons max</criterion>
+    <criterion id="4">Rationale Capture for Each Comparison - Optional text field "Why did you choose this one?", quick rationale suggestions (More users affected, Higher frequency, Easier to implement, etc.), AI-generated rationale summary option, rationale stored with DecisionRecord</criterion>
+    <criterion id="5">Review and Modify Previous Decisions - Review decisions mode with filters, list view showing Item A vs B with choice/rationale/timestamp, Change decision action, automatic re-ranking, confidence score updates, history tracking</criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/PRD.md" title="Frank Product Requirements Document" section="Prioritization and Ranking" snippet="FR008: System shall facilitate pairwise comparison interface with contextual decision prompts. FR009: Build progressive ranking through iterative comparison sessions with rationale capture. FR010: Generate Impact vs Effort visualization. FR011: Identify high value, low effort opportunities."/>
+      <doc path="docs/PRD.md" title="Frank Product Requirements Document" section="User Journeys - Solo PM First-Time Prioritization" snippet="PM works through comparisons building confidence in decisions through evidence-based reasoning. Frank uses intelligent clustering to present 8 key comparisons instead of 66. 'Mobile navigation fix' vs 'Data export feature' - Frank prompts: 'Which removes a bigger blocker to user success?'"/>
+      <doc path="docs/architecture.md" title="Frank Architecture Document" section="Decision Summary Table" snippet="T3 Stack foundation with Next.js 15, TypeScript, tRPC for type-safe APIs, Prisma ORM for complex data relationships, Claude API for Socratic questioning, PostgreSQL for complex queries"/>
+      <doc path="docs/tech-spec-epic-1.md" title="Epic 1 Technical Specification" section="Decision Tracking Router" snippet="Responsibilities: Record pairwise comparison decisions, build cumulative rankings. Inputs: Comparison choices with rationale. Outputs: Progressive ranking based on decision graph. Owner: tRPC protected procedure. Dependencies: DecisionRecord model, ranking algorithm"/>
+      <doc path="docs/tech-spec-epic-1.md" title="Epic 1 Technical Specification" section="Data Models - DecisionRecord" snippet="Model tracks itemAId, itemBId, winnerId, prompt, rationale, quickRationale, confidence, timestamps. Unique constraint on userId + itemAId + itemBId prevents duplicate comparisons"/>
+      <doc path="docs/epics.md" title="Frank Epics Breakdown" section="Epic 1 - Story 1.5" snippet="Pairwise comparison methodology builds rankings based on relative value. Progressive choices create statistically valid rankings. Intelligent pair selection minimizes total comparisons needed"/>
+      <doc path="docs/stories/1-4-effort-estimation-with-ai-guidance.md" title="Story 1.4 - Effort Estimation" section="Completed Features" snippet="EffortLevel enum (SMALL, MEDIUM, LARGE), effort badges with color coding, card-based selection UI proven effective, history tracking pattern with rationale required"/>
+      <doc path="docs/stories/1-3-ai-powered-context-gathering.md" title="Story 1.3 - AI Context Gathering" section="Completed Features" snippet="EvidenceEntry model with confidence scoring, conversational UI, Claude AI integration patterns, evidence entries available for display in comparisons"/>
+      <doc path="docs/stories/1-2-improvement-item-capture-interface.md" title="Story 1.2 - Improvement Capture" section="Completed Features" snippet="ImprovementItem CRUD with tRPC, Category enum (UI_UX, DATA_QUALITY, WORKFLOW, BUG_FIX, FEATURE, OTHER), dashboard integration established"/>
+    </docs>
+    <code>
+      <file path="frank/prisma/schema.prisma" kind="schema" symbol="ImprovementItem" lines="96-122" reason="Base model to extend with ranking fields (rankPosition, rankConfidence, impactScore, sessionId). Already has effortLevel from Story 1.4 and evidence relationship from Story 1.3"/>
+      <file path="frank/prisma/schema.prisma" kind="schema" symbol="PrioritizationSession" lines="85-95" reason="Existing session model to extend with decisions relationship. Already relates to improvements and conversations"/>
+      <file path="frank/prisma/schema.prisma" kind="schema" symbol="Category" lines="47-54" reason="Enum used for category-specific prompts in prompt generator. Matches story requirements exactly"/>
+      <file path="frank/prisma/schema.prisma" kind="schema" symbol="EffortLevel" lines="62-66" reason="Enum used for effort-aware prompts and cross-effort comparison strategy in pair selection"/>
+      <file path="frank/src/server/api/routers/improvements.ts" kind="router" symbol="improvementsRouter" lines="all" reason="Pattern to follow for creating decisions router. Demonstrates tRPC protected procedures, Prisma queries, input validation with Zod"/>
+      <file path="frank/src/server/api/routers/conversations.ts" kind="router" symbol="conversationsRouter" lines="all" reason="Shows Claude AI integration patterns for generating AI guidance. Reference for potential AI-generated rationale summary feature (AC4)"/>
+      <file path="frank/src/server/api/root.ts" kind="router-config" symbol="createCallerFactory" lines="all" reason="Must register new decisions router here alongside existing improvements and conversations routers"/>
+      <file path="frank/src/server/db.ts" kind="database" symbol="db" lines="all" reason="Prisma client instance used throughout application. Import pattern for all router implementations"/>
+    </code>
+    <dependencies>
+      <node>
+        <package name="@prisma/client" version="^6.5.0"/>
+        <package name="@trpc/server" version="^11.0.0"/>
+        <package name="@trpc/client" version="^11.0.0"/>
+        <package name="@trpc/react-query" version="^11.0.0"/>
+        <package name="@tanstack/react-query" version="^5.69.0"/>
+        <package name="next" version="^15.2.3"/>
+        <package name="react" version="^19.0.0"/>
+        <package name="zod" version="^3.24.2"/>
+        <package name="typescript" version="^5.8.2"/>
+      </node>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>MUST use tRPC protected procedures for all data access - pattern established across all routers</constraint>
+    <constraint>MUST maintain Prisma cascade delete patterns - existing pattern: user deletion cascades to improvements, evidence, sessions</constraint>
+    <constraint>MUST follow T3 Stack conventions - file structure: routers in src/server/api/routers/, components in src/app/_components/, lib utilities in src/lib/</constraint>
+    <constraint>Database migrations MUST be created and applied before implementation - use: npm run db:push for development, then npx prisma migrate dev for production migration</constraint>
+    <constraint>All React components MUST use 'use client' directive when using hooks (useState, useEffect) or event handlers</constraint>
+    <constraint>TypeScript strict mode enabled - all types must be explicitly defined, no implicit any</constraint>
+    <constraint>Follow Frank design system - sage green accents, calm clarity aesthetic, established in previous stories</constraint>
+    <constraint>Keyboard shortcuts (Arrow Left/Right/Down) require client-side event listeners with useEffect cleanup</constraint>
+    <constraint>Elo algorithm K-factor should be tunable - start with K=32 as standard but allow configuration for different ranking sensitivities</constraint>
+    <constraint>Pairwise comparison UI must handle loading states gracefully - display skeleton while fetching next pair</constraint>
+    <constraint>Re-ranking after decision changes must be optimized - consider debouncing if user changes multiple decisions rapidly</constraint>
+    <constraint>Progress calculation should be realistic - use O(n log n) estimate but adjust based on actual comparison count to avoid misleading users</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface name="improvementsRouter.create" kind="tRPC mutation" signature="create: protectedProcedure.input(createImprovementSchema).mutation()" path="frank/src/server/api/routers/improvements.ts" reason="Pattern for creating decision router mutations - shows input validation, protected access, Prisma create"/>
+    <interface name="improvementsRouter.list" kind="tRPC query" signature="list: protectedProcedure.query()" path="frank/src/server/api/routers/improvements.ts" reason="Pattern for listing queries - shows userId filtering, orderBy, include relations"/>
+    <interface name="conversationsRouter.startConversation" kind="tRPC mutation" signature="startConversation: protectedProcedure.input(z.object({improvementId})).mutation()" path="frank/src/server/api/routers/conversations.ts" reason="Shows session management and context passing to AI services - useful for AI-generated rationale feature"/>
+    <interface name="ImprovementItem" kind="Prisma model" signature="model ImprovementItem { id, userId, title, description, category, effortLevel, evidence[], conversations[], ... }" path="frank/prisma/schema.prisma" reason="Must extend with: sessionId, rankPosition, rankConfidence, impactScore for Story 1.5. Also need DecisionRecord relations"/>
+    <interface name="PrioritizationSession" kind="Prisma model" signature="model PrioritizationSession { id, userId, name, status, improvements[], conversations[], ... }" path="frank/prisma/schema.prisma" reason="Must extend with: decisions[] relationship to DecisionRecord model"/>
+  </interfaces>
+
+  <tests>
+    <standards>
+      No formal testing framework configured yet in Epic 1. Testing approach: Manual testing during development, TypeScript type checking with 'npm run typecheck', runtime validation with Next.js dev server. Database changes tested with Prisma Studio. Future epics will add Jest/Vitest for unit tests and Playwright for E2E tests.
+    </standards>
+    <locations>
+      <location>Manual testing via Next.js dev server (npm run dev) at localhost:3000</location>
+      <location>Database inspection via Prisma Studio (npm run db:studio)</location>
+      <location>Type safety validation via npm run typecheck</location>
+      <location>Future: __tests__/ directory for unit tests (Epic 2+)</location>
+      <location>Future: e2e/ directory for integration tests (Epic 3+)</location>
+    </locations>
+    <ideas>
+      <idea ac="1">Test simple comparison flow: Create 5 improvements with different categories and efforts, verify two-column layout displays correctly, test Choose Left/Right/Skip buttons update state, verify keyboard shortcuts (←/→/↓) trigger correct actions, confirm progress indicator updates after each comparison</idea>
+      <idea ac="2">Test contextual prompts: Create pairs with same category (2 UI/UX items), verify prompt is "Which would make users smile more?", create pairs with same effort (2 SMALL items), verify prompt is "Quick win question: which gives more bang for the buck?", create pairs with mixed categories, verify generic prompt appears</idea>
+      <idea ac="3">Test ranking algorithm: Make 10 comparisons favoring specific items consistently, verify Elo scores increase for winners, verify rankPosition assigns 1 to highest score, test confidence calculation (3+ comparisons = high confidence), create contradictory decisions (A beats B, B beats C, C beats A), verify algorithm handles gracefully</idea>
+      <idea ac="4">Test rationale capture: Submit comparison without rationale, verify optional behavior, click quick rationale badge "More users affected", verify stored in DecisionRecord, type custom rationale, verify saved with decision, test character limits and validation</idea>
+      <idea ac="5">Test decision review and modification: Complete 5 comparisons, open review mode, filter by category, verify correct decisions shown, change decision (flip winner), verify re-ranking triggered automatically, verify confidence scores update, verify history tracking shows modification timestamp and isModified flag</idea>
+      <idea ac="general">Test edge cases: 2 items minimum (single comparison), all items same effort level (verify strategy handles), skip all comparisons (verify behavior), rapid decision changes (test re-ranking performance), 50+ items (verify completion estimate accurate), API failure during ranking (graceful degradation)</idea>
+    </ideas>
+  </tests>
+</story-context>
