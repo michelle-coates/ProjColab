@@ -44,8 +44,8 @@ development_status:
   1-5-basic-pairwise-comparison-engine: done
   1-6-basic-data-persistence-and-session-management: done
   1-7-simple-impact-vs-effort-visualization: done
-  1-8-basic-export-and-handoff: backlog
-  1-9-guided-onboarding-experience: backlog
+  1-8-basic-export-and-handoff: done
+  1-9-guided-onboarding-experience: review
   1-10-input-validation-and-error-handling: backlog
   epic-1-retrospective: optional
 

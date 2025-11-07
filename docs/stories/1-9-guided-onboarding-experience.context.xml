@@ -1,0 +1,247 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>9</storyId>
+    <title>Guided Onboarding Experience</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-06</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/1-9-guided-onboarding-experience.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>a new Frank user</asA>
+    <iWant>a guided tour that gets me productive within 15 minutes</iWant>
+    <soThat>I can quickly understand Frank's value without extensive learning</soThat>
+    <tasks>
+      - Task 1: Design Onboarding Flow Architecture (AC: #1, #2, #3)
+      - Task 2: Create Sample Data Generator (AC: #1, #2)
+      - Task 3: Build Onboarding Router and State Management (AC: #1, #4, #5)
+      - Task 4: Create Interactive Onboarding UI Components (AC: #1, #3, #4, #5)
+      - Task 5: Implement Guided Tour Interactions (AC: #1, #3)
+      - Task 6: Progressive Disclosure and Pacing (AC: #3, #1)
+      - Task 7: Integration and Testing (All ACs)
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    1. Interactive onboarding flow with sample data and guided actions completing in &lt;15 minutes
+    2. Role-specific onboarding paths (Solo PM, Team Lead, Founder) with relevant examples
+    3. Progressive disclosure of features without overwhelming new users
+    4. Completion tracking with achievement indicators (e.g., "First improvement captured!")
+    5. Ability to skip onboarding for experienced users with clear "Skip" option
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>Product Requirements Document</title>
+        <section>Functional Requirements - Enhanced User Experience</section>
+        <snippet>FR024: System shall provide guided onboarding workflow achieving user productivity within 15 minutes. Referenced in User Journey 1 where Solo PM discovers Frank through guided onboarding with role selection.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>AC-009: Guided Onboarding Experience</section>
+        <snippet>Interactive onboarding flow with sample data completing in &lt;15 minutes. Role-specific paths (Solo PM, Team Lead, Founder). Progressive disclosure without overwhelming. Achievement indicators and skip option. Redirected to onboarding flow (/onboarding) after account activation.</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>UX Design Specification</title>
+        <section>Progressive Disclosure Design Approach</section>
+        <snippet>First-Time Users start with Split Context Panel - Learn Frank's questioning patterns with conversation + evidence side-by-side. Progressive disclosure approach matches Frank's core value proposition - growing user confidence in evidence-based decision making.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture Document</title>
+        <section>Technology Stack - Next.js App Router</section>
+        <snippet>Next.js 15 with App Router for full-stack React framework. tRPC for end-to-end type-safe APIs. App directory structure with src/app/ for Next.js App Router pages.</snippet>
+      </doc>
+      <doc>
+        <path>docs/stories/1-8-basic-export-and-handoff.md</path>
+        <title>Story 1-8: Basic Export and Handoff</title>
+        <section>Dev Notes - Learnings</section>
+        <snippet>Export system provides CSV/summary generation for onboarding demo. Complete user journey established: capture → interrogate → compare → visualize → export. UI component patterns with dialog components following shadcn/ui patterns.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>frank/src/server/api/root.ts</path>
+        <kind>router-registry</kind>
+        <symbol>appRouter</symbol>
+        <lines>17-27</lines>
+        <reason>Central tRPC router registry where new onboarding router must be added</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/server/api/routers/sessions.ts</path>
+        <kind>router</kind>
+        <symbol>sessionsRouter</symbol>
+        <lines>8-50</lines>
+        <reason>Existing session management patterns to reference for onboarding session creation</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/server/api/routers/export.ts</path>
+        <kind>router</kind>
+        <symbol>exportRouter</symbol>
+        <lines>1-100</lines>
+        <reason>Export functionality for onboarding demo of CSV/summary generation</reason>
+      </artifact>
+      <artifact>
+        <path>frank/prisma/schema.prisma</path>
+        <kind>database-schema</kind>
+        <symbol>User</symbol>
+        <lines>92-108</lines>
+        <reason>User model needs extension for onboarding state (onboardingCompleted, onboardingRole, onboardingProgress)</reason>
+      </artifact>
+      <artifact>
+        <path>frank/prisma/schema.prisma</path>
+        <kind>database-schema</kind>
+        <symbol>PrioritizationSession</symbol>
+        <lines>110-130</lines>
+        <reason>Session model may need isOnboarding flag to mark sample data sessions</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/components/ui/dialog.tsx</path>
+        <kind>ui-component</kind>
+        <symbol>Dialog components</symbol>
+        <lines>1-30</lines>
+        <reason>shadcn/ui Dialog pattern for onboarding modal components</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/components/frank/export-dialog.tsx</path>
+        <kind>ui-component</kind>
+        <symbol>ExportDialog</symbol>
+        <lines>1-50</lines>
+        <reason>Example dialog component pattern with state management and tRPC mutations</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/components/sessions/NewSessionDialog.tsx</path>
+        <kind>ui-component</kind>
+        <symbol>NewSessionDialog</symbol>
+        <lines>1-50</lines>
+        <reason>Session creation dialog pattern to reference for onboarding flow</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/lib/integrations/export/csv-generator.ts</path>
+        <kind>service</kind>
+        <symbol>generateCSV</symbol>
+        <lines>1-100</lines>
+        <reason>Export service for onboarding demo showing export functionality</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/app/sessions/[sessionId]/page.tsx</path>
+        <kind>page</kind>
+        <symbol>SessionPage</symbol>
+        <lines>1-100</lines>
+        <reason>Session page structure showing complete user workflow to demo in onboarding</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <framework name="Next.js" version="^15.2.3" ecosystem="node">App Router, Server Components, Route Handlers</framework>
+      <framework name="React" version="^19.0.0" ecosystem="node">UI framework with hooks</framework>
+      <framework name="TypeScript" version="^5.8.2" ecosystem="node">Type safety</framework>
+      <framework name="tRPC" version="^11.0.0" ecosystem="node">End-to-end type-safe API</framework>
+      <framework name="Prisma" version="^6.5.0" ecosystem="node">Database ORM</framework>
+      <framework name="Zod" version="^3.25.76" ecosystem="node">Schema validation</framework>
+      <framework name="TanStack Query" version="^5.69.0" ecosystem="node">Data fetching and caching</framework>
+      <framework name="NextAuth" version="5.0.0-beta.25" ecosystem="node">Authentication</framework>
+      <framework name="Tailwind CSS" version="^4.0.15" ecosystem="node">Styling</framework>
+      <framework name="shadcn/ui" version="latest" ecosystem="node">UI components (Radix UI + Tailwind)</framework>
+      <package name="@radix-ui/react-dialog" version="^1.1.15" ecosystem="node">Dialog components for modals</package>
+      <package name="react-hook-form" version="^7.66.0" ecosystem="node">Form state management</package>
+      <package name="lucide-react" version="^0.552.0" ecosystem="node">Icons</package>
+      <package name="clsx" version="^2.1.1" ecosystem="node">Conditional classNames</package>
+      <package name="date-fns" version="^4.1.0" ecosystem="node">Date utilities</package>
+      <testing name="Vitest" version="^4.0.6" ecosystem="node">Unit testing framework</testing>
+      <testing name="@testing-library/react" version="^16.3.0" ecosystem="node">React component testing</testing>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    - Next.js 15 App Router: Place onboarding pages in src/app/onboarding/ with dynamic [step] routing
+    - tRPC Patterns: All API operations must use tRPC procedures (protectedProcedure for authenticated routes)
+    - Prisma Schema Changes: User model extension requires migration for onboarding state fields
+    - shadcn/ui Components: Follow existing patterns from Dialog, Button, Form components
+    - Protected Routes: Onboarding routes require authentication (post-signup, pre-onboarded state)
+    - Sample Data Isolation: Mark onboarding sessions with isOnboarding flag, ensure cleanup after completion
+    - Testing Requirements: Unit tests for sample data generator, integration tests for complete flow, E2E test for new user journey
+    - Progressive Disclosure: Show only Epic 1 features in onboarding (no future epic teases)
+    - Performance: Target &lt;15 minutes for complete onboarding (user-paced), sample data generation &lt;2 seconds
+    - Accessibility: Support reduced motion for users on slow connections or with accessibility needs
+  </constraints>
+  <interfaces>
+    <interface>
+      <name>onboarding tRPC Router</name>
+      <kind>tRPC Router</kind>
+      <signature>
+        startOnboarding(role: "SOLO_PM" | "TEAM_LEAD" | "FOUNDER") → {sessionId, sampleData}
+        updateProgress(step: number, completed: boolean) → {progress, nextStep}
+        skipOnboarding() → {success: boolean}
+        getOnboardingStatus() → {completed, role, currentStep, progress}
+      </signature>
+      <path>frank/src/server/api/routers/onboarding.ts (to be created)</path>
+    </interface>
+    <interface>
+      <name>sessionsRouter.create</name>
+      <kind>tRPC Procedure</kind>
+      <signature>create(name: string, description?: string) → PrioritizationSession</signature>
+      <path>frank/src/server/api/routers/sessions.ts:12-28</path>
+    </interface>
+    <interface>
+      <name>exportRouter</name>
+      <kind>tRPC Router</kind>
+      <signature>
+        getExportData(sessionId: string) → {improvements, decisions, metadata}
+        exportCSV(sessionId: string) → {filename, data, mimeType}
+        exportSummary(sessionId: string) → {filename, data, mimeType}
+      </signature>
+      <path>frank/src/server/api/routers/export.ts</path>
+    </interface>
+    <interface>
+      <name>User Model Extension</name>
+      <kind>Prisma Model</kind>
+      <signature>
+        onboardingCompleted: Boolean @default(false)
+        onboardingRole: String?
+        onboardingProgress: Json?
+      </signature>
+      <path>frank/prisma/schema.prisma:92-108 (to be extended)</path>
+    </interface>
+  </interfaces>
+  <tests>
+    <standards>
+      Epic 1 follows comprehensive testing strategy with Vitest + React Testing Library for unit tests and Playwright for E2E.
+      Coverage targets: 80% for business logic, 60% for components.
+      Test structure: Vitest with describe/it/expect pattern.
+      Example test locations: src/lib/**/__tests__/ for services, src/components/**/__tests__/ for React components, src/server/api/routers/__tests__/ for tRPC routers.
+      All tRPC procedures must have unit tests. Integration tests for multi-step workflows. E2E tests for complete user journeys.
+    </standards>
+    <locations>
+      - frank/src/lib/onboarding/__tests__/ (sample data generator tests)
+      - frank/src/server/api/routers/__tests__/onboarding.test.ts (onboarding router tests)
+      - frank/src/components/frank/onboarding/__tests__/ (onboarding component tests)
+      - frank/e2e/ or frank/__tests__/e2e/ (E2E tests for new user journey)
+    </locations>
+    <ideas>
+      AC#1: Test onboarding flow completes in &lt;15 minutes (user-paced timing with mock delays)
+      AC#1: Test sample data generation for all roles (Solo PM, Team Lead, Founder)
+      AC#1: Test guided actions trigger correctly at each step
+      AC#2: Test role-specific paths create appropriate sample data
+      AC#2: Verify role selection persists through onboarding session
+      AC#3: Test progressive disclosure - only show completed Epic 1 features
+      AC#3: Verify feature gating hides future epic functionality
+      AC#4: Test achievement indicators trigger at correct milestones
+      AC#4: Test progress tracking persists and can resume after browser close
+      AC#5: Test skip onboarding marks user as experienced
+      AC#5: Verify skipped users can access full app immediately
+      Integration: Test complete flow - role selection → sample data creation → guided tour → cleanup
+      Integration: Test sample data cleanup after onboarding completion
+      E2E: New user signup → onboarding → first real session creation
+      E2E: Returning user login → verify no onboarding trigger
+      Unit: Sample data generator produces valid improvement items for each role
+      Unit: Onboarding router state transitions (drafted → in-progress → completed)
+      Unit: Achievement logic triggers correctly based on user actions
+    </ideas>
+  </tests>
+</story-context>

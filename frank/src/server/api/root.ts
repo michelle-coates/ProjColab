@@ -6,6 +6,8 @@ import { conversationsRouter } from "@/server/api/routers/conversations";
 import { decisionsRouter } from "@/server/api/routers/decisions";
 import { matrixRouter } from "@/server/api/routers/matrix";
 import { sessionsRouter } from "@/server/api/routers/sessions";
+import { exportRouter } from "@/server/api/routers/export";
+import { onboardingRouter } from "@/server/api/routers/onboarding";
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
 
 /**
@@ -22,6 +24,8 @@ export const appRouter = createTRPCRouter({
   decisions: decisionsRouter,
   sessions: sessionsRouter,
   matrix: matrixRouter,
+  export: exportRouter,
+  onboarding: onboardingRouter,
 });
 
 // export type definition of API

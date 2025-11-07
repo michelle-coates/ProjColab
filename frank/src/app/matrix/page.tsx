@@ -1,6 +1,8 @@
+"use client";
+
 import { type NextPage } from "next";
 import Head from "next/head";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { api } from "@/utils/api";
 import ImpactEffortMatrix from "@/components/visualization/ImpactEffortMatrix";
 import MatrixControls from "@/components/visualization/MatrixControls";

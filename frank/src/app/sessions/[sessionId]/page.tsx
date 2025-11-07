@@ -9,6 +9,7 @@ import MatrixControls from "@/components/visualization/MatrixControls";
 import { SessionStats } from "@/app/_components/frank/session-stats";
 import CreateImprovementButton from "@/components/improvements/CreateImprovementButton";
 import ImportImprovementsButton from "@/components/improvements/ImportImprovementsButton";
+import { ExportButton } from "@/components/frank/export-button";
 
 export default function SessionPage() {
   const { sessionId } = useParams();
@@ -81,6 +82,7 @@ export default function SessionPage() {
                   void refetch();
                 }}
               />
+              <ExportButton sessionId={sessionId as string} />
             </div>
             <Link
               href="/dashboard"

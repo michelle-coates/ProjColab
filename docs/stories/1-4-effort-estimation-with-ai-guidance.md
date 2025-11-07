@@ -1,6 +1,6 @@
 # Story 1.4: Effort Estimation with AI Guidance
 
-Status: drafted
+Status: done
 
 **Created:** November 2, 2025
 

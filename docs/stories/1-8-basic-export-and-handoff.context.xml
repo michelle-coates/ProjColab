@@ -1,0 +1,292 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>8</storyId>
+    <title>Basic Export and Handoff</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-06</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/1-8-basic-export-and-handoff.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>product manager</asA>
+    <iWant>to export my prioritized improvement list with rationale</iWant>
+    <soThat>I can share results with my development team for implementation</soThat>
+    <tasks>
+- Task 1: Create CSV Export Service (AC: #1, #4)
+  - Implement CSV generation utility using papaparse
+  - Define CSV schema with columns: Title, Description, Category, Priority Rank, Effort Level, Impact Score, Decision Rationale, Evidence Summary
+  - Add session metadata: Export Date, User Name, Session ID
+  - Handle special characters and newlines in CSV fields
+  - Test CSV output with various data scenarios
+
+- Task 2: Create Export tRPC Router (AC: #1, #4)
+  - Define `export` router in `src/server/api/routers/export.ts`
+  - Implement `exportCSV` procedure with session ID input
+  - Query improvements with related data (evidence, decisions)
+  - Calculate priority rankings from decision records
+  - Return CSV file data as downloadable response
+  - Add authorization check (user owns session)
+
+- Task 3: Create Summary Report Generator (AC: #2, #3)
+  - Design summary report format (text-based for Epic 1)
+  - Include prioritization methodology description
+  - Summarize key decisions and comparison rationale
+  - Highlight top 5 Quick Wins recommendations
+  - Add actionable next steps for development team
+  - Test report clarity with sample data
+
+- Task 4: Implement Export UI Components (AC: #1, #2, #5)
+  - Create ExportDialog component in `src/components/frank/export-dialog.tsx`
+  - Add export button to matrix visualization page
+  - Implement format selection (CSV, Summary Report)
+  - Add download trigger with proper file naming
+  - Show export preview before download
+  - Display success notification after export
+
+- Task 5: Data Integrity and Validation (AC: #1, #3, #4)
+  - Verify all improvements included in export
+  - Validate priority ranking consistency
+  - Ensure evidence summary is complete
+  - Check metadata accuracy (dates, user info)
+  - Test with edge cases (empty session, single item)
+
+- Task 6: Integration Testing (All ACs)
+  - Test complete flow: Session → Matrix → Export → Download
+  - Verify CSV opens correctly in Excel/Google Sheets
+  - Validate summary report formatting
+  - Test with multiple sessions and users
+  - Performance test with large datasets (50+ improvements)
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+1. CSV export including improvement details, priority ranking, effort estimates, and rationale
+2. Summary report showing prioritization methodology and key decisions
+3. Action-ready format suitable for development team handoff
+4. Export includes date, user information, and session metadata
+5. Multiple export formats: CSV for tools, PDF for stakeholder reports
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>Frank Product Requirements Document</title>
+        <section>Export and Integration (FR015-017)</section>
+        <snippet>FR015: System shall export prioritized lists in CSV format compatible with Notion, Jira, and Linear. FR016: System shall generate summary reports showing prioritization methodology and key decisions. FR017: System shall create action-ready handoff format for development team implementation.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Frank Architecture Document</title>
+        <section>Project Structure and T3 Stack Foundation</section>
+        <snippet>T3 Stack foundation with Next.js 15, TypeScript, Tailwind CSS, tRPC for type-safe APIs, Prisma ORM for database, and NextAuth.js for authentication. File structure defines src/lib/integrations/export/ for export utilities.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>AC-008: Basic Export and Handoff</section>
+        <snippet>CSV export including improvement details, priority ranking, effort estimates, and rationale. Summary report showing prioritization methodology and key decisions made. Export includes date, user information, and session metadata. Multiple export formats: CSV for tools, summary report for stakeholders. Export Service location: src/lib/integrations/export/csv-generator.ts</snippet>
+      </doc>
+      <doc>
+        <path>docs/stories/1-7-simple-impact-vs-effort-visualization.md</path>
+        <title>Story 1.7 Completion Notes</title>
+        <section>Reusable Services and Interfaces</section>
+        <snippet>Matrix router provides getMatrixData procedure that returns improvements with calculated impact scores and effort levels. This endpoint provides all data needed for export without requerying. File location: src/server/api/routers/matrix.ts</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>frank/src/server/api/routers/matrix.ts</path>
+        <kind>router</kind>
+        <symbol>getMatrixData</symbol>
+        <lines>37-57</lines>
+        <reason>Existing procedure that returns improvements with impact scores, effort levels, and matrix positions - this is the primary data source for export functionality</reason>
+      </artifact>
+      <artifact>
+        <path>frank/prisma/schema.prisma</path>
+        <kind>schema</kind>
+        <symbol>ImprovementItem</symbol>
+        <lines>128-164</lines>
+        <reason>Data model containing all fields needed for export: title, description, category, effortLevel, impactScore, rankPosition, with relations to evidence and decisions</reason>
+      </artifact>
+      <artifact>
+        <path>frank/prisma/schema.prisma</path>
+        <kind>schema</kind>
+        <symbol>PrioritizationSession</symbol>
+        <lines>110-126</lines>
+        <reason>Session model containing metadata for export: name, description, status, timestamps, user relationship</reason>
+      </artifact>
+      <artifact>
+        <path>frank/prisma/schema.prisma</path>
+        <kind>schema</kind>
+        <symbol>DecisionRecord</symbol>
+        <lines>213-240</lines>
+        <reason>Contains pairwise comparison rationale needed for export summary reports</reason>
+      </artifact>
+      <artifact>
+        <path>frank/prisma/schema.prisma</path>
+        <kind>schema</kind>
+        <symbol>EvidenceEntry</symbol>
+        <lines>166-176</lines>
+        <reason>Contains evidence data to be summarized in export</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/server/api/root.ts</path>
+        <kind>router-config</kind>
+        <symbol>appRouter</symbol>
+        <lines>16-25</lines>
+        <reason>Shows existing router structure - new export router needs to be added here</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/server/api/routers/improvements.ts</path>
+        <kind>router</kind>
+        <symbol>improvementsRouter</symbol>
+        <lines>17-46</lines>
+        <reason>Example of tRPC router pattern with protectedProcedure and Zod validation - use as template for export router</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/components/visualization/ImpactEffortMatrix.tsx</path>
+        <kind>component</kind>
+        <symbol>ImpactEffortMatrix</symbol>
+        <lines>1-80</lines>
+        <reason>Matrix visualization component where export button will be added</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <node>
+        <package>@trpc/server</package>
+        <version>^11.0.0</version>
+        <purpose>Type-safe API layer for export endpoints</purpose>
+      </node>
+      <node>
+        <package>@prisma/client</package>
+        <version>^6.5.0</version>
+        <purpose>Database ORM for querying improvement and session data</purpose>
+      </node>
+      <node>
+        <package>zod</package>
+        <version>^3.25.76</version>
+        <purpose>Input validation for export requests</purpose>
+      </node>
+      <node>
+        <package>papaparse</package>
+        <version>NOT INSTALLED - NEEDS TO BE ADDED</version>
+        <purpose>CSV generation utility (install: npm install papaparse @types/papaparse)</purpose>
+      </node>
+      <node>
+        <package>date-fns</package>
+        <version>^4.1.0</version>
+        <purpose>Date formatting for export timestamps</purpose>
+      </node>
+      <node>
+        <package>next</package>
+        <version>^15.2.3</version>
+        <purpose>Framework for UI components and API routes</purpose>
+      </node>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+- Use tRPC protectedProcedure for all export endpoints (user must be authenticated)
+- Validate session ownership before export (user must own the session being exported)
+- Export router must be registered in src/server/api/root.ts appRouter
+- Place export utilities in src/lib/integrations/export/ per architecture
+- Use Zod schemas for input validation
+- Export UI components should follow shadcn/ui dialog patterns
+- Sanitize CSV output to prevent CSV injection attacks
+- Limit export file size and warn if session has 1000+ improvements
+- File naming convention: frank-export-{sessionId}-{timestamp}.csv
+- Rate limit export requests (10 per minute per user)
+- For large sessions (50+ improvements), optimize database queries with proper includes
+- Cache matrix data calculations (reuse from visualization endpoint)
+- Summary reports must be text-based for Epic 1 (PDF deferred to later epic)
+- Install papaparse dependency before implementation: npm install papaparse @types/papaparse
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>matrix.getMatrixData</name>
+      <kind>tRPC query</kind>
+      <signature>getMatrixData(input: { sessionId: string }): Promise&lt;ImprovementItem[]&gt;</signature>
+      <path>frank/src/server/api/routers/matrix.ts</path>
+      <description>Returns improvements with calculated impact scores, effort levels, and matrix positions for a session. Use this as primary data source for export.</description>
+    </interface>
+    <interface>
+      <name>export.exportCSV</name>
+      <kind>tRPC mutation (TO BE CREATED)</kind>
+      <signature>exportCSV(input: { sessionId: string }): Promise&lt;{ filename: string, data: string }&gt;</signature>
+      <path>frank/src/server/api/routers/export.ts (NEW FILE)</path>
+      <description>Generate CSV export for a prioritization session. Returns CSV data as string with appropriate filename.</description>
+    </interface>
+    <interface>
+      <name>export.exportSummary</name>
+      <kind>tRPC mutation (TO BE CREATED)</kind>
+      <signature>exportSummary(input: { sessionId: string }): Promise&lt;{ filename: string, data: string }&gt;</signature>
+      <path>frank/src/server/api/routers/export.ts (NEW FILE)</path>
+      <description>Generate summary report for a prioritization session. Returns text-based summary with methodology and decisions.</description>
+    </interface>
+    <interface>
+      <name>CSV Schema</name>
+      <kind>Data Format</kind>
+      <signature>Columns: Title, Description, Category, Priority Rank, Effort Level, Impact Score, Decision Rationale, Evidence Summary, Export Date, User Name, Session ID</signature>
+      <path>frank/src/lib/integrations/export/csv-generator.ts (NEW FILE)</path>
+      <description>Standard CSV format for export with all improvement details and metadata</description>
+    </interface>
+    <interface>
+      <name>ImprovementItem Model</name>
+      <kind>Prisma Model</kind>
+      <signature>Fields: id, title, description, category, effortLevel, impactScore, rankPosition, matrixPosition, evidence[], decisionsAsWinner[]</signature>
+      <path>frank/prisma/schema.prisma:128-164</path>
+      <description>Core data model for improvements with all export-relevant fields</description>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>Frank uses Vitest as the test framework with @testing-library/react for component testing. Tests follow patterns established in existing codebase: unit tests for utilities and services, integration tests for tRPC routers, component tests for React components. Tests are co-located with source files in __tests__ directories. Use protectedProcedure mocking patterns from existing router tests.</standards>
+    <locations>
+      <location>frank/src/lib/integrations/export/__tests__/</location>
+      <location>frank/src/server/api/routers/__tests__/export.test.ts</location>
+      <location>frank/src/components/frank/__tests__/export-dialog.test.tsx</location>
+    </locations>
+    <ideas>
+      <test>
+        <acceptanceCriteria>AC#1</acceptanceCriteria>
+        <description>CSV Export Unit Tests: Test CSV generation with various data scenarios (empty session, single item, 50+ items). Verify column headers match schema. Test special character handling (commas, quotes, newlines). Verify all improvement fields are included.</description>
+      </test>
+      <test>
+        <acceptanceCriteria>AC#1</acceptanceCriteria>
+        <description>CSV Export Integration Test: Test complete flow using matrix.getMatrixData as data source. Verify priority ranking matches decision records. Test CSV output opens correctly in Excel/Google Sheets.</description>
+      </test>
+      <test>
+        <acceptanceCriteria>AC#2</acceptanceCriteria>
+        <description>Summary Report Unit Tests: Test report formatting with sample data. Verify methodology description is included. Test top 5 Quick Wins identification. Verify actionable next steps are present.</description>
+      </test>
+      <test>
+        <acceptanceCriteria>AC#3</acceptanceCriteria>
+        <description>Action-Ready Format Test: Verify export includes all information needed for development team handoff. Test evidence summary completeness. Verify decision rationale is clear and actionable.</description>
+      </test>
+      <test>
+        <acceptanceCriteria>AC#4</acceptanceCriteria>
+        <description>Metadata Test: Verify export includes correct date timestamp. Test user name inclusion. Verify session ID is present. Test with multiple users and sessions.</description>
+      </test>
+      <test>
+        <acceptanceCriteria>AC#5</acceptanceCriteria>
+        <description>Multiple Format Test: Test both CSV and summary report generation from same session. Verify format selection UI works correctly. Test download trigger and file naming.</description>
+      </test>
+      <test>
+        <acceptanceCriteria>All ACs</acceptanceCriteria>
+        <description>Authorization Test: Verify only session owner can export. Test that accessing another user's session returns error. Test rate limiting (10 exports per minute).</description>
+      </test>
+      <test>
+        <acceptanceCriteria>All ACs</acceptanceCriteria>
+        <description>Performance Test: Test export with 50+ improvements. Verify query optimization with proper includes. Test response time is under 5 seconds for large sessions.</description>
+      </test>
+      <test>
+        <acceptanceCriteria>All ACs</acceptanceCriteria>
+        <description>Security Test: Test CSV injection prevention. Verify input sanitization. Test with malicious input (script tags, formulas).</description>
+      </test>
+    </ideas>
+  </tests>
+</story-context>
