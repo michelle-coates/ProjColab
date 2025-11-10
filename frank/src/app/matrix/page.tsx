@@ -2,14 +2,15 @@
 
 import { type NextPage } from "next";
 import Head from "next/head";
-import { useRouter } from "next/navigation";
-import { api } from "@/utils/api";
+import { useSearchParams } from "next/navigation";
+import { api } from "@/trpc/react";
 import ImpactEffortMatrix from "@/components/visualization/ImpactEffortMatrix";
 import MatrixControls from "@/components/visualization/MatrixControls";
+import { FeatureErrorBoundary } from "@/components/error-handling/error-boundary";
 
 const MatrixView: NextPage = () => {
-  const router = useRouter();
-  const { sessionId } = router.query;
+  const searchParams = useSearchParams();
+  const sessionId = searchParams.get("sessionId");
 
   const { data: improvements, refetch } = api.matrix.getMatrixData.useQuery(
     { sessionId: sessionId as string },
@@ -22,8 +23,8 @@ const MatrixView: NextPage = () => {
     },
   });
 
-  const handlePositionUpdate = (improvementId: string, x: number, y: number) => {
-    void updatePosition.mutate({ improvementId, x, y });
+  const handlePositionUpdate = async (improvementId: string, x: number, y: number) => {
+    await updatePosition.mutateAsync({ improvementId, x, y });
   };
 
   if (!sessionId || !improvements) {
@@ -40,27 +41,32 @@ const MatrixView: NextPage = () => {
       <main className="container mx-auto py-8">
         <h1 className="text-3xl font-bold mb-8">Impact vs Effort Matrix</h1>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Matrix Controls */}
-          <div className="lg:col-span-1">
-            <MatrixControls
-              improvements={improvements}
-              onReset={() => {
-                void refetch();
-              }}
-            />
-          </div>
-
-          {/* Matrix Visualization */}
-          <div className="lg:col-span-3">
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-              <ImpactEffortMatrix
+        <FeatureErrorBoundary
+          featureName="Matrix Visualization"
+          fallbackMessage="Unable to load matrix visualization. Please refresh the page."
+        >
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            {/* Matrix Controls */}
+            <div className="lg:col-span-1">
+              <MatrixControls
                 improvements={improvements}
-                onPositionUpdate={handlePositionUpdate}
+                onReset={() => {
+                  void refetch();
+                }}
               />
             </div>
+
+            {/* Matrix Visualization */}
+            <div className="lg:col-span-3">
+              <div className="bg-white p-6 rounded-lg shadow-sm">
+                <ImpactEffortMatrix
+                  improvements={improvements}
+                  onPositionUpdate={handlePositionUpdate}
+                />
+              </div>
+            </div>
           </div>
-        </div>
+        </FeatureErrorBoundary>
       </main>
     </>
   );

@@ -1,0 +1,683 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>12</storyId>
+    <title>Validation Integration and Testing</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-10</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/1-12-validation-integration-and-testing.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>a development team</asA>
+    <iWant>comprehensive validation integrated across all Epic 1 features with full test coverage</iWant>
+    <soThat>users experience consistent input validation, error handling, and help throughout the application</soThat>
+    <tasks>
+      <task id="1" acs="1,2,3">
+        <description>Integrate Validation into Evidence Gathering</description>
+        <subtasks>
+          <subtask>Replace standard inputs with ValidationInput/Textarea in evidence forms</subtask>
+          <subtask>Add HelpTooltip components explaining evidence sources and content</subtask>
+          <subtask>Integrate completeness scoring for evidence quality</subtask>
+          <subtask>Add AI analysis for evidence vagueness detection</subtask>
+          <subtask>Add feature error boundary around evidence gathering workflow</subtask>
+        </subtasks>
+      </task>
+      <task id="2" acs="1,3">
+        <description>Integrate Validation into Effort Estimation</description>
+        <subtasks>
+          <subtask>Replace standard inputs with ValidationInput in effort forms</subtask>
+          <subtask>Add HelpTooltip components explaining effort levels and rationale</subtask>
+          <subtask>Add feature error boundary around effort estimation workflow</subtask>
+          <subtask>Validate effort level selection and rationale</subtask>
+        </subtasks>
+      </task>
+      <task id="3" acs="1,3">
+        <description>Integrate Validation into Pairwise Comparison</description>
+        <subtasks>
+          <subtask>Add validation for comparison confidence levels</subtask>
+          <subtask>Add HelpTooltip components explaining comparison methodology</subtask>
+          <subtask>Add feature error boundary around comparison workflow</subtask>
+          <subtask>Validate that all required comparisons are completed</subtask>
+        </subtasks>
+      </task>
+      <task id="4" acs="1,3">
+        <description>Integrate Validation into Export Workflows</description>
+        <subtasks>
+          <subtask>Add validation for export format selection</subtask>
+          <subtask>Add HelpTooltip components explaining export options</subtask>
+          <subtask>Add feature error boundary around export workflow</subtask>
+          <subtask>Validate export parameters before generation</subtask>
+        </subtasks>
+      </task>
+      <task id="5" acs="1,2,3">
+        <description>Integrate Validation into Onboarding</description>
+        <subtasks>
+          <subtask>Replace standard inputs with ValidationInput/Textarea in onboarding forms</subtask>
+          <subtask>Add HelpTooltip components for onboarding fields</subtask>
+          <subtask>Add completeness scoring for onboarding profile data</subtask>
+          <subtask>Add feature error boundary around onboarding workflow</subtask>
+          <subtask>Validate role selection and sample data preferences</subtask>
+        </subtasks>
+      </task>
+      <task id="6" acs="4">
+        <description>Add Feature-Specific Error Boundaries</description>
+        <subtasks>
+          <subtask>Wrap FeatureErrorBoundary around matrix visualization</subtask>
+          <subtask>Wrap FeatureErrorBoundary around onboarding flow</subtask>
+          <subtask>Wrap FeatureErrorBoundary around comparison engine</subtask>
+          <subtask>Test error recovery in each feature boundary</subtask>
+        </subtasks>
+      </task>
+      <task id="7" acs="5">
+        <description>End-to-End Testing Suite with Playwright</description>
+        <subtasks>
+          <subtask>Install and configure Playwright</subtask>
+          <subtask>Create e2e/ directory structure and fixtures</subtask>
+          <subtask>Implement E2E test: New user signup → onboarding → first session</subtask>
+          <subtask>Implement E2E test: Complete prioritization flow (capture → interrogate → compare → export)</subtask>
+          <subtask>Implement E2E test: Session resumption across browser close/reopen</subtask>
+          <subtask>Implement E2E test: Password reset flow with email verification</subtask>
+          <subtask>Implement E2E test: Multi-improvement session with 10+ items</subtask>
+          <subtask>Implement E2E test: Error recovery scenarios (API failures, network issues)</subtask>
+          <subtask>Add visual regression testing for validation states</subtask>
+        </subtasks>
+      </task>
+      <task id="8" acs="6">
+        <description>Unit Tests for Validation Code</description>
+        <subtasks>
+          <subtask>Write unit tests for completeness scoring algorithm</subtask>
+          <subtask>Write unit tests for custom validators (vagueness detection, substantive content)</subtask>
+          <subtask>Write unit tests for AI description analyzer fallback logic</subtask>
+          <subtask>Write unit tests for error mapper (TRPC, network, validation errors)</subtask>
+          <subtask>Write unit tests for help content search functionality</subtask>
+          <subtask>Write React component tests for ErrorBoundary</subtask>
+          <subtask>Write React component tests for HelpTooltip</subtask>
+          <subtask>Write React component tests for ValidationInput/Textarea</subtask>
+          <subtask>Write React component tests for CompletenessIndicator</subtask>
+        </subtasks>
+      </task>
+      <task id="9" acs="7">
+        <description>Performance and Accessibility Testing</description>
+        <subtasks>
+          <subtask>Performance test: Validation response time &lt;50ms</subtask>
+          <subtask>Performance test: AI description analysis &lt;3 seconds</subtask>
+          <subtask>Performance test: Error boundary rendering &lt;100ms</subtask>
+          <subtask>Accessibility test: Error states announced to screen readers</subtask>
+          <subtask>Accessibility test: Help tooltips keyboard-navigable</subtask>
+          <subtask>Accessibility test: Error messages have sufficient color contrast</subtask>
+          <subtask>Accessibility test: Focus management in error recovery flows</subtask>
+          <subtask>Add debouncing (300ms) for real-time validation</subtask>
+        </subtasks>
+      </task>
+      <task id="10" optional="true">
+        <description>Story 1.10 Code Review Follow-ups (Optional Improvements)</description>
+        <subtasks>
+          <subtask>Create ErrorToast context provider for global toast management</subtask>
+          <subtask>Implement 300ms debouncing for real-time validation in improvement form</subtask>
+          <subtask>Update Task 6 first subtask checkbox in Story 1.10 to reflect completed integration</subtask>
+          <subtask>Add loading states to AI description analysis UI (can take up to 3s)</subtask>
+          <subtask>Add animation to completeness indicator when score updates</subtask>
+          <subtask>Consider moving help content to CMS for non-developer updates (optional)</subtask>
+          <subtask>Consider integrating error boundary with Sentry/error tracking (optional)</subtask>
+          <subtask>Track which help topics are accessed most for UX improvements (optional)</subtask>
+        </subtasks>
+      </task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="1">Validation components (ValidationInput, ValidationTextarea, HelpTooltip) integrated into evidence gathering, effort estimation, pairwise comparison, export, and onboarding workflows</criterion>
+    <criterion id="2">Completeness scoring displayed on all forms that capture user input</criterion>
+    <criterion id="3">AI-powered description analysis available on all text input fields where applicable</criterion>
+    <criterion id="4">Feature-specific error boundaries around complex features (matrix, onboarding, comparisons)</criterion>
+    <criterion id="5">End-to-end test suite covering critical user journeys with Playwright</criterion>
+    <criterion id="6">Unit tests for all validation code (schemas, scoring, AI analysis, error handling, help system)</criterion>
+    <criterion id="7">Performance and accessibility testing confirms validation doesn't degrade UX</criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>AC-010: Input Validation and Error Handling</section>
+        <snippet>Real-time validation of required fields with helpful error messages, AI detects incomplete descriptions, graceful error handling with user-friendly messages, input completeness scoring, contextual help available throughout application.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Frank Architecture Document</title>
+        <section>Security Architecture</section>
+        <snippet>Input sanitization via Zod validation on all user inputs, XSS prevention with React escaping, CSP headers. API Security includes input validation with Zod schemas on all tRPC procedures, error handling with generic messages (no stack traces to client).</snippet>
+      </doc>
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>Product Requirements Document</title>
+        <section>FR028: Input Validation</section>
+        <snippet>System shall validate input completeness and provide contextual guidance for missing information.</snippet>
+      </doc>
+      <doc>
+        <path>docs/stories/1-10-input-validation-and-error-handling.md</path>
+        <title>Story 1.10: Input Validation and Error Handling</title>
+        <section>Complete Story</section>
+        <snippet>Foundation story that built validation infrastructure (ValidationInput, ValidationTextarea, HelpTooltip, CompletenessIndicator, ErrorBoundary, AI description analyzer, error mapper). Story 1.12 extends this integration across all Epic 1 features and adds comprehensive test coverage.</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>UX Design Specification</title>
+        <section>Design System</section>
+        <snippet>Calm clarity design with sage green accents, accessibility standards (WCAG 2.1 AA), progressive disclosure patterns.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <!-- Validation Infrastructure (Story 1.10) -->
+      <artifact>
+        <path>frank/src/components/ui/validation-input.tsx</path>
+        <kind>component</kind>
+        <symbol>ValidationInput</symbol>
+        <reason>Core validation input component with real-time validation, error display, and help tooltip integration</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/components/ui/validation-textarea.tsx</path>
+        <kind>component</kind>
+        <symbol>ValidationTextarea</symbol>
+        <reason>Textarea variant with validation, completeness scoring, and AI analysis integration</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/components/ui/completeness-indicator.tsx</path>
+        <kind>component</kind>
+        <symbol>CompletenessIndicator</symbol>
+        <reason>Visual indicator for input completeness scoring (AC #2)</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/components/help/help-tooltip.tsx</path>
+        <kind>component</kind>
+        <symbol>HelpTooltip</symbol>
+        <reason>Contextual help tooltip component with "?" icon triggers (AC #1, #3)</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/components/error-handling/error-boundary.tsx</path>
+        <kind>component</kind>
+        <symbol>ErrorBoundary, FeatureErrorBoundary</symbol>
+        <reason>Error boundary components for feature-specific error recovery (AC #4)</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/components/error-handling/error-boundary-wrapper.tsx</path>
+        <kind>component</kind>
+        <symbol>ErrorBoundaryWrapper</symbol>
+        <reason>Wrapper component for easy error boundary integration</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/components/error-handling/error-toast.tsx</path>
+        <kind>component</kind>
+        <symbol>ErrorToast</symbol>
+        <reason>Toast notification component for error messages</reason>
+      </artifact>
+
+      <!-- Validation Logic -->
+      <artifact>
+        <path>frank/src/lib/validations/completeness-scoring.ts</path>
+        <kind>service</kind>
+        <symbol>calculateCompletenessScore</symbol>
+        <reason>Completeness scoring algorithm for input quality (AC #2) - needs unit tests</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/lib/validations/custom-validators.ts</path>
+        <kind>service</kind>
+        <symbol>customValidators</symbol>
+        <reason>Custom Zod validators for vagueness detection, substantive content - needs unit tests</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/lib/validations/improvement.ts</path>
+        <kind>schema</kind>
+        <symbol>improvementSchema</symbol>
+        <reason>Zod validation schema for improvement capture</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/lib/validations/evidence.ts</path>
+        <kind>schema</kind>
+        <symbol>evidenceSchema</symbol>
+        <reason>Zod validation schema for evidence gathering (Task 1)</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/lib/validations/effort.ts</path>
+        <kind>schema</kind>
+        <symbol>effortSchema</symbol>
+        <reason>Zod validation schema for effort estimation (Task 2)</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/lib/validations/error-messages.ts</path>
+        <kind>service</kind>
+        <symbol>errorMessages</symbol>
+        <reason>User-friendly error message mapping</reason>
+      </artifact>
+
+      <!-- AI Integration -->
+      <artifact>
+        <path>frank/src/lib/ai/validation/description-analyzer.ts</path>
+        <kind>service</kind>
+        <symbol>analyzeDescription</symbol>
+        <reason>AI-powered description vagueness detection (AC #3) - needs unit tests for fallback logic</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/lib/ai/claude/conversation-engine.ts</path>
+        <kind>service</kind>
+        <symbol>ClaudeConversationEngine</symbol>
+        <reason>Claude AI integration for Socratic questioning</reason>
+      </artifact>
+
+      <!-- Error Handling -->
+      <artifact>
+        <path>frank/src/lib/error-handling/error-mapper.ts</path>
+        <kind>service</kind>
+        <symbol>mapErrorToUserMessage</symbol>
+        <reason>Maps technical errors to user-friendly messages - needs unit tests</reason>
+      </artifact>
+
+      <!-- Help System -->
+      <artifact>
+        <path>frank/src/lib/help/help-content.ts</path>
+        <kind>service</kind>
+        <symbol>helpContent, searchHelpContent</symbol>
+        <reason>Help content database with search functionality (AC #1) - needs unit tests</reason>
+      </artifact>
+
+      <!-- tRPC Routers -->
+      <artifact>
+        <path>frank/src/server/api/routers/validation.ts</path>
+        <kind>router</kind>
+        <symbol>validationRouter</symbol>
+        <reason>tRPC router for validation endpoints (AI analysis, completeness scoring)</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/server/api/routers/improvements.ts</path>
+        <kind>router</kind>
+        <symbol>improvementsRouter</symbol>
+        <reason>Improvements CRUD router to integrate validation into capture flow</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/server/api/routers/conversations.ts</path>
+        <kind>router</kind>
+        <symbol>conversationsRouter</symbol>
+        <reason>Conversations router for evidence gathering (Task 1)</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/server/api/routers/export.ts</path>
+        <kind>router</kind>
+        <symbol>exportRouter</symbol>
+        <reason>Export router for validation integration (Task 4)</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/server/api/routers/onboarding.ts</path>
+        <kind>router</kind>
+        <symbol>onboardingRouter</symbol>
+        <reason>Onboarding router for validation integration (Task 5)</reason>
+      </artifact>
+
+      <!-- Feature Components to Integrate -->
+      <artifact>
+        <path>frank/src/components/frank/onboarding/onboarding-welcome.tsx</path>
+        <kind>component</kind>
+        <symbol>OnboardingWelcome</symbol>
+        <reason>Onboarding component to integrate validation (Task 5)</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/components/visualization/ImpactEffortMatrix.tsx</path>
+        <kind>component</kind>
+        <symbol>ImpactEffortMatrix</symbol>
+        <reason>Matrix visualization to wrap with FeatureErrorBoundary (Task 6)</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/components/frank/export-dialog.tsx</path>
+        <kind>component</kind>
+        <symbol>ExportDialog</symbol>
+        <reason>Export dialog to integrate validation (Task 4)</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/components/improvements/CreateImprovementButton.tsx</path>
+        <kind>component</kind>
+        <symbol>CreateImprovementButton</symbol>
+        <reason>Improvement capture component with existing validation integration</reason>
+      </artifact>
+
+      <!-- Existing Tests -->
+      <artifact>
+        <path>frank/src/components/visualization/__tests__/ImpactEffortMatrix.test.tsx</path>
+        <kind>test</kind>
+        <symbol>ImpactEffortMatrix tests</symbol>
+        <reason>Existing test example for component testing patterns</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/lib/integrations/export/__tests__/csv-generator.test.ts</path>
+        <kind>test</kind>
+        <symbol>CSV generator tests</symbol>
+        <reason>Existing test example for unit testing patterns</reason>
+      </artifact>
+
+      <!-- Testing Infrastructure -->
+      <artifact>
+        <path>frank/vitest.config.ts</path>
+        <kind>config</kind>
+        <symbol>vitest config</symbol>
+        <reason>Vitest testing framework configuration</reason>
+      </artifact>
+      <artifact>
+        <path>frank/vitest.setup.ts</path>
+        <kind>config</kind>
+        <symbol>vitest setup</symbol>
+        <reason>Vitest global setup and utilities</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/lib/test-helpers.ts</path>
+        <kind>utility</kind>
+        <symbol>test helpers</symbol>
+        <reason>Shared testing utilities and mocks</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <node>
+        <package name="@anthropic-ai/sdk" version="^0.68.0" purpose="Claude AI integration for description analysis" />
+        <package name="@tanstack/react-query" version="^5.69.0" purpose="Async state management for validation API calls" />
+        <package name="@trpc/client" version="^11.0.0" purpose="Type-safe API client" />
+        <package name="@trpc/server" version="^11.0.0" purpose="Type-safe API server" />
+        <package name="react-hook-form" version="^7.66.0" purpose="Form state management for validation" />
+        <package name="@hookform/resolvers" version="^5.2.2" purpose="Zod integration for react-hook-form" />
+        <package name="zod" version="^3.25.76" purpose="Schema validation and type inference" />
+        <package name="next" version="^15.2.3" purpose="Next.js framework" />
+        <package name="react" version="^19.0.0" purpose="React library" />
+        <package name="@radix-ui/react-dialog" version="^1.1.15" purpose="Accessible dialog components" />
+        <package name="lucide-react" version="^0.552.0" purpose="Icon library for help tooltips" />
+        <package name="tailwindcss" version="^4.0.15" purpose="Utility-first CSS framework" />
+      </node>
+      <node-dev>
+        <package name="vitest" version="^4.0.6" purpose="Unit testing framework (Task 8)" />
+        <package name="@testing-library/react" version="^16.3.0" purpose="React component testing utilities (Task 8)" />
+        <package name="@testing-library/jest-dom" version="^6.9.1" purpose="DOM testing matchers (Task 8)" />
+        <package name="@testing-library/user-event" version="^14.6.1" purpose="User interaction simulation (Task 8)" />
+        <package name="@vitejs/plugin-react" version="^5.1.0" purpose="Vite React plugin for testing" />
+        <package name="jsdom" version="^27.1.0" purpose="DOM environment for testing" />
+        <package name="typescript" version="^5.8.2" purpose="TypeScript compiler" />
+      </node-dev>
+      <required-for-story>
+        <package name="@playwright/test" version="latest" purpose="E2E testing framework (Task 7) - NOT YET INSTALLED" />
+      </required-for-story>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint category="validation">All user inputs must use Zod validation schemas with custom error messages (no generic "Required")</constraint>
+    <constraint category="security">Input sanitization required on all tRPC procedures to prevent XSS attacks</constraint>
+    <constraint category="security">No stack traces or technical error details exposed to client - use error-mapper for user-friendly messages</constraint>
+    <constraint category="architecture">Validation must be implemented on BOTH client (UI feedback) and server (security) sides</constraint>
+    <constraint category="testing">Zero increase in TypeScript errors - story must maintain type safety</constraint>
+    <constraint category="testing">All 89+ existing tests must continue to pass - no regression</constraint>
+    <constraint category="testing">Unit test coverage required for all validation logic (completeness scoring, custom validators, AI analysis, error handling)</constraint>
+    <constraint category="testing">E2E tests must cover critical user journeys end-to-end (signup → onboarding → prioritization → export)</constraint>
+    <constraint category="performance">Validation response time must be &lt;50ms to avoid input lag</constraint>
+    <constraint category="performance">AI description analysis should complete within 3 seconds</constraint>
+    <constraint category="performance">Implement 300ms debouncing for real-time validation to prevent excessive API calls</constraint>
+    <constraint category="accessibility">Error states must be announced to screen readers using ARIA live regions</constraint>
+    <constraint category="accessibility">Help tooltips must be keyboard-navigable (Tab, Enter, Escape)</constraint>
+    <constraint category="accessibility">Error messages must have sufficient color contrast (WCAG 2.1 AA)</constraint>
+    <constraint category="dependencies">Story 1.11 (TypeScript cleanup) must be complete before starting this story</constraint>
+    <constraint category="dependencies">Story 1.10 validation infrastructure must exist and be functional</constraint>
+    <constraint category="scope">This story extends validation to 5 workflows (evidence, effort, comparison, export, onboarding) - improvement capture already done in 1.10</constraint>
+  </constraints>
+  <interfaces>
+    <interface>
+      <name>ValidationInput Component API</name>
+      <kind>React Component Props</kind>
+      <signature>
+type ValidationInputProps = {
+  label: string;
+  name: string;
+  type?: string;
+  placeholder?: string;
+  helpContent?: string;
+  value: string;
+  onChange: (value: string) => void;
+  error?: string;
+  showCompleteness?: boolean;
+  completenessScore?: number;
+}
+      </signature>
+      <path>frank/src/components/ui/validation-input.tsx</path>
+    </interface>
+    <interface>
+      <name>ValidationTextarea Component API</name>
+      <kind>React Component Props</kind>
+      <signature>
+type ValidationTextareaProps = {
+  label: string;
+  name: string;
+  placeholder?: string;
+  helpContent?: string;
+  value: string;
+  onChange: (value: string) => void;
+  error?: string;
+  showCompleteness?: boolean;
+  enableAIAnalysis?: boolean;
+  onAnalysisResult?: (result: AnalysisResult) => void;
+}
+      </signature>
+      <path>frank/src/components/ui/validation-textarea.tsx</path>
+    </interface>
+    <interface>
+      <name>HelpTooltip Component API</name>
+      <kind>React Component Props</kind>
+      <signature>
+type HelpTooltipProps = {
+  topic: string;
+  children?: React.ReactNode;
+}
+      </signature>
+      <path>frank/src/components/help/help-tooltip.tsx</path>
+    </interface>
+    <interface>
+      <name>FeatureErrorBoundary Component API</name>
+      <kind>React Component Props</kind>
+      <signature>
+type FeatureErrorBoundaryProps = {
+  featureName: string;
+  fallbackMessage?: string;
+  onError?: (error: Error, errorInfo: ErrorInfo) => void;
+  children: React.ReactNode;
+}
+      </signature>
+      <path>frank/src/components/error-handling/error-boundary.tsx</path>
+    </interface>
+    <interface>
+      <name>Validation Router - analyzeDescription</name>
+      <kind>tRPC Procedure</kind>
+      <signature>
+analyzeDescription: protectedProcedure
+  .input(z.object({ description: z.string() }))
+  .mutation(async ({ input }) => AnalysisResult)
+      </signature>
+      <path>frank/src/server/api/routers/validation.ts</path>
+    </interface>
+    <interface>
+      <name>Validation Router - calculateCompleteness</name>
+      <kind>tRPC Procedure</kind>
+      <signature>
+calculateCompleteness: protectedProcedure
+  .input(z.object({
+    title: z.string(),
+    description: z.string(),
+    evidence?: z.string()
+  }))
+  .query(async ({ input }) => CompletenessScore)
+      </signature>
+      <path>frank/src/server/api/routers/validation.ts</path>
+    </interface>
+    <interface>
+      <name>Completeness Scoring Algorithm</name>
+      <kind>Function Signature</kind>
+      <signature>
+function calculateCompletenessScore(input: {
+  title: string;
+  description: string;
+  evidence?: string;
+  effort?: string;
+}): number // Returns 0.0 - 1.0
+      </signature>
+      <path>frank/src/lib/validations/completeness-scoring.ts</path>
+    </interface>
+    <interface>
+      <name>Error Mapper Function</name>
+      <kind>Function Signature</kind>
+      <signature>
+function mapErrorToUserMessage(error: unknown): {
+  message: string;
+  type: 'validation' | 'network' | 'server' | 'unknown';
+  recoveryAction?: string;
+}
+      </signature>
+      <path>frank/src/lib/error-handling/error-mapper.ts</path>
+    </interface>
+    <interface>
+      <name>Help Content Search</name>
+      <kind>Function Signature</kind>
+      <signature>
+function searchHelpContent(query: string): HelpContent[]
+
+type HelpContent = {
+  topic: string;
+  title: string;
+  content: string;
+  keywords: string[];
+}
+      </signature>
+      <path>frank/src/lib/help/help-content.ts</path>
+    </interface>
+  </interfaces>
+  <tests>
+    <standards>
+      <framework>Vitest v4.0.6 for unit and integration tests</framework>
+      <framework>React Testing Library v16.3.0 for component tests</framework>
+      <framework>Playwright (to be installed) for E2E tests</framework>
+      <pattern>Unit tests colocated in __tests__ directories next to source files</pattern>
+      <pattern>Component tests use React Testing Library with user-event for interactions</pattern>
+      <pattern>E2E tests in frank/e2e/ directory with fixtures and page objects</pattern>
+      <pattern>Mock external dependencies (Claude API, tRPC calls) in unit tests</pattern>
+      <pattern>Test file naming: [filename].test.ts or [filename].test.tsx</pattern>
+      <pattern>E2E test naming: [feature].spec.ts</pattern>
+      <requirement>All tests must pass before story completion (zero regression)</requirement>
+      <requirement>Zero TypeScript errors in test files</requirement>
+      <requirement>Accessibility testing for WCAG 2.1 AA compliance</requirement>
+      <requirement>Performance benchmarks: validation &lt;50ms, AI analysis &lt;3s</requirement>
+    </standards>
+    <locations>
+      <location>frank/src/lib/validations/__tests__/ - Validation logic unit tests</location>
+      <location>frank/src/lib/ai/validation/__tests__/ - AI description analyzer tests</location>
+      <location>frank/src/lib/error-handling/__tests__/ - Error handling tests</location>
+      <location>frank/src/lib/help/__tests__/ - Help system tests</location>
+      <location>frank/src/components/ui/__tests__/ - Validation component tests</location>
+      <location>frank/src/components/error-handling/__tests__/ - Error boundary tests</location>
+      <location>frank/src/components/help/__tests__/ - Help tooltip tests</location>
+      <location>frank/e2e/ - Playwright E2E tests (to be created)</location>
+      <location>frank/e2e/fixtures/ - Test fixtures and helpers</location>
+      <location>frank/e2e/tests/ - E2E test specifications</location>
+    </locations>
+    <ideas>
+      <test-suite name="Unit Tests - Completeness Scoring (AC #2)" task="8">
+        <test>calculateCompletenessScore returns 0.0 for empty inputs</test>
+        <test>calculateCompletenessScore returns 1.0 for complete inputs (title, description, evidence, effort)</test>
+        <test>calculateCompletenessScore weights description higher than other fields</test>
+        <test>calculateCompletenessScore handles partial inputs correctly</test>
+        <test>calculateCompletenessScore validates edge cases (very long inputs, special characters)</test>
+      </test-suite>
+      <test-suite name="Unit Tests - Custom Validators (AC #1)" task="8">
+        <test>vaguenessValidator rejects vague descriptions ("improve things", "make better")</test>
+        <test>vaguenessValidator accepts specific descriptions with measurable details</test>
+        <test>substantiveContentValidator rejects descriptions under minimum length</test>
+        <test>substantiveContentValidator accepts meaningful content</test>
+        <test>Custom validators return helpful error messages (not generic)</test>
+      </test-suite>
+      <test-suite name="Unit Tests - AI Description Analyzer (AC #3)" task="8">
+        <test>analyzeDescription calls Claude API with correct prompt</test>
+        <test>analyzeDescription parses Claude response correctly</test>
+        <test>analyzeDescription falls back to predefined suggestions on API failure</test>
+        <test>analyzeDescription handles network timeout gracefully</test>
+        <test>analyzeDescription caches results for identical descriptions</test>
+      </test-suite>
+      <test-suite name="Unit Tests - Error Mapper (AC #3)" task="8">
+        <test>mapErrorToUserMessage maps tRPC errors to user-friendly messages</test>
+        <test>mapErrorToUserMessage handles network errors with recovery suggestions</test>
+        <test>mapErrorToUserMessage handles validation errors with field-specific guidance</test>
+        <test>mapErrorToUserMessage prevents stack trace exposure</test>
+        <test>mapErrorToUserMessage provides context-aware recovery actions</test>
+      </test-suite>
+      <test-suite name="Unit Tests - Help System (AC #5)" task="8">
+        <test>searchHelpContent finds relevant help topics by keyword</test>
+        <test>searchHelpContent returns empty array for no matches</test>
+        <test>searchHelpContent ranks results by relevance</test>
+        <test>Help content includes all required topics for Epic 1 workflows</test>
+      </test-suite>
+      <test-suite name="Component Tests - ValidationInput (AC #1)" task="8">
+        <test>ValidationInput displays error message when validation fails</test>
+        <test>ValidationInput shows success state when valid</test>
+        <test>ValidationInput triggers onChange on user input</test>
+        <test>ValidationInput renders HelpTooltip when helpContent provided</test>
+        <test>ValidationInput displays completeness score when showCompleteness=true</test>
+        <test>ValidationInput is accessible (keyboard navigation, ARIA labels)</test>
+      </test-suite>
+      <test-suite name="Component Tests - ValidationTextarea (AC #2, #3)" task="8">
+        <test>ValidationTextarea displays AI analysis results when enableAIAnalysis=true</test>
+        <test>ValidationTextarea shows loading state during AI analysis</test>
+        <test>ValidationTextarea displays completeness indicator</test>
+        <test>ValidationTextarea handles AI analysis failure gracefully</test>
+        <test>ValidationTextarea debounces AI analysis calls (300ms)</test>
+      </test-suite>
+      <test-suite name="Component Tests - ErrorBoundary (AC #4)" task="8">
+        <test>ErrorBoundary catches and displays errors from child components</test>
+        <test>FeatureErrorBoundary displays feature-specific fallback UI</test>
+        <test>ErrorBoundary calls onError callback when error occurs</test>
+        <test>ErrorBoundary allows recovery with reset button</test>
+        <test>ErrorBoundary prevents error propagation to parent</test>
+      </test-suite>
+      <test-suite name="Component Tests - HelpTooltip (AC #5)" task="8">
+        <test>HelpTooltip displays help content on click</test>
+        <test>HelpTooltip is keyboard accessible (Tab, Enter, Escape)</test>
+        <test>HelpTooltip closes when clicking outside</test>
+        <test>HelpTooltip loads correct content for topic</test>
+        <test>HelpTooltip displays fallback message if topic not found</test>
+      </test-suite>
+      <test-suite name="E2E Tests - Onboarding Journey (AC #5)" task="7">
+        <test>New user can sign up, complete onboarding with validation, and create first session</test>
+        <test>Validation errors prevent progression through onboarding steps</test>
+        <test>Help tooltips are accessible throughout onboarding</test>
+        <test>Completeness scoring guides user to complete profile data</test>
+      </test-suite>
+      <test-suite name="E2E Tests - Complete Prioritization Flow (AC #1-5)" task="7">
+        <test>User can capture improvement with validation feedback</test>
+        <test>User can gather evidence with AI-powered suggestions</test>
+        <test>User can estimate effort with validation</test>
+        <test>User can perform pairwise comparisons</test>
+        <test>User can view matrix visualization with error boundary protection</test>
+        <test>User can export results with validated parameters</test>
+      </test-suite>
+      <test-suite name="E2E Tests - Error Recovery (AC #3, #4)" task="7">
+        <test>Application recovers gracefully from Claude API failure</test>
+        <test>Application handles network timeout with user-friendly message</test>
+        <test>Feature error boundaries prevent full app crash</test>
+        <test>User can retry failed operations</test>
+      </test-suite>
+      <test-suite name="Performance Tests (AC #7)" task="9">
+        <test>Validation response time measured at &lt;50ms for all inputs</test>
+        <test>AI description analysis completes within 3 seconds</test>
+        <test>Error boundary rendering measured at &lt;100ms</test>
+        <test>Help tooltip display measured at &lt;50ms</test>
+        <test>Debouncing prevents excessive validation API calls</test>
+      </test-suite>
+      <test-suite name="Accessibility Tests (AC #7)" task="9">
+        <test>Error states announced to screen readers (ARIA live regions)</test>
+        <test>Help tooltips keyboard navigable with Tab, Enter, Escape</test>
+        <test>Error messages have sufficient color contrast (WCAG 2.1 AA)</test>
+        <test>Focus management correct in error recovery flows</test>
+        <test>Form labels properly associated with inputs</test>
+      </test-suite>
+    </ideas>
+  </tests>
+</story-context>
