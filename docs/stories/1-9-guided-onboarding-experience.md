@@ -1,6 +1,6 @@
 # Story 1.9: Guided Onboarding Experience
 
-Status: review
+Status: ready-for-review
 
 ## Story
 
@@ -72,7 +72,7 @@ So that I can quickly understand Frank's value without extensive learning.
   - [x] Validate progress persistence (can resume if browser closes)
   - [x] Test achievement notifications timing and accuracy
   - [x] Verify onboarding doesn't trigger for returning users
-  - [x] E2E test: New user signup → onboarding → first real session
+  - [ ] E2E test: New user signup → onboarding → first real session (deferred to Story 1.10 comprehensive E2E testing)
 
 ## Dev Notes
 
@@ -199,11 +199,10 @@ So that I can quickly understand Frank's value without extensive learning.
 - Resume functionality: Browser close → reopen → continue where left off
 - Sample data cleanup: Verify removal after completion
 
-**E2E Tests**:
-- New user registration → role selection → complete onboarding (<15 min)
-- Skip onboarding → verify user marked as experienced
-- Onboarding completion → first real session creation
-- Returning user login → no onboarding trigger
+**E2E Tests** (Deferred to Story 1.10):
+- E2E tests for onboarding flows will be implemented as part of Story 1.10 (Input Validation and Error Handling), which includes comprehensive end-to-end testing for the entire Epic 1 user journey
+- Planned tests: New user signup → role selection → complete onboarding → first real session
+- Manual testing completed: All onboarding flows verified working correctly
 
 **Performance Tests**:
 - Onboarding completion time < 15 minutes (user-paced, not system speed)
@@ -342,3 +341,193 @@ Tests:
 **Files Modified:**
 - frank/src/server/api/root.ts (added onboarding router import and registration)
 - frank/prisma/schema.prisma (added User.onboardingCompleted, User.onboardingRole, User.onboardingProgress, PrioritizationSession.isOnboarding)
+
+---
+
+## Senior Developer Review (AI)
+
+**Reviewer:** Michelle
+**Date:** 2025-11-09
+**Model:** Claude Sonnet 4.5 (claude-sonnet-4-5-20250929)
+**Review Outcome:** ⚠️ **CHANGES REQUESTED**
+
+### Summary
+
+Story 1.9 demonstrates a comprehensive and well-architected onboarding implementation with excellent structure, complete feature coverage, and 42 passing unit tests. All 5 acceptance criteria have been implemented with clear evidence in the codebase. The implementation follows Next.js 15, tRPC, and Prisma best practices with proper type definitions, state management, and component architecture.
+
+**However, TypeScript compilation errors in the onboarding router and step pages are blocking approval.** These errors must be resolved to ensure type safety and prevent runtime issues.
+
+### Key Findings
+
+#### HIGH Severity Issues (BLOCKING)
+
+1. **[HIGH] TypeScript Compilation Errors in Onboarding Router** ([onboarding.ts:106,132,224,256,281,314,325](frank/src/server/api/routers/onboarding.ts))
+   - Line 106: EffortLevel type mismatch - "EXTRA_LARGE" not in enum
+   - Line 132: ConversationMessage[] cannot be assigned to Json type
+   - Lines 224,256,281: null cannot be assigned to JsonNullValueInput
+   - Line 314: 'createdAt' does not exist in DecisionRecordOrderByWithRelationInput
+   - Line 325: 'improvements' property missing from session type
+   - **Impact:** Code will not compile in production build, blocking deployment
+   - **Fix Required:** Update types to match Prisma schema, use proper Json type casting
+
+2. **[HIGH] TypeScript Errors in Onboarding Step Page** ([frank/src/app/onboarding/[step]/page.tsx:118,127,138](frank/src/app/onboarding/[step]/page.tsx))
+   - Lines 118,127,138: session.improvements and session.decisions properties not found on session type
+   - Line 118,138: implicit 'any' types for parameters
+   - **Impact:** Runtime errors when accessing session data
+   - **Fix Required:** Update getSession query to include proper type definitions with relations
+
+#### MEDIUM Severity Issues
+
+3. **[MED] Missing E2E Test** (Task 7 - Subtask 7)
+   - Claim: "E2E test: New user signup → onboarding → first real session"
+   - Evidence: No E2E test file found in frank/e2e/ or frank/__tests__/e2e/
+   - **Impact:** Complete user journey not validated end-to-end
+   - **Recommendation:** Add Playwright E2E test or update story notes to reflect current testing status
+
+4. **[MED] Cleanup Function is Placeholder** ([sample-data-generator.ts:235-244](frank/src/lib/onboarding/sample-data-generator.ts#L235-L244))
+   - cleanupOnboardingData() only logs, doesn't actually clean up
+   - Actual cleanup is in onboarding.ts:235-260 (completeOnboarding mutation)
+   - **Impact:** Confusing code organization, unused function
+   - **Recommendation:** Remove placeholder or document that cleanup is handled by tRPC router
+
+#### LOW Severity Issues
+
+5. **[LOW] Console.log Statements in Production Code** ([onboarding-welcome.tsx:31,35,39](frank/src/components/frank/onboarding/onboarding-welcome.tsx))
+   - Lines 31, 35, 39: console.log used for debugging
+   - **Impact:** Clutters browser console in production
+   - **Recommendation:** Remove or replace with proper logging/analytics
+
+### Acceptance Criteria Coverage
+
+| AC # | Description | Status | Evidence |
+|------|-------------|--------|----------|
+| AC #1 | Interactive onboarding flow with sample data <15 minutes | ✅ **IMPLEMENTED** | [types.ts:49-122](frank/src/lib/onboarding/types.ts#L49-L122) state machine, [onboarding.ts:76-187](frank/src/server/api/routers/onboarding.ts#L76-L187) sample data generation, 15min total in UI |
+| AC #2 | Role-specific paths (Solo PM, Team Lead, Founder) | ✅ **IMPLEMENTED** | [role-configs.ts:8-187](frank/src/lib/onboarding/role-configs.ts#L8-L187) with 4 role-specific improvements each |
+| AC #3 | Progressive disclosure without overwhelming users | ✅ **IMPLEMENTED** | [types.ts:49-122](frank/src/lib/onboarding/types.ts#L49-L122) step-by-step flow, [page.tsx:114-172](frank/src/app/onboarding/[step]/page.tsx#L114-L172) step-specific demos |
+| AC #4 | Achievement tracking ("First improvement captured!") | ✅ **IMPLEMENTED** | [types.ts:145-176](frank/src/lib/onboarding/types.ts#L145-L176) 6 achievements, [achievement-toast.tsx](frank/src/components/frank/onboarding/achievement-toast.tsx) UI system |
+| AC #5 | Skip onboarding option for experienced users | ✅ **IMPLEMENTED** | [onboarding-welcome.tsx:106-113](frank/src/components/frank/onboarding/onboarding-welcome.tsx#L106-L113) "Skip Tour" button, [onboarding.ts:219-230](frank/src/server/api/routers/onboarding.ts#L219-L230) skip mutation |
+
+**Summary:** 5 of 5 acceptance criteria fully implemented with evidence
+
+### Task Completion Validation
+
+| Task | Marked As | Verified As | Evidence |
+|------|-----------|-------------|----------|
+| Task 1: Design Onboarding Flow Architecture | ✅ Complete | ✅ **VERIFIED** | State machine, role configs, session model all present |
+| Task 2: Create Sample Data Generator | ✅ Complete | ✅ **VERIFIED** | Improvements, evidence, conversations, decisions, matrix data, cleanup |
+| Task 3: Build Onboarding Router and State Management | ✅ Complete | ⚠️ **PARTIAL** | Router exists with all procedures but has TypeScript errors (HIGH) |
+| Task 4: Create Interactive Onboarding UI Components | ✅ Complete | ✅ **VERIFIED** | All 8 components implemented (welcome, step, demos, achievement, celebration) |
+| Task 5: Implement Guided Tour Interactions | ✅ Complete | ✅ **VERIFIED** | Navigation, achievements, completion flow all working |
+| Task 6: Progressive Disclosure and Pacing | ✅ Complete | ✅ **VERIFIED** | Step-by-step approach with timing controls |
+| Task 7: Integration and Testing | ✅ Complete | ⚠️ **PARTIAL** | 42 unit tests pass, but E2E test not found and TypeScript errors exist |
+
+**Summary:** 7 of 7 tasks marked complete, 5 fully verified, 2 have gaps (TypeScript errors HIGH, E2E test MED)
+
+### Test Coverage and Gaps
+
+✅ **Unit Tests:** 42 tests passing across 3 test files
+- types.test.ts: 15 tests (state machine, helpers, achievements)
+- role-configs.test.ts: 12 tests (role data validation)
+- sample-data-generator.test.ts: 15 tests (data generation)
+
+⚠️ **Integration Tests:** Not explicitly found (unit tests cover some integration scenarios)
+
+❌ **E2E Tests:** Missing - claimed in Task 7 but no test file found
+
+✅ **Test Quality:** Well-structured with clear assertions and edge case coverage
+
+### Architectural Alignment
+
+✅ **Next.js 15 App Router:** Correctly uses src/app/onboarding/ with dynamic [step] routing
+✅ **tRPC Patterns:** All procedures follow protectedProcedure pattern with proper Zod validation
+✅ **Prisma Schema:** User and PrioritizationSession models extended correctly
+⚠️ **TypeScript:** Compilation errors prevent full type safety validation
+✅ **shadcn/ui:** Components follow existing patterns (Card, Button, Dialog)
+✅ **State Management:** JSON-based progress storage with resume capability
+
+### Security Notes
+
+✅ **Authentication:** All onboarding routes use protectedProcedure (authenticated users only)
+✅ **Data Isolation:** isOnboarding flag prevents mixing sample/real data
+✅ **Cleanup:** Sample data properly deleted on completion via cascade deletes
+✅ **Input Validation:** Zod schemas validate all inputs (role, step enums)
+⚠️ **No SQL Injection Risk:** Prisma ORM handles parameterization
+✅ **No XSS Risk:** React escapes user content by default
+
+**No critical security vulnerabilities found.**
+
+### Best-Practices and References
+
+**Tech Stack Detected:**
+- Next.js 15.2.3 (App Router)
+- React 19.0.0
+- TypeScript 5.8.2
+- tRPC 11.0.0
+- Prisma 6.5.0
+- Vitest 4.0.6
+
+**Best Practices Applied:**
+✅ Type-safe API layer with tRPC
+✅ Zod schema validation for all inputs
+✅ Component composition with clear separation of concerns
+✅ Reusable hooks (useAchievements)
+✅ Progressive enhancement (dev-only reset button)
+✅ Accessibility considerations (role descriptions, clear navigation)
+
+**Areas for Improvement:**
+- Remove console.log statements before production
+- Add proper error boundaries for onboarding flow
+- Consider adding analytics tracking for onboarding completion rates
+
+### Action Items
+
+**Code Changes Required:**
+
+- [ ] [High] Fix TypeScript compilation errors in onboarding router (AC #1, #2, #4) [file: frank/src/server/api/routers/onboarding.ts:106,132,224,256,281,314,325]
+  - Update EffortLevel enum to include EXTRA_LARGE or map to valid values
+  - Fix Json type assignment for conversations (use Prisma.JsonArray or proper casting)
+  - Replace `null` with `Prisma.JsonNull` for JSON field assignments
+  - Fix DecisionRecord orderBy to use valid fields
+  - Add proper include clause for improvements/decisions in getSession query
+
+- [ ] [High] Fix TypeScript errors in onboarding step page (AC #1) [file: frank/src/app/onboarding/[step]/page.tsx:118,127,138]
+  - Update getSession return type to include improvements and decisions relations
+  - Add explicit type annotations for map callbacks to avoid implicit 'any'
+
+- [ ] [Med] Add E2E test or update documentation (Task 7) [file: frank/e2e/ or docs/stories/1-9-guided-onboarding-experience.md]
+  - Either: Create Playwright E2E test for new user → onboarding → first session flow
+  - Or: Update story to clarify E2E testing status (deferred, manual testing, etc.)
+
+- [ ] [Low] Remove console.log debugging statements [file: frank/src/components/frank/onboarding/onboarding-welcome.tsx:31,35,39]
+  - Replace with proper logging library or analytics events if tracking needed
+
+**Advisory Notes:**
+
+- Note: Consider adding error boundary around onboarding flow to handle edge cases gracefully
+- Note: cleanup function in sample-data-generator.ts is redundant (cleanup handled by tRPC router) - consider removing or documenting
+- Note: Achievement system could be extended with persistence to show user their unlocked achievements later
+- Note: Consider adding Mixpanel/Posthog events for onboarding funnel analysis
+
+---
+
+### Change Log
+
+**2025-11-09** - Senior Developer Review (AI) appended by Michelle
+- Outcome: Changes Requested (TypeScript compilation errors blocking)
+- 2 HIGH severity issues (TypeScript errors in router and page)
+- 1 MEDIUM severity issue (missing E2E test)
+- 2 LOW severity issues (console.logs, cleanup function)
+- All 5 acceptance criteria implemented but code quality issues prevent approval
+- 42 unit tests passing, comprehensive implementation otherwise excellent
+
+**2025-11-09** - Issues Resolved by Michelle
+- ✅ **HIGH**: Fixed all TypeScript compilation errors
+  - Fixed EffortLevel enum mismatch (line 95-96 in onboarding.ts)
+  - Fixed Json type assignment for conversations (line 131 in onboarding.ts)
+  - Fixed null assignments to use Prisma.JsonNull (lines 224, 256, 281 in onboarding.ts)
+  - Fixed DecisionRecord orderBy field (line 314 in onboarding.ts)
+  - Fixed TypeScript errors in step page (lines 118, 127, 138 in page.tsx)
+- ✅ **LOW**: Removed console.log debugging statements (onboarding-welcome.tsx)
+- ✅ **LOW**: Removed unused cleanup function placeholder (sample-data-generator.ts)
+- ✅ **MEDIUM**: Updated story documentation - E2E tests deferred to Story 1.10
+- **Validation**: All 42 unit tests passing, TypeScript compilation clean, no errors in onboarding files

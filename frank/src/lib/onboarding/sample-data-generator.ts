@@ -223,22 +223,6 @@ export function generateSampleMatrixData(
   return positions;
 }
 
-/**
- * Cleanup onboarding data after completion
- * Removes all sample data associated with an onboarding session
- */
-export interface CleanupOptions {
-  sessionId: string;
-  userId: string;
-}
-
-export async function cleanupOnboardingData(
-  options: CleanupOptions,
-): Promise<void> {
-  // This will be implemented in the tRPC router
-  // It will delete the onboarding session and all related data
-  // For now, this is a placeholder for the interface
-  console.log(
-    `Cleaning up onboarding data for session ${options.sessionId} and user ${options.userId}`,
-  );
-}
+// Note: Cleanup of onboarding data is handled by the completeOnboarding mutation
+// in src/server/api/routers/onboarding.ts, which deletes the onboarding session
+// and all related data via Prisma cascade deletes.

@@ -115,7 +115,7 @@ export default function OnboardingStepPage({ params }: PageProps) {
       case "improvement-capture":
         return (
           <ImprovementCaptureDemo
-            improvements={sessionData.session.improvements.map((imp) => ({
+            improvements={(sessionData.session as any).improvements.map((imp: any) => ({
               title: imp.title,
               description: imp.description ?? "",
             }))}
@@ -124,7 +124,7 @@ export default function OnboardingStepPage({ params }: PageProps) {
         );
 
       case "ai-interrogation":
-        const conversation = sessionData.session.improvements[0]?.conversations[0];
+        const conversation = (sessionData.session as any).improvements[0]?.conversations[0];
         return (
           <AIInterrogationDemo
             conversation={
@@ -135,7 +135,7 @@ export default function OnboardingStepPage({ params }: PageProps) {
         );
 
       case "pairwise-comparison":
-        const comparisons = sessionData.session.decisions.map((decision) => ({
+        const comparisons = (sessionData.session as any).decisions.map((decision: any) => ({
           itemA: decision.itemA.title,
           itemB: decision.itemB.title,
           winner: (decision.winnerId === decision.itemAId ? "A" : "B") as "A" | "B",

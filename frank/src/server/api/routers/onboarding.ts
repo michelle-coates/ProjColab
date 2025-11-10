@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
+import { Prisma } from "@prisma/client";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import {
   generateSampleData,
@@ -90,11 +91,10 @@ export const onboardingRouter = createTRPCRouter({
       // Create sample improvements
       const improvementPromises = sampleData.improvements.map(
         async (improvement, index) => {
-          // Map effort number to EffortLevel enum
+          // Map effort number to EffortLevel enum (SMALL, MEDIUM, LARGE only)
           const effortLevel =
             improvement.estimatedEffort <= 3 ? "SMALL" :
-            improvement.estimatedEffort <= 5 ? "MEDIUM" :
-            improvement.estimatedEffort <= 8 ? "LARGE" : "EXTRA_LARGE";
+            improvement.estimatedEffort <= 6 ? "MEDIUM" : "LARGE";
 
           const createdImprovement = await ctx.db.improvementItem.create({
             data: {
@@ -129,7 +129,7 @@ export const onboardingRouter = createTRPCRouter({
               data: {
                 improvementId: createdImprovement.id,
                 sessionId: session.id,
-                turns: conversation.messages,
+                turns: conversation.messages as never, // Cast to satisfy Prisma Json type
               },
             });
           }
@@ -221,7 +221,7 @@ export const onboardingRouter = createTRPCRouter({
       where: { id: ctx.session.user.id },
       data: {
         onboardingCompleted: true,
-        onboardingProgress: null,
+        onboardingProgress: Prisma.JsonNull,
         onboardingRole: null,
       },
     });
@@ -253,7 +253,7 @@ export const onboardingRouter = createTRPCRouter({
       where: { id: ctx.session.user.id },
       data: {
         onboardingCompleted: true,
-        onboardingProgress: null,
+        onboardingProgress: Prisma.JsonNull,
       },
     });
 
@@ -278,7 +278,7 @@ export const onboardingRouter = createTRPCRouter({
       data: {
         onboardingCompleted: false,
         onboardingRole: null,
-        onboardingProgress: null,
+        onboardingProgress: Prisma.JsonNull,
       },
     });
 
@@ -311,7 +311,7 @@ export const onboardingRouter = createTRPCRouter({
             winner: true,
           },
           orderBy: {
-            createdAt: "asc",
+            decidedAt: "asc",
           },
         },
       },

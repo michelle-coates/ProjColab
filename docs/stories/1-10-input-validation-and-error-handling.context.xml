@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<story-context>
+  <meta>
+    <story-id>1.10</story-id>
+    <story-key>1-10-input-validation-and-error-handling</story-key>
+    <title>Input Validation and Error Handling</title>
+    <status>ready-for-dev</status>
+    <generated>2025-11-09</generated>
+  </meta>
+
+  <story>
+    <as-a>product manager</as-a>
+    <i-want>Frank to validate my input and guide me when information is missing</i-want>
+    <so-that>I can provide complete context for better AI questioning and prioritization</so-that>
+  </story>
+
+  <acceptance-criteria>
+    <criterion id="AC1">Real-time validation of required fields with helpful error messages (not generic "Required")</criterion>
+    <criterion id="AC2">AI detects incomplete or vague improvement descriptions and prompts for clarity</criterion>
+    <criterion id="AC3">Graceful error handling with user-friendly messages and recovery suggestions</criterion>
+    <criterion id="AC4">Input completeness scoring with recommendations for improvement quality</criterion>
+    <criterion id="AC5">Contextual help available throughout the application via "?" icons or tooltips</criterion>
+  </acceptance-criteria>
+
+  <tasks>
+    <task id="T1" acs="AC1,AC4">
+      <name>Implement Enhanced Input Validation System</name>
+      <subtasks>
+        <subtask>Create comprehensive Zod validation schemas with custom error messages</subtask>
+        <subtask>Build real-time validation UI components with inline error displays</subtask>
+        <subtask>Implement input completeness scoring algorithm (0.0-1.0 scale)</subtask>
+        <subtask>Design validation feedback UI: error states, warning states, success states</subtask>
+        <subtask>Add field-specific validation rules (title length, description detail, evidence quality)</subtask>
+      </subtasks>
+    </task>
+    <task id="T2" acs="AC2,AC4">
+      <name>AI-Powered Description Quality Detection</name>
+      <subtasks>
+        <subtask>Create Claude-based description analysis service</subtask>
+        <subtask>Implement vagueness detection for improvement descriptions</subtask>
+        <subtask>Build prompt system for AI to suggest clarifying questions</subtask>
+        <subtask>Add description quality score display in UI</subtask>
+        <subtask>Create "Improve Description" wizard with AI suggestions</subtask>
+      </subtasks>
+    </task>
+    <task id="T3" acs="AC3">
+      <name>Graceful Error Handling Framework</name>
+      <subtasks>
+        <subtask>Build global error boundary components for React</subtask>
+        <subtask>Create user-friendly error message mapping system</subtask>
+        <subtask>Implement error recovery suggestions (contextual help for common failures)</subtask>
+        <subtask>Add Claude API failure handling with fallback messages</subtask>
+        <subtask>Design error notification system (toast/banner with recovery actions)</subtask>
+      </subtasks>
+    </task>
+    <task id="T4" acs="AC5">
+      <name>Contextual Help System</name>
+      <subtasks>
+        <subtask>Create help tooltip component library</subtask>
+        <subtask>Build contextual help content for all major workflows</subtask>
+        <subtask>Implement "?" icon help triggers throughout application</subtask>
+        <subtask>Add feature tour/walkthrough capabilities for complex flows</subtask>
+        <subtask>Create help documentation database with search</subtask>
+      </subtasks>
+    </task>
+    <task id="T5" acs="ALL">
+      <name>End-to-End Testing Suite (Deferred from Story 1.9)</name>
+      <subtasks>
+        <subtask>Set up Playwright E2E testing framework</subtask>
+        <subtask>Implement E2E test: New user signup → onboarding → first session</subtask>
+        <subtask>Create E2E test: Complete prioritization flow (capture → interrogate → compare → export)</subtask>
+        <subtask>Build E2E test: Session resumption across browser close/reopen</subtask>
+        <subtask>Add E2E test: Password reset flow with email verification</subtask>
+        <subtask>Implement E2E test: Multi-improvement session with 10+ items</subtask>
+        <subtask>Create E2E test: Error recovery scenarios (API failures, network issues)</subtask>
+        <subtask>Add visual regression testing for key UI components</subtask>
+      </subtasks>
+    </task>
+    <task id="T6" acs="ALL">
+      <name>Validation Integration Across Epic 1 Features</name>
+      <subtasks>
+        <subtask>Integrate validation into improvement capture form (Story 1.2)</subtask>
+        <subtask>Add validation to evidence gathering interface (Story 1.3)</subtask>
+        <subtask>Implement effort estimation validation (Story 1.4)</subtask>
+        <subtask>Add pairwise comparison validation (Story 1.5)</subtask>
+        <subtask>Integrate validation into export flows (Story 1.8)</subtask>
+        <subtask>Add validation to onboarding workflows (Story 1.9)</subtask>
+      </subtasks>
+    </task>
+    <task id="T7" acs="ALL">
+      <name>Testing and Quality Assurance</name>
+      <subtasks>
+        <subtask>Unit tests for validation schemas and scoring algorithms</subtask>
+        <subtask>Integration tests for AI description analysis</subtask>
+        <subtask>Unit tests for error boundary components</subtask>
+        <subtask>E2E tests for contextual help system</subtask>
+        <subtask>Performance testing for validation (should not slow input)</subtask>
+        <subtask>Accessibility testing for error states and help tooltips</subtask>
+      </subtasks>
+    </task>
+  </tasks>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>Frank Product Requirements Document</title>
+        <section>Functional Requirements - FR028</section>
+        <snippet>FR028: System shall validate input completeness and provide contextual guidance for missing information</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic Technical Specification: Foundation & Core Prioritization Engine</title>
+        <section>Acceptance Criteria - AC-010</section>
+        <snippet>Real-time validation of required fields with helpful error messages (not generic "Required"). AI detects incomplete or vague improvement descriptions and prompts for clarity. Graceful error handling with user-friendly messages and recovery suggestions.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Frank Architecture Document</title>
+        <section>Security Architecture - Input Validation</section>
+        <snippet>Input sanitization: All user inputs sanitized via Zod schemas before storage. XSS prevention: React's built-in escaping, CSP headers. Input validation: Zod schemas on all tRPC procedures.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Frank Architecture Document</title>
+        <section>Implementation Patterns - Error Handling Strategy</section>
+        <snippet>Error handling with graceful degradation. Claude API resilience with fallback to predefined questions. User-friendly error messages without stack traces.</snippet>
+      </doc>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Frank - Epic Breakdown</title>
+        <section>Story 1.10: Input Validation and Error Handling</section>
+        <snippet>Real-time validation, AI detection of incomplete descriptions, graceful error handling, input completeness scoring, contextual help system.</snippet>
+      </doc>
+      <doc>
+        <path>docs/stories/1-9-guided-onboarding-experience.md</path>
+        <title>Story 1.9: Guided Onboarding Experience</title>
+        <section>Dev Notes - Testing Strategy</section>
+        <snippet>E2E tests deferred to Story 1.10: New user signup → onboarding → first real session. Manual testing completed for onboarding flows.</snippet>
+      </doc>
+    </docs>
+
+    <code>
+      <artifact>
+        <path>frank/src/lib/validations/auth.ts</path>
+        <kind>validation-schema</kind>
+        <symbol>registerSchema, loginSchema, resetPasswordSchema</symbol>
+        <lines>1-86</lines>
+        <reason>Existing Zod validation pattern with custom error messages - reference for Story 1.10 validation schemas</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/server/api/routers/improvements.ts</path>
+        <kind>router</kind>
+        <symbol>improvementsRouter</symbol>
+        <lines>59-66</lines>
+        <reason>Example of TRPCError usage for NOT_FOUND errors - pattern for error handling</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/server/api/routers/onboarding.ts</path>
+        <kind>router</kind>
+        <symbol>onboardingRouter</symbol>
+        <lines>all</lines>
+        <reason>Recent Story 1.9 implementation with TypeScript type safety - reference for avoiding compilation errors</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/lib/ai/claude/fallback-questions.ts</path>
+        <kind>service</kind>
+        <symbol>getFallbackQuestion</symbol>
+        <lines>all</lines>
+        <reason>Fallback system for Claude API failures - integrate with error handling for Story 1.10</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/components/frank/onboarding/onboarding-welcome.tsx</path>
+        <kind>component</kind>
+        <symbol>OnboardingWelcome</symbol>
+        <lines>all</lines>
+        <reason>Form validation patterns and error display in React component - reference for validation UI</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/app/_components/frank/improvement-form.tsx</path>
+        <kind>component</kind>
+        <symbol>ImprovementForm</symbol>
+        <lines>all</lines>
+        <reason>Improvement capture form - primary target for enhanced validation integration</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/lib/integrations/export/__tests__/csv-generator.test.ts</path>
+        <kind>test</kind>
+        <symbol>various test cases</symbol>
+        <lines>all</lines>
+        <reason>Vitest unit test pattern - reference for Story 1.10 validation unit tests</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/lib/onboarding/__tests__/types.test.ts</path>
+        <kind>test</kind>
+        <symbol>various test cases</symbol>
+        <lines>all</lines>
+        <reason>Comprehensive unit test examples from Story 1.9 - reference for validation testing</reason>
+      </artifact>
+    </code>
+
+    <dependencies>
+      <node>
+        <package name="zod" version="^3.25.76">Schema validation library (already installed)</package>
+        <package name="@trpc/server" version="^11.0.0">tRPC server for TRPCError handling (already installed)</package>
+        <package name="react-hook-form" version="^7.66.0">Form validation library (already installed)</package>
+        <package name="@hookform/resolvers" version="^5.2.2">Zod resolver for react-hook-form (already installed)</package>
+        <package name="vitest" version="^4.0.6">Testing framework (already installed)</package>
+        <package name="@testing-library/react" version="^16.3.0">React testing utilities (already installed)</package>
+        <package name="@testing-library/jest-dom" version="^6.9.1">Jest DOM matchers (already installed)</package>
+        <package name="@testing-library/user-event" version="^14.6.1">User interaction testing (already installed)</package>
+        <package name="playwright" version="NEEDS INSTALLATION">E2E testing framework for Story 1.10</package>
+        <package name="@playwright/test" version="NEEDS INSTALLATION">Playwright test runner</package>
+      </node>
+    </dependencies>
+  </artifacts>
+
+  <interfaces>
+    <interface>
+      <name>protectedProcedure</name>
+      <kind>tRPC middleware</kind>
+      <signature>protectedProcedure.input(zodSchema).mutation/query(handler)</signature>
+      <path>frank/src/server/api/trpc.ts</path>
+    </interface>
+    <interface>
+      <name>TRPCError</name>
+      <kind>error-class</kind>
+      <signature>new TRPCError({ code: string, message: string })</signature>
+      <path>@trpc/server</path>
+    </interface>
+    <interface>
+      <name>z.object validation</name>
+      <kind>validation-schema</kind>
+      <signature>z.string().min(n, "error message").max(n, "error message")</signature>
+      <path>zod</path>
+    </interface>
+    <interface>
+      <name>claudeService</name>
+      <kind>ai-service</kind>
+      <signature>claudeService.generateEffortGuidance(), claudeService.analyzeDescription()</signature>
+      <path>frank/src/server/api/services/claude.ts</path>
+    </interface>
+  </interfaces>
+
+  <constraints>
+    <constraint>All validation schemas must use Zod with custom, user-friendly error messages (not generic "Required")</constraint>
+    <constraint>Error messages must match Frank's "Think with me" tone - helpful, not judgmental</constraint>
+    <constraint>Validation must be real-time but debounced (300ms) to prevent excessive checks</constraint>
+    <constraint>AI description analysis must have fallback to rule-based detection if Claude API unavailable</constraint>
+    <constraint>Error boundaries must catch all React errors without exposing stack traces to users</constraint>
+    <constraint>Help tooltips must be keyboard-accessible and meet WCAG 2.1 AA standards</constraint>
+    <constraint>E2E tests must use Playwright (new dependency to install)</constraint>
+    <constraint>All TypeScript compilation must be clean with strict mode enabled</constraint>
+    <constraint>Validation performance target: &lt;50ms for form validation, &lt;3s for AI analysis</constraint>
+    <constraint>Input completeness scoring must be transparent and explainable to users</constraint>
+    <constraint>Error recovery suggestions must be contextual and actionable</constraint>
+    <constraint>Help content must be searchable and organized by feature/workflow</constraint>
+  </constraints>
+
+  <tests>
+    <standards>
+      Testing uses Vitest for unit tests (existing pattern from Stories 1.9, 1.8) and Playwright for E2E tests (new in this story).
+      Unit tests follow pattern: __tests__ subdirectories with .test.ts files.
+      E2E tests will be in frank/e2e/ directory with .spec.ts files.
+      All tests must achieve 80% coverage for business logic.
+      Accessibility tests required for error states and help tooltips.
+    </standards>
+
+    <locations>
+      <location>frank/src/lib/validations/__tests__/</location>
+      <location>frank/src/components/error-handling/__tests__/</location>
+      <location>frank/src/components/help/__tests__/</location>
+      <location>frank/src/lib/ai/validation/__tests__/</location>
+      <location>frank/e2e/*.spec.ts (NEW - Playwright E2E tests)</location>
+    </locations>
+
+    <ideas>
+      <idea ac="AC1">Unit tests for Zod schemas with various invalid inputs and verify custom error messages</idea>
+      <idea ac="AC1">Integration test: Submit form with missing required fields → verify inline error display → correct and resubmit</idea>
+      <idea ac="AC2">Unit test: AI description analyzer with vague descriptions → verify clarity suggestions</idea>
+      <idea ac="AC2">Integration test: Create improvement with vague description → AI prompts for clarity → user provides detail</idea>
+      <idea ac="AC3">Unit test: Error boundary catches React error → displays user-friendly message → offers recovery action</idea>
+      <idea ac="AC3">E2E test: Claude API failure during interrogation → fallback questions used → user completes workflow</idea>
+      <idea ac="AC4">Unit test: Completeness scoring algorithm with varying input quality → verify 0.0-1.0 scores</idea>
+      <idea ac="AC4">Integration test: Improvement form shows completeness score → updates in real-time as user types</idea>
+      <idea ac="AC5">E2E test: Click help icon → tooltip displays → keyboard navigate to close</idea>
+      <idea ac="AC5">Accessibility test: Help tooltips announced to screen readers, keyboard accessible</idea>
+      <idea ac="ALL">E2E test: New user signup → onboarding → first session with validation (deferred from Story 1.9)</idea>
+      <idea ac="ALL">E2E test: Complete prioritization flow with error recovery scenarios</idea>
+      <idea ac="ALL">Performance test: Validation response time &lt;50ms for typical form inputs</idea>
+    </ideas>
+  </tests>
+</story-context>

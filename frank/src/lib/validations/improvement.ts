@@ -1,6 +1,8 @@
 import { z } from "zod";
+import { titleValidation, descriptionValidation } from "./custom-validators";
+import { errorMessages } from "./error-messages";
 
-// Category enum matching Prisma schema
+// Category enum matching Prisma schema with custom error messages
 export const categoryEnum = z.enum([
   "UI_UX",
   "DATA_QUALITY",
@@ -8,39 +10,23 @@ export const categoryEnum = z.enum([
   "BUG_FIX",
   "FEATURE",
   "OTHER",
-]);
+], {
+  errorMap: () => ({ message: errorMessages.improvement.category.invalid }),
+});
 
-// Create improvement schema
+// Create improvement schema with enhanced validation
 export const createImprovementSchema = z.object({
-  title: z
-    .string()
-    .min(5, "Title must be at least 5 characters")
-    .max(200, "Title must be at most 200 characters")
-    .trim(),
-  description: z
-    .string()
-    .min(10, "Description must be at least 10 characters")
-    .max(2000, "Description must be at most 2000 characters")
-    .trim(),
+  title: titleValidation,
+  description: descriptionValidation,
   category: categoryEnum,
   sessionId: z.string().optional(),
 });
 
-// Update improvement schema
+// Update improvement schema with enhanced validation
 export const updateImprovementSchema = z.object({
   id: z.string(),
-  title: z
-    .string()
-    .min(5, "Title must be at least 5 characters")
-    .max(200, "Title must be at most 200 characters")
-    .trim()
-    .optional(),
-  description: z
-    .string()
-    .min(10, "Description must be at least 10 characters")
-    .max(2000, "Description must be at most 2000 characters")
-    .trim()
-    .optional(),
+  title: titleValidation.optional(),
+  description: descriptionValidation.optional(),
   category: categoryEnum.optional(),
 });
 

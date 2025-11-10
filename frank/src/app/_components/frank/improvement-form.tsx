@@ -3,6 +3,13 @@
 import { useState } from "react";
 import { api } from "@/trpc/react";
 import type { Category } from "@/lib/validations/improvement";
+import { ValidationInput } from "@/components/ui/validation-input";
+import { ValidationTextarea } from "@/components/ui/validation-textarea";
+import { CompletenessIndicator } from "@/components/ui/completeness-indicator";
+import { HelpTooltip } from "@/components/help/help-tooltip";
+import { helpContent } from "@/lib/help/help-content";
+import { errorMessages } from "@/lib/validations/error-messages";
+import { isVagueDescription } from "@/lib/validations/custom-validators";
 
 interface ImprovementFormProps {
   sessionId?: string;
@@ -29,6 +36,32 @@ export function ImprovementForm({ sessionId, onSuccess }: ImprovementFormProps) 
   }>({});
 
   const utils = api.useUtils();
+
+  // Get completeness score
+  const { data: completenessScore } = api.validation.scoreImprovement.useQuery(
+    {
+      title: title.trim(),
+      description: description.trim(),
+      category,
+      evidenceCount: 0,
+    },
+    {
+      enabled: title.length > 0 || description.length > 0,
+    }
+  );
+
+  // AI description analysis (on blur)
+  const analyzeDescription = api.validation.analyzeDescription.useMutation({
+    onSuccess: (data) => {
+      if (data.isVague && data.clarifyingQuestions.length > 0) {
+        // Update error with AI suggestions
+        setErrors(prev => ({
+          ...prev,
+          description: `${errorMessages.improvement.description.vague} Try: ${data.clarifyingQuestions[0]}`,
+        }));
+      }
+    },
+  });
   const createImprovement = api.improvements.create.useMutation({
     onSuccess: async () => {
       await Promise.all([
@@ -51,16 +84,24 @@ export function ImprovementForm({ sessionId, onSuccess }: ImprovementFormProps) 
   const validateForm = () => {
     const newErrors: typeof errors = {};
 
-    if (title.trim().length < 5) {
-      newErrors.title = "Title must be at least 5 characters";
+    // Title validation with friendly messages
+    if (title.trim().length === 0) {
+      newErrors.title = errorMessages.improvement.title.required;
+    } else if (title.trim().length < 5) {
+      newErrors.title = errorMessages.improvement.title.tooShort;
     } else if (title.trim().length > 200) {
-      newErrors.title = "Title must be at most 200 characters";
+      newErrors.title = errorMessages.improvement.title.tooLong;
     }
 
-    if (description.trim().length < 10) {
-      newErrors.description = "Description must be at least 10 characters";
+    // Description validation with friendly messages and vagueness detection
+    if (description.trim().length === 0) {
+      newErrors.description = errorMessages.improvement.description.required;
+    } else if (description.trim().length < 10) {
+      newErrors.description = errorMessages.improvement.description.tooShort;
     } else if (description.trim().length > 2000) {
-      newErrors.description = "Description must be at most 2000 characters";
+      newErrors.description = errorMessages.improvement.description.tooLong;
+    } else if (isVagueDescription(description)) {
+      newErrors.description = errorMessages.improvement.description.vague;
     }
 
     setErrors(newErrors);
@@ -97,73 +138,97 @@ export function ImprovementForm({ sessionId, onSuccess }: ImprovementFormProps) 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Title Field */}
           <div>
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700">
-              Title
-            </label>
+            <div className="flex items-center gap-2">
+              <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+                Title
+              </label>
+              <HelpTooltip
+                content={helpContent["improvement-title"]?.content ?? ""}
+                title={helpContent["improvement-title"]?.title}
+                position="right"
+              />
+            </div>
             <div className="mt-1">
-              <input
+              <ValidationInput
                 id="title"
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 onBlur={validateForm}
-                className={`block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-2 ${
-                  errors.title
-                    ? "border-red-300 focus:border-red-500 focus:ring-red-500"
-                    : "border-gray-300 focus:border-[#76A99A] focus:ring-[#76A99A]"
-                }`}
                 placeholder="Brief title for the improvement"
+                error={errors.title}
+                currentLength={title.length}
+                maxLength={200}
+                showCount={true}
               />
-              <div className="mt-1 flex items-center justify-between text-xs">
-                <span className={errors.title ? "text-red-600" : "text-gray-500"}>
-                  {errors.title || " "}
-                </span>
-                <span className={`${
-                  title.length < 5 || title.length > 200 ? "text-red-600" : "text-gray-500"
-                }`}>
-                  {title.length}/200
-                </span>
-              </div>
             </div>
           </div>
 
           {/* Description Field */}
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-              Description
-            </label>
+            <div className="flex items-center gap-2">
+              <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+                Description
+              </label>
+              <HelpTooltip
+                content={helpContent["improvement-description"]?.content ?? ""}
+                title={helpContent["improvement-description"]?.title}
+                position="right"
+              />
+            </div>
             <div className="mt-1">
-              <textarea
+              <ValidationTextarea
                 id="description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                onBlur={validateForm}
+                onBlur={() => {
+                  validateForm();
+                  // Trigger AI analysis if description is long enough
+                  if (description.trim().length >= 10) {
+                    analyzeDescription.mutate({
+                      description: description.trim(),
+                      title: title.trim(),
+                      category,
+                    });
+                  }
+                }}
                 rows={6}
-                className={`block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-2 ${
-                  errors.description
-                    ? "border-red-300 focus:border-red-500 focus:ring-red-500"
-                    : "border-gray-300 focus:border-[#76A99A] focus:ring-[#76A99A]"
-                }`}
                 placeholder="Detailed description of the improvement..."
+                error={errors.description}
+                currentLength={description.length}
+                maxLength={2000}
+                showCount={true}
               />
-              <div className="mt-1 flex items-center justify-between text-xs">
-                <span className={errors.description ? "text-red-600" : "text-gray-500"}>
-                  {errors.description || " "}
-                </span>
-                <span className={`${
-                  description.length < 10 || description.length > 2000 ? "text-red-600" : "text-gray-500"
-                }`}>
-                  {description.length}/2000
-                </span>
-              </div>
             </div>
+
+            {/* Completeness Indicator */}
+            {completenessScore && (title.length > 0 || description.length > 0) && (
+              <div className="mt-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-xs font-medium text-gray-700">Input Quality</span>
+                  <HelpTooltip
+                    content={helpContent["completeness-score"]?.content ?? ""}
+                    title={helpContent["completeness-score"]?.title}
+                    position="right"
+                  />
+                </div>
+                <CompletenessIndicator score={completenessScore} showDetails={true} />
+              </div>
+            )}
           </div>
 
           {/* Category Field */}
           <div>
-            <label htmlFor="category" className="block text-sm font-medium text-gray-700">
-              Category
-            </label>
+            <div className="flex items-center gap-2">
+              <label htmlFor="category" className="block text-sm font-medium text-gray-700">
+                Category
+              </label>
+              <HelpTooltip
+                content={helpContent["improvement-category"]?.content ?? ""}
+                title={helpContent["improvement-category"]?.title}
+                position="right"
+              />
+            </div>
             <div className="mt-1">
               <select
                 id="category"

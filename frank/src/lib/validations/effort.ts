@@ -1,18 +1,21 @@
 import { z } from "zod";
+import { errorMessages } from "./error-messages";
 
 /**
  * Validation schema for setting effort on an improvement
  * Used in improvements.setEffort tRPC mutation
+ * Enhanced with custom error messages (Story 1.10)
  */
 export const setEffortSchema = z.object({
   improvementId: z.string().cuid("Invalid improvement ID format"),
   effortLevel: z.enum(["SMALL", "MEDIUM", "LARGE"], {
-    errorMap: () => ({ message: "Effort level must be Small, Medium, or Large" }),
+    errorMap: () => ({ message: errorMessages.effort.level.invalid }),
   }),
   rationale: z
     .string()
-    .min(10, "Please explain your effort estimate (at least 10 characters)")
-    .max(10000, "Rationale is too long (maximum 10000 characters)"),
+    .min(10, "Let's add a brief explanation for this effort estimate (at least 10 characters helps)")
+    .max(500, errorMessages.effort.rationale.tooLong)
+    .trim(),
 });
 
 export type SetEffortInput = z.infer<typeof setEffortSchema>;

@@ -28,15 +28,12 @@ export function OnboardingWelcome() {
 
   const handleStartOnboarding = async () => {
     if (!selectedRole) {
-      console.log("No role selected");
       return;
     }
 
-    console.log("Starting onboarding with role:", selectedRole);
     setIsStarting(true);
     try {
       const result = await startOnboarding.mutateAsync({ role: selectedRole });
-      console.log("Onboarding started successfully:", result);
       // Navigate to first onboarding step
       router.push(`/onboarding/improvement-capture?sessionId=${result.sessionId}`);
     } catch (error) {

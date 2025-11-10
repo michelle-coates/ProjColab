@@ -1,4 +1,4 @@
-# generated: November 1, 2025
+# generated: November 9, 2025
 # project: ProjColab
 # project_key: ProjColab
 # tracking_system: file-system
@@ -8,27 +8,28 @@
 # ==================
 # Epic Status:
 #   - backlog: Epic exists in epic file but not contexted
-#   - contexted: Epic tech context created by *epic-tech-context (required)
+#   - contexted: Epic tech context created (required before drafting stories)
 #
 # Story Status:
 #   - backlog: Story only exists in epic file
-#   - drafted: Story file created in stories folder by *create-story
-#   - ready-for-dev: Draft approved and story context created by *story-ready
-#   - in-progress: Developer actively working on implementation by *dev-story
-#   - review: Implementation complete, ready for review by *code-review
-#   - done: Story completed by *story-done
+#   - drafted: Story file created in stories folder
+#   - ready-for-dev: Draft approved and story context created
+#   - in-progress: Developer actively working on implementation
+#   - review: Under SM review (via code-review workflow)
+#   - done: Story completed
 #
 # Retrospective Status:
 #   - optional: Can be completed but not required
-#   - completed: Retrospective has been done by *retrospective
+#   - completed: Retrospective has been done
 #
 # WORKFLOW NOTES:
 # ===============
 # - Epics should be 'contexted' before stories can be 'drafted'
-# - SM typically drafts next story ONLY after previous one is 'done' to incorporate learnings
-# - Dev moves story to 'review', dev reviews, then Dev moves to 'done'
+# - Stories can be worked in parallel if team capacity allows
+# - SM typically drafts next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', SM reviews, then Dev moves to 'done'
 
-generated: November 1, 2025
+generated: November 9, 2025
 project: ProjColab
 project_key: ProjColab
 tracking_system: file-system
@@ -36,7 +37,7 @@ story_location: "{project-root}/docs/stories"
 
 development_status:
   # Epic 1: Foundation & Core Prioritization Engine
-  epic-1: contexted
+  epic-1: backlog
   1-1-user-account-creation-and-authentication: done
   1-2-improvement-item-capture-interface: done
   1-3-ai-powered-context-gathering: done
@@ -45,8 +46,10 @@ development_status:
   1-6-basic-data-persistence-and-session-management: done
   1-7-simple-impact-vs-effort-visualization: done
   1-8-basic-export-and-handoff: done
-  1-9-guided-onboarding-experience: review
-  1-10-input-validation-and-error-handling: backlog
+  1-9-guided-onboarding-experience: done
+  1-10-input-validation-and-error-handling: done
+  1-11-typescript-cleanup-and-type-safety: drafted
+  1-12-validation-integration-and-testing: drafted
   epic-1-retrospective: optional
 
   # Epic 2: Intelligence & Visualization Platform
