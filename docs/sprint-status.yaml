@@ -50,7 +50,17 @@ development_status:
   1-10-input-validation-and-error-handling: done
   1-11-typescript-cleanup-and-type-safety: done
   1-12-validation-integration-and-testing: done
-  epic-1-retrospective: optional
+  epic-1-retrospective: completed
+
+  # Epic 1.5: Core Workflow Bug Fixes & UX Polish
+  epic-1.5: drafted
+  1-13-fix-comparison-completion-logic: done
+  1-14-fix-matrix-data-loading: done
+  1-14.5-session-improvement-association: done
+  1-15-dashboard-ui-cleanup-and-branding: done
+  1-16-session-flow-ux-improvements: in-progress
+  1-17-onboarding-cleanup-options: drafted
+  1-18-manual-uat-protocol: drafted
 
   # Epic 2: Intelligence & Visualization Platform
   epic-2: backlog
