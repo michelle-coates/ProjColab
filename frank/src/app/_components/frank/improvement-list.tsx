@@ -5,6 +5,7 @@ import { api } from "@/trpc/react";
 import type { Category } from "@/lib/validations/improvement";
 import { ConversationInterface } from "@/components/frank/conversation-interface";
 import { EffortEstimator } from "./effort-estimator";
+import { Badge } from "@/components/ui/badge";
 
 type EffortLevel = "SMALL" | "MEDIUM" | "LARGE";
 
@@ -22,18 +23,18 @@ const CATEGORY_LABELS: Record<Category, string> = {
 };
 
 const CATEGORY_COLORS: Record<Category, string> = {
-  UI_UX: "bg-blue-100 text-blue-800",
-  DATA_QUALITY: "bg-purple-100 text-purple-800",
-  WORKFLOW: "bg-green-100 text-green-800",
-  BUG_FIX: "bg-red-100 text-red-800",
-  FEATURE: "bg-yellow-100 text-yellow-800",
-  OTHER: "bg-gray-100 text-gray-800",
+  UI_UX: "bg-[#76A99A]/20 text-[#1D1F21] border border-[#76A99A]/30",
+  DATA_QUALITY: "bg-gray-200 text-[#1D1F21] border border-gray-300",
+  WORKFLOW: "bg-[#76A99A]/20 text-[#1D1F21] border border-[#76A99A]/30",
+  BUG_FIX: "bg-gray-200 text-[#1D1F21] border border-gray-300",
+  FEATURE: "bg-[#76A99A]/20 text-[#1D1F21] border border-[#76A99A]/30",
+  OTHER: "bg-gray-200 text-[#1D1F21] border border-gray-300",
 };
 
 const EFFORT_COLORS: Record<EffortLevel, string> = {
-  SMALL: "bg-green-100 text-green-800",
-  MEDIUM: "bg-yellow-100 text-yellow-800",
-  LARGE: "bg-red-100 text-red-800",
+  SMALL: "bg-[#A8C5A0]/30 text-[#1D1F21] border border-[#A8C5A0]/40",
+  MEDIUM: "bg-[#D4C4A8]/30 text-[#1D1F21] border border-[#D4C4A8]/40",
+  LARGE: "bg-[#C5A598]/30 text-[#1D1F21] border border-[#C5A598]/40",
 };
 
 const EFFORT_LABELS: Record<EffortLevel, string> = {
@@ -198,7 +199,7 @@ export function ImprovementList({ sessionId }: ImprovementListProps) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {improvements.map((improvement: {
         id: string;
         title: string;
@@ -206,17 +207,42 @@ export function ImprovementList({ sessionId }: ImprovementListProps) {
         category: Category;
         effortLevel?: EffortLevel | null;
         effortRationale?: string | null;
+        isOnboardingSample?: boolean;
+        conversations?: Array<{
+          id: string;
+          finalInsights: unknown;
+          completedAt: Date | null;
+          status: string | null;
+          confidence: number | null;
+        }>;
         createdAt: Date;
         updatedAt: Date;
       }) => {
         const isEditing = editingId === improvement.id;
         const isExpanded = expandedIds.has(improvement.id);
 
+        // Determine if impact questions are answered
+        // Check if ANY conversation has finalInsights AND meets confidence threshold (70%)
+        const CONFIDENCE_THRESHOLD = 0.7;
+        const hasAnsweredQuestions = improvement.conversations &&
+          improvement.conversations.length > 0 &&
+          improvement.conversations.some(c =>
+            c.finalInsights !== null &&
+            (c.confidence ?? 0) >= CONFIDENCE_THRESHOLD
+          );
+
         return (
-          <div key={improvement.id} className="rounded-lg bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
+          <div
+            key={improvement.id}
+            className={`rounded-lg border transition-all ${
+              isExpanded
+                ? 'border-[#76A99A] bg-white shadow-sm'
+                : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'
+            }`}
+          >
             {isEditing ? (
-              // Edit Mode
-              <div className="space-y-4">
+              // Edit Mode - Full height
+              <div className="space-y-4 p-4">
                 <div>
                   <input
                     type="text"
@@ -266,72 +292,125 @@ export function ImprovementList({ sessionId }: ImprovementListProps) {
                 </div>
               </div>
             ) : (
-              // View Mode
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="mb-2 flex items-center gap-2">
-                    <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${CATEGORY_COLORS[improvement.category]}`}>
-                      {CATEGORY_LABELS[improvement.category]}
-                    </span>
-                    {improvement.effortLevel && (
-                      <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${EFFORT_COLORS[improvement.effortLevel]}`}>
-                        Effort: {EFFORT_LABELS[improvement.effortLevel]}
-                      </span>
-                    )}
-                  </div>
-                  <h3 className="mb-2 text-lg font-medium text-gray-900">{improvement.title}</h3>
-                  <p className="text-sm text-gray-600">
-                    {isExpanded ? improvement.description : truncateDescription(improvement.description, 150)}
-                    {improvement.description.length > 150 && (
-                      <button
-                        onClick={() => toggleExpanded(improvement.id)}
-                        className="ml-2 text-[#76A99A] hover:underline"
+              // Compact View Mode
+              <div>
+                {/* Collapsed Header - Always Visible */}
+                <button
+                  onClick={() => toggleExpanded(improvement.id)}
+                  className="w-full px-4 py-3 text-left transition-colors hover:bg-gray-50"
+                >
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex min-w-0 flex-1 items-center gap-3">
+                      {/* Expand/Collapse Icon */}
+                      <svg
+                        className={`h-5 w-5 shrink-0 text-gray-400 transition-transform ${isExpanded ? 'rotate-90' : ''}`}
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
                       >
-                        {isExpanded ? "Show less" : "Read more"}
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+
+                      {/* Title and Badges */}
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <h3 className="truncate font-medium text-gray-900">{improvement.title}</h3>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Badges - Right Side */}
+                    <div className="flex shrink-0 items-center gap-2">
+                      {/* Sample Data Badge (Story 1.17) */}
+                      {improvement.isOnboardingSample && (
+                        <Badge variant="outline" className="text-xs">
+                          Sample
+                        </Badge>
+                      )}
+                      <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${CATEGORY_COLORS[improvement.category]}`}>
+                        {CATEGORY_LABELS[improvement.category]}
+                      </span>
+                      {improvement.effortLevel && (
+                        <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${EFFORT_COLORS[improvement.effortLevel]}`}>
+                          {EFFORT_LABELS[improvement.effortLevel]}
+                        </span>
+                      )}
+                      {!improvement.effortLevel && (
+                        <span className="inline-flex rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600">
+                          No estimate
+                        </span>
+                      )}
+                      {/* Impact Question Status Badge */}
+                      {hasAnsweredQuestions ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-[#76A99A]/30 px-2.5 py-0.5 text-xs font-medium text-[#1D1F21] border border-[#76A99A]/40">
+                          <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                          <span>Answered</span>
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800 border border-amber-200">
+                          <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
+                          <span>Needs Questions</span>
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </button>
+
+                {/* Expanded Content */}
+                {isExpanded && (
+                  <div className="border-t border-gray-100 px-4 pb-4 pt-3">
+                    {/* Description */}
+                    <p className="mb-4 text-sm text-gray-600">{improvement.description}</p>
+
+                    {/* Timestamps */}
+                    <p className="mb-4 text-xs text-gray-500">
+                      Created {formatDate(improvement.createdAt)}
+                      {improvement.updatedAt.getTime() !== improvement.createdAt.getTime() && (
+                        <span> • Edited {formatDate(improvement.updatedAt)}</span>
+                      )}
+                    </p>
+
+                    {/* Action Buttons */}
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        onClick={() => setGatheringEvidenceFor({ id: improvement.id, title: improvement.title })}
+                        className="rounded-md border border-[#76A99A] bg-white px-3 py-1.5 text-sm font-medium text-[#76A99A] transition-colors hover:bg-[#76A99A] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#76A99A] focus:ring-offset-2"
+                      >
+                        Gather Evidence
                       </button>
-                    )}
-                  </p>
-                  <p className="mt-3 text-xs text-gray-500">
-                    Created {formatDate(improvement.createdAt)}
-                    {improvement.updatedAt.getTime() !== improvement.createdAt.getTime() && (
-                      <span> • Edited {formatDate(improvement.updatedAt)}</span>
-                    )}
-                  </p>
-                </div>
-                <div className="ml-4 flex gap-2">
-                  <button
-                    onClick={() => setGatheringEvidenceFor({ id: improvement.id, title: improvement.title })}
-                    className="rounded-md border border-[#76A99A] bg-white px-3 py-1 text-sm font-medium text-[#76A99A] hover:bg-[#76A99A] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#76A99A] focus:ring-offset-2"
-                  >
-                    Gather Evidence
-                  </button>
-                  <button
-                    onClick={() =>
-                      setEstimatingEffortFor({
-                        id: improvement.id,
-                        currentEffort: improvement.effortLevel && improvement.effortRationale
-                          ? { level: improvement.effortLevel, rationale: improvement.effortRationale }
-                          : undefined,
-                      })
-                    }
-                    className="rounded-md border border-[#76A99A] bg-white px-3 py-1 text-sm font-medium text-[#76A99A] hover:bg-[#76A99A] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#76A99A] focus:ring-offset-2"
-                  >
-                    {improvement.effortLevel ? "Revise Effort" : "Estimate Effort"}
-                  </button>
-                  <button
-                    onClick={() => handleEdit(improvement)}
-                    className="rounded-md border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#76A99A] focus:ring-offset-2"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(improvement.id)}
-                    disabled={deleteImprovement.isPending}
-                    className="rounded-md border border-red-300 bg-white px-3 py-1 text-sm font-medium text-red-700 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-                  >
-                    {deleteImprovement.isPending ? "..." : "Delete"}
-                  </button>
-                </div>
+                      <button
+                        onClick={() =>
+                          setEstimatingEffortFor({
+                            id: improvement.id,
+                            currentEffort: improvement.effortLevel && improvement.effortRationale
+                              ? { level: improvement.effortLevel, rationale: improvement.effortRationale }
+                              : undefined,
+                          })
+                        }
+                        className="rounded-md border border-[#76A99A] bg-white px-3 py-1.5 text-sm font-medium text-[#76A99A] transition-colors hover:bg-[#76A99A] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#76A99A] focus:ring-offset-2"
+                      >
+                        {improvement.effortLevel ? "Revise Effort" : "Estimate Effort"}
+                      </button>
+                      <button
+                        onClick={() => handleEdit(improvement)}
+                        className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#76A99A] focus:ring-offset-2"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(improvement.id)}
+                        disabled={deleteImprovement.isPending}
+                        className="rounded-md border border-red-300 bg-white px-3 py-1.5 text-sm font-medium text-red-700 transition-colors hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                      >
+                        {deleteImprovement.isPending ? "Deleting..." : "Delete"}
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>

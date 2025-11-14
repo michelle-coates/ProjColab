@@ -14,8 +14,13 @@ export default function ProfilePage() {
     role: undefined,
   });
   const [successMessage, setSuccessMessage] = useState("");
+  const [showClearDataConfirm, setShowClearDataConfirm] = useState(false);
 
   const { data: profile, isLoading } = api.auth.getProfile.useQuery(undefined, {
+    enabled: status === "authenticated",
+  });
+
+  const { data: improvements } = api.improvements.list.useQuery({}, {
     enabled: status === "authenticated",
   });
 
@@ -25,6 +30,16 @@ export default function ProfilePage() {
       setTimeout(() => setSuccessMessage(""), 3000);
     },
   });
+
+  const clearSampleDataMutation = api.onboarding.clearSampleData.useMutation({
+    onSuccess: (result) => {
+      setSuccessMessage(result.message);
+      setShowClearDataConfirm(false);
+      setTimeout(() => setSuccessMessage(""), 5000);
+    },
+  });
+
+  const sampleItemsCount = improvements?.filter(item => item.isOnboardingSample).length ?? 0;
 
   useEffect(() => {
     if (profile) {
@@ -55,6 +70,10 @@ export default function ProfilePage() {
     await signOut({ callbackUrl: "/" });
   };
 
+  const handleClearSampleData = async () => {
+    await clearSampleDataMutation.mutateAsync();
+  };
+
   if (status === "loading" || isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -71,9 +90,17 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-[#F6F7F8] px-4 py-12">
       <div className="mx-auto max-w-2xl">
-        <div className="mb-8">
-          <h1 className="text-3xl font-semibold text-[#1D1F21]">Profile Settings</h1>
-          <p className="mt-2 text-gray-600">Manage your account information</p>
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-semibold text-[#1D1F21]">Profile Settings</h1>
+            <p className="mt-2 text-gray-600">Manage your account information</p>
+          </div>
+          <button
+            onClick={() => router.push("/dashboard")}
+            className="rounded bg-[#76A99A] px-4 py-2 font-medium text-white transition-colors hover:bg-[#68927f]"
+          >
+            ← Back to Dashboard
+          </button>
         </div>
 
         <div className="rounded-lg bg-white p-8 shadow-sm">
@@ -152,12 +179,55 @@ export default function ProfilePage() {
 
           <div className="mt-8 border-t pt-8">
             <h3 className="mb-4 text-lg font-semibold text-[#1D1F21]">Account Actions</h3>
-            <button
-              onClick={handleSignOut}
-              className="rounded border border-red-300 px-6 py-2 font-medium text-red-600 transition-colors hover:bg-red-50"
-            >
-              Sign out
-            </button>
+            <div className="space-y-4">
+              {/* Clear Sample Data Section (Story 1.17) */}
+              {sampleItemsCount > 0 && (
+                <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
+                  <h4 className="mb-2 font-semibold text-amber-900">Sample Data Management</h4>
+                  <p className="mb-3 text-sm text-amber-800">
+                    You have {sampleItemsCount} sample improvement{sampleItemsCount === 1 ? "" : "s"} from the tutorial.
+                    These are labeled with a "Sample" badge.
+                  </p>
+                  {!showClearDataConfirm ? (
+                    <button
+                      onClick={() => setShowClearDataConfirm(true)}
+                      className="rounded border border-amber-600 bg-white px-4 py-2 text-sm font-medium text-amber-700 transition-colors hover:bg-amber-100"
+                    >
+                      Clear Sample Data
+                    </button>
+                  ) : (
+                    <div className="space-y-3">
+                      <p className="text-sm font-semibold text-amber-900">
+                        Are you sure? This will permanently delete all {sampleItemsCount} sample item{sampleItemsCount === 1 ? "" : "s"} and their related data.
+                      </p>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={handleClearSampleData}
+                          disabled={clearSampleDataMutation.isPending}
+                          className="rounded bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          {clearSampleDataMutation.isPending ? "Deleting..." : "Yes, Delete Sample Data"}
+                        </button>
+                        <button
+                          onClick={() => setShowClearDataConfirm(false)}
+                          disabled={clearSampleDataMutation.isPending}
+                          className="rounded border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <button
+                onClick={handleSignOut}
+                className="rounded border border-red-300 px-6 py-2 font-medium text-red-600 transition-colors hover:bg-red-50"
+              >
+                Sign out
+              </button>
+            </div>
           </div>
         </div>
 

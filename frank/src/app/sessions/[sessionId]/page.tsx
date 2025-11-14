@@ -103,7 +103,7 @@ export default function SessionPage() {
           {/* Matrix Controls */}
           <div className="lg:col-span-1">
             <MatrixControls
-              improvements={improvements ?? []}
+              improvements={(improvements ?? []) as any}
               onReset={() => {
                 void refetch();
               }}
@@ -114,7 +114,7 @@ export default function SessionPage() {
           <div className="lg:col-span-3">
             <div className="bg-white p-6 rounded-lg shadow-sm">
               <ImpactEffortMatrix
-                improvements={improvements ?? []}
+                improvements={(improvements ?? []) as any}
                 onPositionUpdate={handlePositionUpdate}
               />
             </div>

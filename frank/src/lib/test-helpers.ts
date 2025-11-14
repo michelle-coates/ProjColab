@@ -39,6 +39,7 @@ export function createMockImprovementItem(
     effortRationale: null,
     effortEstimatedAt: null,
     effortRevisedAt: null,
+    isOnboardingSample: false, // Story 1.17: Default to false for test data
     createdAt: baseDate,
     updatedAt: baseDate,
     ...overrides,

@@ -1,0 +1,320 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>17</storyId>
+    <title>Onboarding Cleanup Options</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-14</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/stories/1-17-onboarding-cleanup-options.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>user completing Frank's onboarding</asA>
+    <iWant>the option to start with a clean workspace or keep the sample data</iWant>
+    <soThat>I can choose whether tutorial examples help or clutter my workspace</soThat>
+    <tasks>
+- Task 1: Add Onboarding Completion Choice
+  - Create final onboarding step: "Ready to Start?"
+  - Show two options with clear descriptions
+  - Add visual preview of what each option means
+  - Handle user choice and route accordingly
+
+- Task 2: Implement "Start Fresh" Logic
+  - Create API endpoint to delete sample data
+  - Query for items created during onboarding (by date range or tag)
+  - Delete associated DecisionRecords, EvidenceEntries, AIConversations
+  - Delete sample ImprovementItems
+  - Mark onboarding as complete with fresh start
+  - Redirect to clean dashboard
+
+- Task 3: Tag Sample Data
+  - Add `isOnboardingSample: boolean` field to ImprovementItem model
+  - Tag all onboarding-created items with this flag
+  - Update onboarding data creation to set flag
+  - Use flag for cleanup queries
+  - Display indicator on sample items in UI
+
+- Task 4: Add "Clear Sample Data" to Settings
+  - Create settings page (if doesn't exist)
+  - Add "Data Management" section
+  - Add "Clear Sample Data" button with confirmation
+  - Execute same cleanup logic as "Start Fresh"
+
+- Task 5: Update Onboarding UI
+  - Add final completion screen
+  - Improve messaging about choice
+  - Add helpful tips about clearing sample data later
+
+- Task 6: Testing
+  - Test "Start Fresh" deletes all sample data
+  - Test "Keep Samples" preserves sample data
+  - Test "Clear Sample Data" button in settings
+  - Verify no orphaned records
+  - Ensure real user data never deleted
+
+- Task 7: Manual UAT
+  - Complete onboarding scenarios
+  - Verify sample items clearly labeled in UI
+</tasks>
+  </story>
+
+  <acceptanceCriteria>
+1. At end of onboarding, user presented with choice: "Start Fresh" or "Keep Sample Data"
+2. "Start Fresh" option clears all sample improvements, decisions, and evidence
+3. "Keep Sample Data" option leaves tutorial data intact for continued exploration
+4. "Clear Sample Data" button available in settings for users who kept sample data
+5. Sample data clearly labeled/tagged so users know what's deletable
+</acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/PRD.md</path>
+        <title>Frank Product Requirements Document</title>
+        <section>Functional Requirements - Enhanced User Experience</section>
+        <snippet>FR024: System shall provide guided onboarding workflow achieving user productivity within 15 minutes. FR025: System shall use intelligent clustering to reduce pairwise comparison overhead for large item sets.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Frank Architecture Document</title>
+        <section>Database Architecture - Core Data Models</section>
+        <snippet>ImprovementItem model includes: id, title, description, category, evidence, effortLevel, and various comparison/ranking fields. User model includes: onboardingCompleted, onboardingRole, onboardingProgress fields for tracking onboarding state.</snippet>
+      </doc>
+      <doc>
+        <path>docs/stories/1-9-guided-onboarding-experience.md</path>
+        <title>Story 1.9: Guided Onboarding Experience</title>
+        <section>Overview</section>
+        <snippet>Interactive onboarding flow with sample data and guided actions completing in &lt;15 minutes. Role-specific onboarding paths (Solo PM, Team Lead, Founder) with relevant examples. Current implementation creates sample improvements during onboarding via startOnboarding mutation.</snippet>
+      </doc>
+      <doc>
+        <path>docs/retrospectives/epic-1-retro-2025-11-10.md</path>
+        <title>Epic 1 Retrospective</title>
+        <section>User Feedback - Onboarding Cleanup</section>
+        <snippet>User feedback: "I noticed with the onboarding that there should be an option of whether to start with the test data or a clean slate as it copies all of the features over." Users complete onboarding and find workspace cluttered with sample improvements they don't need.</snippet>
+      </doc>
+      <doc>
+        <path>docs/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>Data Models and Contracts</section>
+        <snippet>User model, ImprovementItem model with evidence entries, DecisionRecord for pairwise comparisons. PrioritizationSession tracks isOnboarding flag to identify sample data sessions.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>frank/prisma/schema.prisma</path>
+        <kind>database-schema</kind>
+        <symbol>ImprovementItem</symbol>
+        <lines>135-171</lines>
+        <reason>Core model that needs isOnboardingSample boolean field added. Currently has userId, sessionId, title, description, category, effortLevel, evidence relations, and decision relations.</reason>
+      </artifact>
+      <artifact>
+        <path>frank/prisma/schema.prisma</path>
+        <kind>database-schema</kind>
+        <symbol>PrioritizationSession</symbol>
+        <lines>115-133</lines>
+        <reason>Session model has isOnboarding flag to identify onboarding sessions. Related to ImprovementItem via sessionId. Used for grouping sample data.</reason>
+      </artifact>
+      <artifact>
+        <path>frank/prisma/schema.prisma</path>
+        <kind>database-schema</kind>
+        <symbol>DecisionRecord</symbol>
+        <lines>220-247</lines>
+        <reason>Pairwise comparison decisions that reference ImprovementItems. Must be deleted when clearing sample improvements (foreign key constraints).</reason>
+      </artifact>
+      <artifact>
+        <path>frank/prisma/schema.prisma</path>
+        <kind>database-schema</kind>
+        <symbol>EvidenceEntry</symbol>
+        <lines>173-183</lines>
+        <reason>Evidence attached to improvements. Must be deleted when clearing sample improvements (foreign key constraints).</reason>
+      </artifact>
+      <artifact>
+        <path>frank/prisma/schema.prisma</path>
+        <kind>database-schema</kind>
+        <symbol>AIConversation</symbol>
+        <lines>185-206</lines>
+        <reason>AI conversation history linked to improvements. Must be deleted when clearing sample improvements (foreign key constraints).</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/server/api/routers/onboarding.ts</path>
+        <kind>api-router</kind>
+        <symbol>onboardingRouter</symbol>
+        <lines>23-332</lines>
+        <reason>Existing onboarding router with startOnboarding, completeOnboarding, skipOnboarding procedures. Creates sample data during onboarding. Need to add clearSampleData procedure here.</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/server/api/routers/onboarding.ts</path>
+        <kind>api-router</kind>
+        <symbol>startOnboarding</symbol>
+        <lines>57-187</lines>
+        <reason>Creates sample improvements during onboarding. Currently doesn't tag items as isOnboardingSample - needs modification to set this flag.</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/server/api/routers/onboarding.ts</path>
+        <kind>api-router</kind>
+        <symbol>completeOnboarding</symbol>
+        <lines>235-261</lines>
+        <reason>Currently deletes entire onboarding session. May need adjustment if user chooses to keep sample data - should only mark onboarding complete without deletion.</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/components/frank/onboarding/onboarding-welcome.tsx</path>
+        <kind>component</kind>
+        <symbol>OnboardingWelcome</symbol>
+        <lines>20-158</lines>
+        <reason>Initial onboarding screen with role selection. Need to add final completion choice screen here or create new completion component.</reason>
+      </artifact>
+      <artifact>
+        <path>frank/src/app/profile/page.tsx</path>
+        <kind>page</kind>
+        <symbol>ProfilePage</symbol>
+        <lines>1-199</lines>
+        <reason>Existing settings/profile page. Need to add "Clear Sample Data" section here under Account Actions (currently has sign out button).</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <node>
+        <package name="@prisma/client" version="^6.5.0">Database ORM - type-safe queries for sample data deletion</package>
+        <package name="@trpc/server" version="^11.0.0">Type-safe API layer for clearSampleData endpoint</package>
+        <package name="@trpc/react-query" version="^11.0.0">React hooks for calling cleanup mutations</package>
+        <package name="zod" version="^3.25.76">Schema validation for API inputs</package>
+        <package name="next" version="^15.2.3">Next.js framework with App Router</package>
+        <package name="react" version="^19.0.0">React for UI components</package>
+        <package name="lucide-react" version="^0.552.0">Icons for UI (cleanup, settings)</package>
+        <package name="next-auth" version="5.0.0-beta.25">Authentication context for protected procedures</package>
+      </node>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>Database Migration Required: Must add isOnboardingSample boolean field to ImprovementItem model in Prisma schema. Migration must be created and applied before implementation.</constraint>
+    <constraint>Foreign Key Constraints: Must delete related records in correct order (DecisionRecords → EvidenceEntries → AIConversations → ImprovementItems) to avoid foreign key violations.</constraint>
+    <constraint>Safety First: Cleanup logic must ONLY delete items where isOnboardingSample=true. Must never accidentally delete real user data.</constraint>
+    <constraint>User Ownership: All deletion queries must include userId filter to ensure users can only delete their own sample data.</constraint>
+    <constraint>Backward Compatibility: Existing onboarding sessions don't have isOnboardingSample flag. Must handle migration gracefully - can use isOnboarding flag on PrioritizationSession as fallback identifier.</constraint>
+    <constraint>Transaction Safety: Sample data deletion should use Prisma transactions to ensure all-or-nothing cleanup (prevent orphaned records).</constraint>
+    <constraint>UI Consistency: Sample data badges must use existing Badge component with "outline" variant to match Frank's subtle branding (sage green #76A99A).</constraint>
+    <constraint>Confirmation Required: "Clear Sample Data" in settings must require explicit confirmation dialog before deletion (prevent accidental data loss).</constraint>
+    <constraint>Testing Pattern: Follow existing test patterns in frank/src/app/_components/frank/__tests__/ for component tests. Use vitest for unit tests.</constraint>
+    <constraint>Architecture Pattern: Use tRPC protectedProcedure for all API endpoints. Follow existing onboarding router patterns for consistency.</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>clearSampleData</name>
+      <kind>tRPC mutation</kind>
+      <signature>
+clearSampleData: protectedProcedure
+  .mutation(async ({ ctx }) => {
+    // Returns: { success: true, deletedCount: number }
+  })
+      </signature>
+      <path>frank/src/server/api/routers/onboarding.ts</path>
+    </interface>
+
+    <interface>
+      <name>ImprovementItem.isOnboardingSample</name>
+      <kind>Prisma model field</kind>
+      <signature>isOnboardingSample Boolean @default(false)</signature>
+      <path>frank/prisma/schema.prisma</path>
+    </interface>
+
+    <interface>
+      <name>Badge Component</name>
+      <kind>UI component</kind>
+      <signature>&lt;Badge variant="outline" className="text-xs">Sample&lt;/Badge></signature>
+      <path>frank/src/components/ui/badge.tsx</path>
+    </interface>
+
+    <interface>
+      <name>Dialog Component</name>
+      <kind>UI component</kind>
+      <signature>&lt;Dialog>, &lt;DialogContent>, &lt;DialogHeader>, &lt;DialogTitle>, &lt;DialogDescription>, &lt;DialogFooter></signature>
+      <path>frank/src/components/ui/dialog.tsx</path>
+    </interface>
+
+    <interface>
+      <name>api.improvements.list</name>
+      <kind>tRPC query</kind>
+      <signature>Returns array of ImprovementItem with userId, sessionId, title, description, category, effortLevel, etc.</signature>
+      <path>frank/src/server/api/routers/improvements.ts</path>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+Frank uses Vitest for unit and component testing with @testing-library/react for component tests. Test files located in __tests__ directories adjacent to source files. Existing test coverage: 152 tests passing (Stories 1.1-1.12). Follow patterns from frank/src/app/_components/frank/__tests__/ for component tests. Use api.useUtils() for query invalidation after mutations. Test database operations with proper cleanup and isolation.
+    </standards>
+
+    <locations>
+- frank/src/server/api/routers/__tests__/ - API router tests
+- frank/src/app/_components/frank/__tests__/ - Component tests
+- frank/src/components/visualization/__tests__/ - Visualization component tests
+- Test commands: npm run test (unit), npm run test:watch (watch mode), npm run test:e2e (Playwright)
+    </locations>
+
+    <ideas>
+      <test ac="AC1,AC2" priority="high">
+Test onboarding completion choice flow:
+- User completes onboarding and sees "Start Fresh" vs "Keep Sample Data" choice
+- Selecting "Start Fresh" calls clearSampleData mutation
+- Verify all sample items (isOnboardingSample=true) are deleted
+- Verify real user data (isOnboardingSample=false) is NOT deleted
+- Verify onboardingCompleted flag set to true
+- Verify redirect to dashboard with clean state
+      </test>
+
+      <test ac="AC3" priority="high">
+Test "Keep Sample Data" flow:
+- User selects "Keep Sample Data" at onboarding completion
+- Verify sample items remain in database
+- Verify onboardingCompleted flag set to true
+- Verify user can access dashboard with sample items visible
+- Verify sample items show "Sample" badge in UI
+      </test>
+
+      <test ac="AC4" priority="high">
+Test "Clear Sample Data" button in settings:
+- Navigate to profile/settings page
+- Verify "Clear Sample Data" button visible only if sample data exists
+- Click button shows confirmation dialog
+- Confirm deletion executes clearSampleData mutation
+- Verify sample data count displayed before deletion
+- Verify success message after deletion
+      </test>
+
+      <test ac="AC2" priority="critical">
+Test sample data cleanup safety:
+- Create mix of sample items (isOnboardingSample=true) and real items (isOnboardingSample=false)
+- Execute clearSampleData
+- Assert ONLY items with isOnboardingSample=true are deleted
+- Assert real user items remain untouched
+- Verify no orphaned DecisionRecords, EvidenceEntries, or AIConversations
+      </test>
+
+      <test ac="AC5" priority="medium">
+Test sample data badge display:
+- Query improvements list after keeping sample data
+- Verify items with isOnboardingSample=true show "Sample" badge
+- Verify badge uses correct styling (outline variant)
+- Verify items with isOnboardingSample=false do NOT show badge
+      </test>
+
+      <test priority="medium">
+Test database migration:
+- Verify isOnboardingSample field added to ImprovementItem model
+- Verify default value is false for existing items
+- Verify new onboarding items created with isOnboardingSample=true
+- Test backward compatibility with existing onboarding sessions
+      </test>
+
+      <test priority="medium">
+Test foreign key constraint handling:
+- Create sample item with evidence, decisions, and conversations
+- Execute clearSampleData
+- Verify deletion order prevents foreign key violations
+- Verify no orphaned records in any related tables
+      </test>
+    </ideas>
+  </tests>
+</story-context>

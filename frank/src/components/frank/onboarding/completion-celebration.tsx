@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { PartyPopper, Sparkles, ArrowRight } from "lucide-react";
+import { PartyPopper, Sparkles, ArrowRight, Trash2, BookOpen } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,19 +11,32 @@ import { useRouter } from "next/navigation";
 export function CompletionCelebration() {
   const router = useRouter();
   const [isCompleting, setIsCompleting] = useState(false);
+  const [showDataChoice, setShowDataChoice] = useState(false);
 
-  const completeOnboarding = api.onboarding.completeOnboarding.useMutation();
+  const utils = api.useUtils();
+  const completeOnboarding = api.onboarding.completeOnboarding.useMutation({
+    onSuccess: async () => {
+      // Invalidate onboarding status to prevent redirect loop
+      await utils.onboarding.getStatus.invalidate();
+    },
+  });
 
-  const handleComplete = async () => {
+  const handleDataChoice = async (keepSampleData: boolean) => {
     setIsCompleting(true);
     try {
-      await completeOnboarding.mutateAsync();
+      await completeOnboarding.mutateAsync({ keepSampleData });
+      // Small delay to ensure cache invalidation completes
+      await new Promise(resolve => setTimeout(resolve, 100));
       // Navigate to main dashboard
       router.push("/dashboard");
     } catch (error) {
       console.error("Failed to complete onboarding:", error);
       setIsCompleting(false);
     }
+  };
+
+  const handleContinue = () => {
+    setShowDataChoice(true);
   };
 
   const achievements = [
@@ -113,16 +126,71 @@ export function CompletionCelebration() {
           </CardContent>
         </Card>
 
-        {/* CTA */}
-        <div className="flex justify-center">
-          <Button onClick={handleComplete} size="lg" disabled={isCompleting}>
-            {isCompleting ? "Completing..." : "Go to Dashboard"}
-          </Button>
-        </div>
+        {/* Data Choice or CTA */}
+        {!showDataChoice ? (
+          <>
+            <div className="flex justify-center">
+              <Button onClick={handleContinue} size="lg">
+                Continue
+              </Button>
+            </div>
+            <p className="text-center text-sm text-muted-foreground">
+              Ready to make better prioritization decisions with confidence!
+            </p>
+          </>
+        ) : (
+          <Card className="border-2">
+            <CardHeader>
+              <CardTitle>One Last Thing...</CardTitle>
+              <CardDescription>
+                What would you like to do with the tutorial examples?
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                {/* Start Fresh Option */}
+                <button
+                  onClick={() => handleDataChoice(false)}
+                  disabled={isCompleting}
+                  className="flex flex-col items-start gap-3 rounded-lg border-2 border-gray-200 p-4 text-left transition-all hover:border-[#76A99A] hover:bg-[#76A99A]/5 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <div className="flex items-center gap-2">
+                    <Trash2 className="h-6 w-6 text-[#76A99A]" />
+                    <h3 className="text-lg font-semibold">Start Fresh</h3>
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    Clear sample data and begin with a clean workspace
+                  </p>
+                  <Badge variant="outline" className="text-xs">
+                    Recommended for real work
+                  </Badge>
+                </button>
 
-        <p className="text-center text-sm text-muted-foreground">
-          Ready to make better prioritization decisions with confidence!
-        </p>
+                {/* Keep Samples Option */}
+                <button
+                  onClick={() => handleDataChoice(true)}
+                  disabled={isCompleting}
+                  className="flex flex-col items-start gap-3 rounded-lg border-2 border-gray-200 p-4 text-left transition-all hover:border-[#76A99A] hover:bg-[#76A99A]/5 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <div className="flex items-center gap-2">
+                    <BookOpen className="h-6 w-6 text-[#76A99A]" />
+                    <h3 className="text-lg font-semibold">Keep Samples</h3>
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    Continue exploring with tutorial examples
+                  </p>
+                  <Badge variant="outline" className="text-xs">
+                    Can delete later in Settings
+                  </Badge>
+                </button>
+              </div>
+
+              <p className="text-center text-xs text-gray-500">
+                {isCompleting ? "Processing..." : "Sample items will be clearly labeled so you know what's safe to delete"}
+              </p>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );

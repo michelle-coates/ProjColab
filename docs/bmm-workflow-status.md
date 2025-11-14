@@ -12,7 +12,7 @@ WORKFLOW_PATH: greenfield-level-3.yaml
 ## Current State
 
 CURRENT_PHASE: 4
-CURRENT_WORKFLOW: Story 1.10 - Input Validation and Error Handling (Complete)
+CURRENT_WORKFLOW: Epic 1.5 - Core Workflow Bug Fixes & UX Polish (Drafted)
 CURRENT_AGENT: dev
 PHASE_1_COMPLETE: true
 PHASE_2_COMPLETE: true
@@ -165,12 +165,66 @@ PHASE_4_COMPLETE: false
   - Tasks 5-7 (E2E tests, broader integration, unit tests) deferred to Story 1.12
   - Status: done ✅
 
+- ✅ **Story 1.11 Complete**: TypeScript Cleanup and Type Safety
+  - TypeScript strict mode enabled and errors resolved
+  - Type safety improvements across the codebase
+  - Status: done ✅
+
+- ✅ **Story 1.12 Complete**: Validation Integration and Testing
+  - Validation integration completed
+  - Comprehensive testing implemented
+  - E2E tests, broader integration, and unit tests from Story 1.10 completed
+  - Status: done ✅
+
+## Epic 1 Status: COMPLETE ✅
+All 12 stories in Epic 1 (Foundation & Core Prioritization Engine) have been successfully completed.
+
+## Epic 1.5 Status
+
+**Epic 1.5: Core Workflow Bug Fixes & UX Polish** - IN PROGRESS
+
+Story Status:
+- ✅ **Story 1.13 Complete**: Fix Comparison Completion Logic (CRITICAL) - DONE
+- ✅ **Story 1.14 Complete**: Fix Matrix Data Loading (CRITICAL) - DONE
+- ✅ **Story 1.14.5 Complete**: Session-Improvement Association - DONE
+- ✅ **Story 1.15 Complete**: Dashboard UI Cleanup and Branding (HIGH) - DONE
+- ✅ **Story 1.16 Complete**: Session Flow UX Improvements (HIGH) - DONE
+  - Progress indicator showing 5 workflow stages
+  - "What's Next?" contextual guidance component
+  - Matrix prerequisites checklist with real-time updates
+  - Session concept explainer with user-friendly language
+  - Breadcrumb navigation across all pages
+  - Improved empty states with specific counts and actions
+  - **Task 9 Complete**: Item-level status indicators (Answered/Needs Questions badges)
+  - **Task 10 Complete**: UAT validation successful - 3 critical issues resolved
+  - All 235 tests passing (9 new tests for status badges)
+  - TypeScript compilation clean
+  - UAT confirmed: Workflow clarity improved, confusion reduced
+  - Files: 5 new components, sessions router, dashboard, matrix page, tests, conversation API fix
+- Story 1.17: Onboarding Cleanup Options (MEDIUM) - DRAFTED
+- Story 1.18: Manual UAT Protocol (HIGH) - DRAFTED
+
 ## Next Action
 
-NEXT_ACTION: Begin Story 1.11 (TypeScript Cleanup and Type Safety) or Story 1.12 (Validation Integration and Testing)
-NEXT_AGENT: dev or sm
-IMPLEMENTATION_STATUS: Stories 1.1-1.10 DONE ✅ - Epic 1 nearing completion (2 stories remaining)
+NEXT_ACTION: Decide on Story 1.17 (Onboarding Cleanup) or proceed to Story 1.18 (Manual UAT Protocol)
+NEXT_COMMAND: Review backlog and determine next story priority
+NEXT_AGENT: pm or dev
+IMPLEMENTATION_STATUS: Epic 1.5 NEARLY COMPLETE - 5 of 6 stories done, Story 1.16 UAT complete
+
+**Recommended Next Steps:**
+1. **Decide on Story 1.17** (Onboarding Cleanup Options) - Optional polish vs move forward
+2. **Execute Story 1.18** (Manual UAT Protocol) - Full end-to-end workflow testing
+3. **Epic 1.5 Retrospective** - Capture lessons learned from bug fixes and UX improvements
+4. **Begin Epic 2** - Consider next major feature set
+
+**Progress:**
+- 5 of 6 stories complete (Story 1.16 UAT finished with 3 critical fixes)
+- All CRITICAL blockers resolved
+- Core workflow functional with enhanced UX
+- Session flow confusion eliminated with progressive guidance and status indicators
+- Item-level visibility gap closed with quality-aware badges
+- 1 story remaining (1.17 optional, 1.18 recommended)
 
 ---
 
-_Last Updated: 2025-11-09 by code-review workflow - Story 1.10 completed and approved: Input Validation and Error Handling_
+_Last Updated: 2025-11-14 by dev-story workflow - Story 1.16 UAT complete with 3 critical fixes applied_
